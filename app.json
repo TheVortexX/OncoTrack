@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "OncoTrack",
+    "slug": "OncoTrack",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/ios.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "jsEngine": "hermes",
+    "ios": {
+      "supportsTablet": true,
+      "newArchEnabled": true
+    },
+    "android": {
+      "newArchEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#e0fbfc"
+      },
+      "package": "com.anonymous.OncoTrack"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#E0FBFC",
+          "image": "./assets/images/logo_trans_default.png",
+          "dark": {
+            "image": "./assets/images/logo_trans_default.png",
+            "backgroundColor": "#3D5A80"
+          },
+          "imageWidth": 200
+        }
+      ],
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow OncoTrack to use Face ID to log in."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
