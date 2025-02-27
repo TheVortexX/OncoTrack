@@ -1,15 +1,16 @@
-import React from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { Image, StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { useStorage } from '../../hooks/useStorage';
+import  useBiometrics  from '../../hooks/useBiometrics';
 
 const { width, height } = Dimensions.get('window');
 
 const authIndex = () => {
   const router = useRouter();
   const [ hasLoggedIn ] = useStorage('hasLoggedInBefore', false);
-  
+  const { isLoading, attemptBiometricLogin } = useBiometrics();
 
   const sendToRegister = () => {
     router.push('/(auth)/register');
@@ -19,33 +20,44 @@ const authIndex = () => {
     router.push('/(auth)/login');
   };
 
+  const loginPress = () => {
+    attemptBiometricLogin(true);
+  }
+  
   return (
-      <View style={styles.container}>
-        <Image 
-          source={require('../../assets/images/logo_trans_default.png')}
-          style={styles.logo}
-          resizeMode='contain'
-        />
+    <View style={styles.container}>
+      <Image 
+        source={require('../../assets/images/logo_trans_default.png')}
+        style={styles.logo}
+        resizeMode='contain'
+      />
+      {isLoading ? (
+        <View style={styles.content}>
+            <ActivityIndicator size='large' color={theme.colours.blue50} />
+        </View>
+      ) : (
+      <>
         <View style={styles.content}>
           <Text style={styles.welcomeText}>
             {hasLoggedIn ? 'Welcome back' : 'Welcome'}
           </Text>
         </View>
         <View style={styles.bottomContent}>
-          {hasLoggedIn ? (
-            <TouchableOpacity style={styles.button} onPress={sendToLogin}>
-              <Text style={styles.buttonText}>Log in</Text>
-            </TouchableOpacity>
-          
-          ) : (<>
-            <TouchableOpacity style={styles.button} onPress={sendToRegister}>
-              <Text style={styles.buttonText}>Register</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={sendToLogin}>
-              <Text style={styles.linkText}>Already have an account?</Text>
-            </TouchableOpacity>
-          </>)}
-      </View>
+        {hasLoggedIn ? (
+          <TouchableOpacity style={styles.button} onPress={loginPress}>
+            <Text style={styles.buttonText}>Log in</Text>
+          </TouchableOpacity>
+        
+        ) : (<>
+          <TouchableOpacity style={styles.button} onPress={sendToRegister}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={sendToLogin}>
+            <Text style={styles.linkText}>Already have an account?</Text>
+          </TouchableOpacity>
+        </>)}
+        </View>
+      </>)}
     </View>
   )
 }
@@ -101,4 +113,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default authIndex;
+export default authIndex; 
