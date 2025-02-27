@@ -6,6 +6,7 @@ type AuthContextType = {
     user: { token: string} | null;
     loading: boolean;
     setToken: (token: string) => Promise<void>;
+    autenticateToken: (token: string) => Promise<boolean>;
     signOut: () => Promise<void>;
 };
 
@@ -18,20 +19,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     const publicRoutes = ['/_sitemap'];
-
-    useEffect(() => { 
-        const checkAuth = async () => {
-            try {
-                const userToken = await SecureStore.getItemAsync('userToken');
-                setUser(userToken ? { token: userToken } : null);
-            } catch (error) {
-                console.error('Error checking user authentication: ', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        checkAuth();
-    }, []);
 
     useEffect(() => {
         if (loading) return;
@@ -51,13 +38,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({ token });
     };
 
+    const autenticateToken = async (token: string) => {
+        try {
+            const response = await fetch('https://api.example.com/authenticate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUser({ token });
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error authenticating token: ', error);
+            return false;
+        }
+    }
+
     const signOut = async () => {
         await SecureStore.deleteItemAsync('userToken');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, setToken, signOut }}>
+        <AuthContext.Provider value={{ user, loading, setToken, autenticateToken, signOut }}>
             {children}
         </AuthContext.Provider>
     );
