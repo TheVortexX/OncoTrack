@@ -10,7 +10,9 @@
     "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
-      "newArchEnabled": true
+      "newArchEnabled": true,
+      "bundleIdentifier": "com.benmc.oncotrack",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "newArchEnabled": true,
@@ -18,7 +20,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#e0fbfc"
       },
-      "package": "com.anonymous.OncoTrack"
+      "googleServicesFile:": "./google-services.json",
+      "package": "com.benmc.oncotrack"
     },
     "web": {
       "bundler": "metro",
@@ -27,6 +30,9 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
       [
         "expo-splash-screen",
         {
