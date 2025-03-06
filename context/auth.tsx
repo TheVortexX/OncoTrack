@@ -6,7 +6,7 @@ type AuthContextType = {
     user: { token: string} | null;
     loading: boolean;
     setToken: (token: string) => Promise<void>;
-    autenticateToken: (token: string) => Promise<boolean>;
+    authenticateToken: (token: string) => Promise<boolean>;
     signOut: () => Promise<void>;
 };
 
@@ -14,7 +14,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<{ token: string } | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const segments = useSegments();
     const router = useRouter();
 
@@ -38,7 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({ token });
     };
 
-    const autenticateToken = async (token: string) => {
+    const authenticateToken = async (token: string) => {
+        setLoading(true);
         try {
             const response = await fetch('https://api.example.com/authenticate', {
                 method: 'POST',
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, setToken, autenticateToken, signOut }}>
+        <AuthContext.Provider value={{ user, loading, setToken, authenticateToken, signOut }}>
             {children}
         </AuthContext.Provider>
     );
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === null) {
-        throw new Error('useAuth must be used within an AuthProvider');
+        throw new Error('useAuth must be used within AuthProvider');
     }
     return context;
 }
