@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import InputField from '../../components/InputField';
 import CheckBox from 'expo-checkbox';
+import { Octicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,6 +19,12 @@ const RegistrationScreen = () => {
     const [privacyChecked, setPrivacyChecked] = useState(false);
     const { loading, authenticateToken } = useAuth();
 
+    // Password validation states
+    const [passLen, setPassLen] = useState(false);
+    const [passUpper, setPassUpper] = useState(false);
+    const [passLower, setPassLower] = useState(false);
+    const [passNum, setPassNum] = useState(false);
+
     const router = useRouter();
 
     const doRegister = async () => {
@@ -27,6 +34,8 @@ const RegistrationScreen = () => {
         if (validate.passMatch(confPassword)) {Alert.alert(validate.passMatch(confPassword)); return;}
         if (validate.notEmptyTextOnly(fName)) {Alert.alert(validate.notEmptyTextOnly(fName)); return;}
         if (validate.notEmptyTextOnly(lName)) {Alert.alert(validate.notEmptyTextOnly(lName)); return;}
+        if (!tosChecked) {Alert.alert('Please agree to the Terms of Service'); return;}
+        if (!privacyChecked) {Alert.alert('Please agree to the Privacy Policy'); return;}
     };
 
     const validate = {
@@ -37,12 +46,52 @@ const RegistrationScreen = () => {
             return '';
         },
 
+        passPart: {
+            length: (value: string) => {
+                if (value.length < 8) {
+                    setPassLen(false);
+                    return 'Password must be at least 8 characters';
+                } else {
+                    setPassLen(true);
+                    return '';
+                }
+            },
+            upper: (value: string) => {
+                if (!/[A-Z]/.test(value)) {
+                    setPassUpper(false);
+                    return 'Password must contain at least one upper case character';
+                } else {
+                    setPassUpper(true);
+                    return '';
+                }
+            },
+            lower: (value: string) => {
+                if (!/[a-z]/.test(value)) {
+                    setPassLower(false);
+                    return 'Password must contain at least one lower case character';
+                } else {
+                    setPassLower(true);
+                    return '';
+                }
+            },
+            number: (value: string) => {
+                if (!/[0-9]/.test(value)) {
+                    setPassNum(false);
+                    return 'Password must contain at least one number';
+                } else {
+                    setPassNum(true);
+                    return '';
+                }
+            },
+        },
+
         password: (value: string) => {
             if (!value) return 'Password is required';
-            if (value.length < 8) return 'Password must be at least 8 characters';
-            if (!/[A-Z]/.test(value)) return 'Password must contain at least one upper case character';
-            if (!/[a-z]/.test(value)) return 'Password must contain at least one lower case character';
-            if (!/[0-9]/.test(value)) return 'Password must contain at least one number';
+            if (validate.passPart.length(value)) return validate.passPart.length(value);
+            if (validate.passPart.upper(value)) return validate.passPart.upper(value);
+            if (validate.passPart.lower(value)) return validate.passPart.lower(value);
+            if (validate.passPart.number(value)) return validate.passPart.number(value);
+
             return '';
         },
 
@@ -67,6 +116,14 @@ const RegistrationScreen = () => {
     const toPrivacy = () => {
         Alert.alert('Privacy Policy', 'This is where the privacy policy would be displayed');
     }
+
+    const updatePass = (value: string) => {
+        setPassword(value);
+        validate.passPart.length(value);
+        validate.passPart.upper(value);
+        validate.passPart.lower(value);
+        validate.passPart.number(value);
+    };
 
 
     return (
@@ -134,7 +191,7 @@ const RegistrationScreen = () => {
                         label='Password'
                         value={password}
                         placeholder='Type password'
-                        onChangeText={setPassword}
+                        onChangeText={updatePass}
                         secureTextEntry
                         validateOnBlur
                         autoComplete='new-password'
@@ -147,6 +204,59 @@ const RegistrationScreen = () => {
                             errorInput: styles.errorInput,
                         }}
                     />
+                    <View style={{ marginBottom: 30, marginLeft: -20 }}>
+                        <Text style={styles.passwordHint}>
+                            Your password must:
+                        </Text>
+
+                        <View style={styles.passwordRequirementRow}>
+                            <Octicons
+                                name={passLen ? "check" : "dot-fill"}
+                                size={20}
+                                color={passLen ? theme.colours.black : theme.colours.primary}
+                            />
+                            <Text style={[
+                                styles.passwordHintList,
+                                !passLen && { color: theme.colours.primary }
+                            ]}>Be at least 8 characters long</Text>
+                        </View>
+
+                        <View style={styles.passwordRequirementRow}>
+                            <Octicons
+                                name={passUpper ? "check" : "dot-fill"}
+                                size={20}
+                                color={passUpper ? theme.colours.black : theme.colours.primary}
+                            />
+                            <Text style={[
+                                styles.passwordHintList,
+                                !passUpper && { color: theme.colours.primary }
+                            ]}>Contain at least one upper case letter</Text>
+                        </View>
+
+                        <View style={styles.passwordRequirementRow}>
+                            <Octicons
+                                name={passLower ? "check" : "dot-fill"}
+                                size={20}
+                                color={passLower ? theme.colours.black : theme.colours.primary}
+                            />
+                            <Text style={[
+                                styles.passwordHintList,
+                                !passLower && { color: theme.colours.primary }
+                            ]}>Contain at least one lower case letter</Text>
+                        </View>
+
+                        <View style={styles.passwordRequirementRow}>
+                            <Octicons
+                                name={passNum ? "check" : "dot-fill"}
+                                size={20}
+                                color={passNum ? theme.colours.black : theme.colours.primary}
+                            />
+                            <Text style={[
+                                styles.passwordHintList,
+                                !passNum && { color: theme.colours.primary }
+                            ]}>Contain at least one number</Text>
+                        </View>
+                    </View>
                     <InputField
                         label='Confirm password'
                         value={confPassword}
@@ -314,6 +424,21 @@ const styles = StyleSheet.create({
     checkboxText: {
         fontSize: 20,
         fontFamily: theme.fonts.openSans.regular,
+    },
+    passwordHint: {
+        fontSize: 20,
+        fontFamily: theme.fonts.openSans.regular,
+        marginBottom: 10,
+    },
+    passwordHintList: {
+        fontSize: 20,
+        fontFamily: theme.fonts.openSans.regular,
+        marginLeft: 10,
+    },
+    passwordRequirementRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
     },
 });
 
