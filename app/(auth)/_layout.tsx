@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import NavBar from "@/components/navbar";
 
 export default function AuthLayout() {
     return(

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { theme } from '../../constants/theme';
-import { useAuth } from '../../context/auth';
+import { theme } from '@/constants/theme';
 import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert} from 'react-native';
-import  InputField from '../../components/InputField';
+import  InputField from '@/components/InputField';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,7 +43,7 @@ const LoginScreen = () => {
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
             <View style={styles.container}>
                 <Image 
-                    source={require('../../assets/images/logo_trans_icon.png')}
+                    source={require('@/assets/images/logo_trans_icon.png')}
                     style={styles.logo}
                     resizeMode='contain'
                 />

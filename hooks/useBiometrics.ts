@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
-import { useAuth } from '../context/auth';
+import { useAuth } from '@/context/auth';
 import { useRouter } from 'expo-router';
 
 export default function useBiometrics() {

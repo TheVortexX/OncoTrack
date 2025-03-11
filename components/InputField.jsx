@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 
 const InputField = ({
     label,

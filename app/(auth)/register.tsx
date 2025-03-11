@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { theme } from '../../constants/theme';
-import { useAuth } from '../../context/auth';
+import { theme } from '@/constants/theme';
+import { useAuth } from '@/context/auth';
 import { useRouter } from 'expo-router';
 import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import InputField from '../../components/InputField';
+import InputField from '@/components/InputField';
 import CheckBox from 'expo-checkbox';
 import { Octicons } from '@expo/vector-icons';
 
@@ -130,7 +130,7 @@ const RegistrationScreen = () => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <Image
-                    source={require('../../assets/images/logo_trans_icon.png')}
+                    source={require('@/assets/images/logo_trans_icon.png')}
                     style={styles.logo}
                     resizeMode='contain'
                 />

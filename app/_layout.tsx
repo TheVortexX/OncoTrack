@@ -3,9 +3,8 @@ import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
-import { AuthProvider } from '../context/auth';
-import { useFonts } from '../hooks/useFonts';
-import { theme } from '../constants/theme';
+import { AuthProvider } from '@/context/auth';
+import { useFonts } from '@/hooks/useFonts';
 
 SplashScreen.preventAutoHideAsync();
 

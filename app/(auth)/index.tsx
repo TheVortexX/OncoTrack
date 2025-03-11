@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Image, StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { theme } from '../../constants/theme';
-import { useStorage } from '../../hooks/useStorage';
-import  useBiometrics  from '../../hooks/useBiometrics';
+import { theme } from '@/constants/theme';
+import { useStorage } from '@/hooks/useStorage';
+import  useBiometrics  from '@/hooks/useBiometrics';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,7 +27,7 @@ const authIndex = () => {
   return (
     <View style={styles.container}>
       <Image 
-        source={require('../../assets/images/logo_trans_default.png')}
+        source={require('@/assets/images/logo_trans_default.png')}
         style={styles.logo}
         resizeMode='contain'
       />
