@@ -1,12 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { useStorage as getStorageValue, setValue as setStorageValue } from '@/hooks/useStorage';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { getAuth, setPersistence, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import { Alert } from 'react-native';
 
 type AuthContextType = {
     user: { token: string} | null;
     loading: boolean;
     setToken: (token: string) => Promise<void>;
     authenticateToken: (token: string) => Promise<boolean>;
+    signInUser: (email: string, password: string) => Promise<boolean>;
     signOut: () => Promise<void>;
 };
 
@@ -34,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [loading, user, segments]);
 
     const setToken = async (token: string) => {
-        await SecureStore.setItemAsync('userToken', token);
+        await SecureStore.setItemAsync('auth:userToken', token);
         setUser({ token });
     };
 
@@ -68,8 +73,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
     };
 
+    const signInUser = async (email: string, password: string) => {
+        const enableBiometrics = (password: string) => {
+            setStorageValue('auth:biometricsEnrolled', true);
+            setStorageValue('auth:biometricsEnrollmentAsked', true);
+            SecureStore.setItemAsync('auth:password', password)
+        }
+
+        setLoading(true);
+        try {
+            const auth = getAuth();
+            await setPersistence(auth, { type: 'SESSION' }); 
+            const credential = await signInWithEmailAndPassword(auth, email, password);
+            const token = await credential.user.getIdToken();
+
+            SecureStore.setItemAsync('auth:email', email);
+            await setToken(token);
+
+            const [biometricsEnrollmentAsked] = getStorageValue('auth:biometricsEnrollmentAsked', false);
+            const compatible = await LocalAuthentication.hasHardwareAsync();
+            const usable = await LocalAuthentication.isEnrolledAsync();
+
+            if (compatible && usable && !biometricsEnrollmentAsked) {
+                Alert.alert('Use biometrics?', 'Would you like to use biometrics to log in next time?', [
+                    { text: 'Enable', onPress: () => { enableBiometrics(password)}, isPreferred: true },
+                    { text: 'Cancel', onPress: () => { setStorageValue('auth:biometricsEnrollmentAsked', true)} },
+                ]);
+            }
+            setLoading(false);
+            return true
+        } catch (error) {
+            console.error('Error signing in user: ', error);
+            setLoading(false);
+            return false;
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, setToken, authenticateToken, signOut }}>
+        <AuthContext.Provider value={{ user, loading, setToken, authenticateToken, signInUser, signOut }}>
             {children}
         </AuthContext.Provider>
     );

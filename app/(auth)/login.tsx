@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
+import * as SecureStorage from 'expo-secure-store';
+import { useAuth } from '@/context/auth';
 import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert} from 'react-native';
 import  InputField from '@/components/InputField';
 
@@ -14,8 +16,15 @@ const LoginScreen = () => {
 
     const doLogin = async () => {
         if (loading) return;
+        const emailValid = validate.email(email);
+
         if (!email || !password) {
             Alert.alert('Please enter your email and password');
+            return;
+        }
+
+        if (emailValid) {
+            Alert.alert(emailValid);
             return;
         }
     };
@@ -38,6 +47,15 @@ const LoginScreen = () => {
             return '';
         },
     };
+
+    useEffect(() => {
+        SecureStorage.getItemAsync('auth:email').then((value) => {
+            if (value){
+                setEmail(value);
+            }
+        });
+
+    }, []);
 
     return (
         <ScrollView contentContainerStyle={{flexGrow: 1}}>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
@@ -9,8 +9,9 @@ const { width, height } = Dimensions.get('window');
 
 const authIndex = () => {
   const router = useRouter();
-  const [ hasLoggedIn ] = useStorage('hasLoggedInBefore', false);
-  const { isLoading, attemptBiometricLogin } = useBiometrics();
+  const [ hasLoggedIn ] = useStorage('auth:hasLoggedInBefore', false);
+  const [ biometricsEnrolled ] = useStorage('auth:biometricsEnrolled', false);
+  const { isLoading, isBiometricsAvailable, attemptBiometricLogin } = useBiometrics();
 
   const sendToRegister = () => {
     router.push('/(auth)/register');
@@ -21,8 +22,20 @@ const authIndex = () => {
   };
 
   const loginPress = () => {
-    attemptBiometricLogin(true);
+    if (biometricsEnrolled) {
+      attemptBiometricLogin(true);
+    } else {
+      sendToLogin();
+    }
   }
+
+  if (biometricsEnrolled) {
+    useEffect(() => {
+      if (isBiometricsAvailable) {
+        attemptBiometricLogin();
+      }
+    }, [isBiometricsAvailable]);
+  };
   
   return (
     <View style={styles.container}>

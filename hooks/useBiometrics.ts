@@ -7,14 +7,14 @@ import { useRouter } from 'expo-router';
 export default function useBiometrics() {
     const [isBiometricsAvailable, setIsBiometricsAvailable] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { autenticateToken } = useAuth();
+    const { signInUser } = useAuth();
     const router = useRouter();
 
 
     useEffect(() => {
         const checkBiometricSupport = async () => {
-            const token = await SecureStore.getItemAsync('userToken');
-            if (token) {
+            const passw = await SecureStore.getItemAsync('auth:pasword');
+            if (!passw) {
                 setIsLoading(true);
                 const compatible = await LocalAuthentication.hasHardwareAsync();
                 const usable = await LocalAuthentication.isEnrolledAsync();
@@ -26,17 +26,18 @@ export default function useBiometrics() {
     }, []);
 
     const attemptBiometricLogin = async (selected:boolean = false) => {
-        if (isBiometricsAvailable || selected) {
+        if (isBiometricsAvailable) {
             try {
                 const result = await LocalAuthentication.authenticateAsync({
                     promptMessage: 'Login to OncoTrack',
-                    cancelLabel: 'Use password instead',
+                    cancelLabel: 'Use password',
                 });
                 setIsLoading(true);
                 if (result.success) {
-                    const token = await SecureStore.getItemAsync('userToken');
-                    if (token) {
-                        const authSuccess = await autenticateToken(token);
+                    const email = await SecureStore.getItemAsync('auth:email');
+                    const passw = await SecureStore.getItemAsync('auth:password');
+                    if (email && passw) {
+                        const authSuccess = await signInUser(email, passw);
                         if (authSuccess) {
                             router.replace('/(tabs)');
                         }
@@ -53,7 +54,10 @@ export default function useBiometrics() {
         } else if (selected) {
             console.log('Biometrics not available');
             router.push('/(auth)/login');
+        } else {
+            console.log('Biometrics not ready');
         }
+        return true;
     }
-    return { isLoading, attemptBiometricLogin}
+    return { isLoading, isBiometricsAvailable, attemptBiometricLogin}
 }
