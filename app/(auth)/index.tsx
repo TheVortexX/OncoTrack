@@ -9,8 +9,8 @@ const { width, height } = Dimensions.get('window');
 
 const authIndex = () => {
   const router = useRouter();
-  const [ hasLoggedIn ] = useStorage('auth:hasLoggedInBefore', false);
-  const [ biometricsEnrolled ] = useStorage('auth:biometricsEnrolled', false);
+  const [ hasLoggedIn ] = useStorage('auth_hasLoggedInBefore', false);
+  const [ biometricsEnrolled ] = useStorage('auth_biometricsEnrolled', false);
   const { isLoading, isBiometricsAvailable, attemptBiometricLogin } = useBiometrics();
 
   const sendToRegister = () => {

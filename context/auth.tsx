@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [loading, user, segments]);
 
     const setToken = async (token: string) => {
-        await SecureStore.setItemAsync('auth:userToken', token);
+        await SecureStore.setItemAsync('auth_userToken', token);
         setUser({ token });
     };
 
@@ -75,9 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signInUser = async (email: string, password: string) => {
         const enableBiometrics = (password: string) => {
-            setStorageValue('auth:biometricsEnrolled', true);
-            setStorageValue('auth:biometricsEnrollmentAsked', true);
-            SecureStore.setItemAsync('auth:password', password)
+            setStorageValue('auth_biometricsEnrolled', true);
+            setStorageValue('auth_biometricsEnrollmentAsked', true);
+            SecureStore.setItemAsync('auth_password', password)
         }
 
         setLoading(true);
@@ -87,17 +87,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const credential = await signInWithEmailAndPassword(auth, email, password);
             const token = await credential.user.getIdToken();
 
-            SecureStore.setItemAsync('auth:email', email);
+            SecureStore.setItemAsync('auth_email', email);
             await setToken(token);
 
-            const [biometricsEnrollmentAsked] = getStorageValue('auth:biometricsEnrollmentAsked', false);
+            const [biometricsEnrollmentAsked] = getStorageValue('auth_biometricsEnrollmentAsked', false);
             const compatible = await LocalAuthentication.hasHardwareAsync();
             const usable = await LocalAuthentication.isEnrolledAsync();
 
             if (compatible && usable && !biometricsEnrollmentAsked) {
                 Alert.alert('Use biometrics?', 'Would you like to use biometrics to log in next time?', [
                     { text: 'Enable', onPress: () => { enableBiometrics(password)}, isPreferred: true },
-                    { text: 'Cancel', onPress: () => { setStorageValue('auth:biometricsEnrollmentAsked', true)} },
+                    { text: 'Cancel', onPress: () => { setStorageValue('auth_biometricsEnrollmentAsked', true)} },
                 ]);
             }
             setLoading(false);

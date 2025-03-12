@@ -13,7 +13,7 @@ export default function useBiometrics() {
 
     useEffect(() => {
         const checkBiometricSupport = async () => {
-            const passw = await SecureStore.getItemAsync('auth:pasword');
+            const passw = await SecureStore.getItemAsync('auth_pasword');
             if (!passw) {
                 setIsLoading(true);
                 const compatible = await LocalAuthentication.hasHardwareAsync();
@@ -34,8 +34,8 @@ export default function useBiometrics() {
                 });
                 setIsLoading(true);
                 if (result.success) {
-                    const email = await SecureStore.getItemAsync('auth:email');
-                    const passw = await SecureStore.getItemAsync('auth:password');
+                    const email = await SecureStore.getItemAsync('auth_email');
+                    const passw = await SecureStore.getItemAsync('auth_password');
                     if (email && passw) {
                         const authSuccess = await signInUser(email, passw);
                         if (authSuccess) {

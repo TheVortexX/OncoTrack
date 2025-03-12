@@ -49,7 +49,7 @@ const LoginScreen = () => {
     };
 
     useEffect(() => {
-        SecureStorage.getItemAsync('auth:email').then((value) => {
+        SecureStorage.getItemAsync('auth_email').then((value) => {
             if (value){
                 setEmail(value);
             }
