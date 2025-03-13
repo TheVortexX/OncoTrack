@@ -5,6 +5,7 @@ import * as SecureStorage from 'expo-secure-store';
 import { useAuth } from '@/context/auth';
 import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert} from 'react-native';
 import  InputField from '@/components/InputField';
+import validate from '@/utils/fieldValidation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,30 +35,6 @@ const LoginScreen = () => {
     const sendToForgot = () => {
         router.push('/(auth)/forgot');
     }
-
-    const validate = {
-        email: (value:string) => {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!value) return 'Email is required';
-            if (!emailRegex.test(value)) return 'Please enter a valid email';
-            return '';
-        },
-    
-        password: (value:string) => {
-            if (!value) return 'Password is required';
-            if (value.length < 8) return 'Password must be at least 8 characters';
-            return '';
-        },
-    };
-
-    useEffect(() => {
-        SecureStorage.getItemAsync('auth_email').then((value) => {
-            if (value){
-                setEmail(value);
-            }
-        });
-
-    }, []);
 
     return (
         <ScrollView contentContainerStyle={{flexGrow: 1}}>

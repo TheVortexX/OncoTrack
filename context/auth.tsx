@@ -11,7 +11,7 @@ type AuthContextType = {
     loading: boolean;
     setUser: (user: FirebaseAuthTypes.User) => Promise<void>;
     signInUser: (email: string, password: string) => Promise<boolean>;
-    createUser: (email: string, password: string) => Promise<void>;
+    createUser: (email: string, password: string) => Promise<FirebaseAuthTypes.User | null>;
     signOut: () => Promise<void>;
 };
 
@@ -82,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             setUser(userCredential.user);
-            Alert.alert('Registration successful')
             
             const biometricsEnrollmentAsked = getStoredValue('auth_biometricsEnrollmentAsked', false);
             const compatible = await LocalAuthentication.hasHardwareAsync();
@@ -94,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     { text: 'Cancel', onPress: () => { setStoredValue('auth_biometricsEnrollmentAsked', true) } },
                 ]);
             }
+            return userCredential.user;
         } catch (error) {
             const authError = error as FirebaseAuthTypes.NativeFirebaseAuthError;
             console.error('Error creating user: ', error);
@@ -104,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
                 errorMessage = authError.message;
             }
+            return null;
             Alert.alert('Registration failed', errorMessage);
         } finally {
             setLoading(false);

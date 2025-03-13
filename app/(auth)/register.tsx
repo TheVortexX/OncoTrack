@@ -6,6 +6,7 @@ import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, Activ
 import InputField from '@/components/InputField';
 import CheckBox from 'expo-checkbox';
 import { Octicons } from '@expo/vector-icons';
+import { createUserProfile } from '@/services/profileService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,7 +37,10 @@ const RegistrationScreen = () => {
         if (!privacyChecked) {Alert.alert('Please agree to the Privacy Policy'); return;}
 
         // Register user
-        await createUser(email, password)
+        const user = await createUser(email, password)
+        if (user){
+            await createUserProfile(user.uid, { fName, lName, registrationStage: "name" });
+        }
     };
 
     const validate = {
