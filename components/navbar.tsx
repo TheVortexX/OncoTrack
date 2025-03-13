@@ -1,13 +1,43 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { MMKV } from '@/utils/staticStorage';
+import * as SecureStore from 'expo-secure-store';
+import { useAuth } from '@/context/auth';
 
 const NavBar = () => {
     const router = useRouter();
     const pathname = usePathname();
 
+    const { signOut } = useAuth();
+
     const isActive = (path: string) => pathname === path;
+
+    const accountPress = () => {
+        Alert.alert('Reset defaults?', 'Reset variables to defaults', [
+            { text: 'Yes', onPress: () => { debug_resetStorage() }, isPreferred: true },
+            { text: 'Cancel', onPress: debug_signOutPrompt },
+        ]);
+    }
+
+    const debug_signOutPrompt = () => {
+        Alert.alert('Sign out?', 'Are you sure you want to sign out?', [
+            { text: 'Yes', onPress: () => { debug_signOut() }, isPreferred: true },
+            { text: 'No', onPress: () => {  } }, //navigate to account page
+        ]);
+    };
+
+    const debug_signOut = () => {
+        signOut();
+    };
+
+    const debug_resetStorage = () => {
+        MMKV.clearAll();
+        SecureStore.deleteItemAsync('auth_email');
+        SecureStore.deleteItemAsync('auth_password');
+        signOut();
+    };
 
     return (
         <View style={styles.container}>
@@ -56,7 +86,7 @@ const NavBar = () => {
 
                 <TouchableOpacity
                     style={styles.navItem}
-                    onPress={() => { }}
+                    onPress={accountPress}
                 >
                     <Ionicons
                         name="person-outline"
