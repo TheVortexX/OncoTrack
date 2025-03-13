@@ -17,15 +17,13 @@ const RegistrationScreen = () => {
     const [confPassword, setConfPassword] = useState('');
     const [tosChecked, setTosChecked] = useState(false);
     const [privacyChecked, setPrivacyChecked] = useState(false);
-    const { loading, authenticateToken } = useAuth();
+    const { loading, createUser } = useAuth();
 
     // Password validation states
     const [passLen, setPassLen] = useState(false);
     const [passUpper, setPassUpper] = useState(false);
     const [passLower, setPassLower] = useState(false);
     const [passNum, setPassNum] = useState(false);
-
-    const router = useRouter();
 
     const doRegister = async () => {
         if (loading) return;
@@ -36,6 +34,9 @@ const RegistrationScreen = () => {
         if (validate.notEmptyTextOnly(lName)) {Alert.alert(validate.notEmptyTextOnly(lName)); return;}
         if (!tosChecked) {Alert.alert('Please agree to the Terms of Service'); return;}
         if (!privacyChecked) {Alert.alert('Please agree to the Privacy Policy'); return;}
+
+        // Register user
+        await createUser(email, password)
     };
 
     const validate = {
@@ -91,7 +92,6 @@ const RegistrationScreen = () => {
             if (validate.passPart.upper(value)) return validate.passPart.upper(value);
             if (validate.passPart.lower(value)) return validate.passPart.lower(value);
             if (validate.passPart.number(value)) return validate.passPart.number(value);
-
             return '';
         },
 
@@ -195,6 +195,7 @@ const RegistrationScreen = () => {
                         secureTextEntry
                         validateOnBlur
                         autoComplete='new-password'
+                        autoCapitalize='none'
                         validate={validate.password}
                         style={{
                             input: styles.input,
@@ -265,6 +266,7 @@ const RegistrationScreen = () => {
                         secureTextEntry
                         validateOnBlur
                         autoComplete='new-password'
+                        autoCapitalize='none'
                         validate={validate.passMatch}
                         style={{
                             input: styles.input,

@@ -1,7 +1,6 @@
 import { MMKV } from 'react-native-mmkv';
 import React from 'react';
 
-// Create a single instance
 const storage = new MMKV();
 
 export const useStorage = (key: string, defaultValue: any) => {

@@ -1,24 +1,26 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useStorage as getStorageValue, setValue as setStorageValue } from '@/hooks/useStorage';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { getAuth, setPersistence, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, FirebaseAuthTypes} from '@react-native-firebase/auth';
 import { Alert } from 'react-native';
+import { setStoredValue, getStoredValue } from '@/utils/staticStorage';
 
 type AuthContextType = {
-    user: { token: string} | null;
+    user: { user: FirebaseAuthTypes.User } | null;
     loading: boolean;
-    setToken: (token: string) => Promise<void>;
-    authenticateToken: (token: string) => Promise<boolean>;
+    setUser: (user: FirebaseAuthTypes.User) => Promise<void>;
     signInUser: (email: string, password: string) => Promise<boolean>;
+    createUser: (email: string, password: string) => Promise<void>;
     signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const auth = getAuth();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<{ token: string } | null>(null);
+    const [user, setUserState] = useState<{ user: FirebaseAuthTypes.User } | null>(null);
     const [loading, setLoading] = useState(false);
     const segments = useSegments();
     const router = useRouter();
@@ -29,8 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (loading) return;
         const inAuthFlow = segments[0] === '(auth)';
         const currentRoute = `/${segments.join('/')}`;
-        console.log('currentRoute: ', currentRoute);
-
+        console.log('currentRoute: ', currentRoute); // DEBUG
         if (!user && !inAuthFlow && !publicRoutes.includes(currentRoute)) { // User is not authenticated and not in the auth flow or public route
             router.replace('/(auth)');
         } else if (user && inAuthFlow) { // User is authenticated and in the auth flow
@@ -38,79 +39,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [loading, user, segments]);
 
-    const setToken = async (token: string) => {
-        await SecureStore.setItemAsync('auth_userToken', token);
-        setUser({ token });
-    };
-
-    const authenticateToken = async (token: string) => {
-        setLoading(true);
-        try {
-            const response = await fetch('https://api.example.com/authenticate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ token }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setUser({ token });
-                return true;
-            } else {
-                return false;
-            }
-        } catch (error) {
-            console.error('Error authenticating token: ', error);
-            return false;
-        }
+    const enableBiometrics = (password: string) => {
+        setStoredValue('auth_biometricsEnrolled', true);
+        setStoredValue('auth_biometricsEnrollmentAsked', true);
+        SecureStore.setItemAsync('auth_password', password)
     }
 
+    const setUser = async (user:FirebaseAuthTypes.User) => {
+        await SecureStore.setItemAsync('auth_userToken', JSON.stringify(user));
+        setUserState({ user });
+    };
+
     const signOut = async () => {
-        await SecureStore.deleteItemAsync('userToken');
-        setUser(null);
+        await SecureStore.deleteItemAsync('auth_userToken');
+        await SecureStore.deleteItemAsync('auth_password');
+        setUserState(null);
     };
 
     const signInUser = async (email: string, password: string) => {
-        const enableBiometrics = (password: string) => {
-            setStorageValue('auth_biometricsEnrolled', true);
-            setStorageValue('auth_biometricsEnrollmentAsked', true);
-            SecureStore.setItemAsync('auth_password', password)
-        }
 
         setLoading(true);
         try {
-            const auth = getAuth();
-            await setPersistence(auth, { type: 'SESSION' }); 
             const credential = await signInWithEmailAndPassword(auth, email, password);
-            const token = await credential.user.getIdToken();
+            const user = credential.user
 
             SecureStore.setItemAsync('auth_email', email);
-            await setToken(token);
+            await setUser(user);
 
-            const [biometricsEnrollmentAsked] = getStorageValue('auth_biometricsEnrollmentAsked', false);
+            setStoredValue('auth_hasLoggedInBefore', true);
+
+            return true;
+        } catch (error) {
+            console.error('Error signing in user: ', error);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const createUser = async (email: string, password: string) => {
+        setLoading(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            setUser(userCredential.user);
+            Alert.alert('Registration successful')
+            
+            const biometricsEnrollmentAsked = getStoredValue('auth_biometricsEnrollmentAsked', false);
             const compatible = await LocalAuthentication.hasHardwareAsync();
             const usable = await LocalAuthentication.isEnrolledAsync();
 
             if (compatible && usable && !biometricsEnrollmentAsked) {
-                Alert.alert('Use biometrics?', 'Would you like to use biometrics to log in next time?', [
-                    { text: 'Enable', onPress: () => { enableBiometrics(password)}, isPreferred: true },
-                    { text: 'Cancel', onPress: () => { setStorageValue('auth_biometricsEnrollmentAsked', true)} },
+                Alert.alert('Use biometrics?', 'Would you like to use biometrics to log in?', [
+                    { text: 'Enable', onPress: () => { enableBiometrics(password) }, isPreferred: true },
+                    { text: 'Cancel', onPress: () => { setStoredValue('auth_biometricsEnrollmentAsked', true) } },
                 ]);
             }
-            setLoading(false);
-            return true
         } catch (error) {
-            console.error('Error signing in user: ', error);
+            const authError = error as FirebaseAuthTypes.NativeFirebaseAuthError;
+            console.error('Error creating user: ', error);
+            let errorMessage = '';
+            const match = authError.message.match(/\]\s*(.*)/);
+            if (match && match[1]) {
+                errorMessage = match[1];
+            } else {
+                errorMessage = authError.message;
+            }
+            Alert.alert('Registration failed', errorMessage);
+        } finally {
             setLoading(false);
-            return false;
         }
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, setToken, authenticateToken, signInUser, signOut }}>
+        <AuthContext.Provider value={{ user, loading, setUser, signInUser, signOut, createUser }}>
             {children}
         </AuthContext.Provider>
     );

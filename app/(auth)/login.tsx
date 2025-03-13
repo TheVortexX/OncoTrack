@@ -12,7 +12,7 @@ const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
-    const { loading, authenticateToken } = useAuth();
+    const { loading, signInUser } = useAuth();
 
     const doLogin = async () => {
         if (loading) return;
@@ -27,6 +27,8 @@ const LoginScreen = () => {
             Alert.alert(emailValid);
             return;
         }
+
+        await signInUser(email, password);
     };
 
     const sendToForgot = () => {
