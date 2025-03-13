@@ -37,10 +37,7 @@ export default function useBiometrics() {
                     const email = await SecureStore.getItemAsync('auth_email');
                     const passw = await SecureStore.getItemAsync('auth_password');
                     if (email && passw) {
-                        const authSuccess = await signInUser(email, passw);
-                        if (authSuccess) {
-                            router.replace('/(tabs)');
-                        }
+                        await signInUser(email, passw);
                     }
                 }
             } catch (error) {

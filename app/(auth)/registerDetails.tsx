@@ -28,7 +28,7 @@ const DetailsScreen = () => {
                     style={styles.logo}
                     resizeMode='contain'
                 />
-                <Text style={styles.titleText}>Register</Text>
+                <Text style={styles.titleText}>Your details</Text>
                 <View style={styles.content}>
                     <InputField
                         label='First Name'

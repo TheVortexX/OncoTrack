@@ -3,13 +3,13 @@ import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, FirebaseAuthTypes} from '@react-native-firebase/auth';
-import { Alert } from 'react-native';
 import { setStoredValue, getStoredValue } from '@/utils/staticStorage';
+import { Alert } from 'react-native';
+import { getUserProfile } from '@/services/profileService';
 
 type AuthContextType = {
-    user: { user: FirebaseAuthTypes.User } | null;
+    user: FirebaseAuthTypes.User | null;
     loading: boolean;
-    setUser: (user: FirebaseAuthTypes.User) => Promise<void>;
     signInUser: (email: string, password: string) => Promise<boolean>;
     createUser: (email: string, password: string) => Promise<FirebaseAuthTypes.User | null>;
     signOut: () => Promise<void>;
@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 const auth = getAuth();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUserState] = useState<{ user: FirebaseAuthTypes.User } | null>(null);
+    const [user, setUserState] = useState<FirebaseAuthTypes.User | null>(null);
     const [loading, setLoading] = useState(false);
     const segments = useSegments();
     const router = useRouter();
@@ -29,14 +29,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (loading) return;
+
         const inAuthFlow = segments[0] === '(auth)';
         const currentRoute = `/${segments.join('/')}`;
-        console.log('currentRoute: ', currentRoute); // DEBUG
-        if (!user && !inAuthFlow && !publicRoutes.includes(currentRoute)) { // User is not authenticated and not in the auth flow or public route
-            router.replace('/(auth)');
-        } else if (user && inAuthFlow) { // User is authenticated and in the auth flow
-            router.replace('/(tabs)');
-        }
+        console.log('currentRoute: ', currentRoute);
+
+        const checkUserAndRoute = async () => {
+            // Not authenticated and not in auth flow or public route
+            if (!user && !inAuthFlow && !publicRoutes.includes(currentRoute)) {
+                router.replace('/(auth)');
+                return;
+            }
+            // User is authenticated
+            if (user) {
+                try {
+                    const profile = await getUserProfile(user.uid);
+
+                    if (profile && profile.registrationStage === "name") {
+                        router.replace('/(auth)/registerDetails');
+                    } else if (inAuthFlow) {
+                        // Only redirect to tabs if user is fully registered
+                        router.replace('/(tabs)');
+                    }
+                } catch (error) {
+                    console.error("Error checking user profile:", error);
+                }
+            }
+        };
+
+        checkUserAndRoute();
     }, [loading, user, segments]);
 
     const enableBiometrics = (password: string) => {
@@ -44,11 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStoredValue('auth_biometricsEnrollmentAsked', true);
         SecureStore.setItemAsync('auth_password', password)
     }
-
-    const setUser = async (user:FirebaseAuthTypes.User) => {
-        await SecureStore.setItemAsync('auth_userToken', JSON.stringify(user));
-        setUserState({ user });
-    };
 
     const signOut = async () => {
         await SecureStore.deleteItemAsync('auth_userToken');
@@ -62,11 +78,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const credential = await signInWithEmailAndPassword(auth, email, password);
             const user = credential.user
-
-            SecureStore.setItemAsync('auth_email', email);
-            await setUser(user);
-
+            
             setStoredValue('auth_hasLoggedInBefore', true);
+            SecureStore.setItemAsync('auth_email', email);
+            
+            const userProfile = await getUserProfile(user.uid); //check registration stage to direct to
+            if (userProfile) {
+                if (userProfile.registrationStage === "name") {
+                    router.replace('/(auth)/registerDetails');
+                }
+            }
+
+            setUserState(user);
+
 
             return true;
         } catch (error) {
@@ -81,7 +105,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            setUser(userCredential.user);
+            setUserState(userCredential.user);
+            setStoredValue('auth_hasLoggedInBefore', true);
+            SecureStore.setItemAsync('auth_email', email);
             
             const biometricsEnrollmentAsked = getStoredValue('auth_biometricsEnrollmentAsked', false);
             const compatible = await LocalAuthentication.hasHardwareAsync();
@@ -104,15 +130,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
                 errorMessage = authError.message;
             }
-            return null;
             Alert.alert('Registration failed', errorMessage);
+            return null;
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, setUser, signInUser, signOut, createUser }}>
+        <AuthContext.Provider value={{ user, loading, signInUser, signOut, createUser }}>
             {children}
         </AuthContext.Provider>
     );
