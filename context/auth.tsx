@@ -5,13 +5,16 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, FirebaseAuthTypes} from '@react-native-firebase/auth';
 import { setStoredValue, getStoredValue } from '@/utils/staticStorage';
 import { Alert } from 'react-native';
-import { getUserProfile } from '@/services/profileService';
+import { getUserProfile, updateUserProfile } from '@/services/profileService';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 type AuthContextType = {
     user: FirebaseAuthTypes.User | null;
     loading: boolean;
     signInUser: (email: string, password: string) => Promise<boolean>;
     createUser: (email: string, password: string) => Promise<FirebaseAuthTypes.User | null>;
+    getProfile: () => Promise<FirebaseFirestoreTypes.DocumentData | null | undefined>;
+    updateProfile: (updates: any) => Promise<boolean>;
     signOut: () => Promise<void>;
 };
 
@@ -21,6 +24,7 @@ const auth = getAuth();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUserState] = useState<FirebaseAuthTypes.User | null>(null);
+    const [userProfile, setUserProfile] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const segments = useSegments();
     const router = useRouter();
@@ -43,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // User is authenticated
             if (user) {
                 try {
-                    const profile = await getUserProfile(user.uid);
+                    const profile = await getProfile();
 
                     if (profile && profile.registrationStage === "name") {
                         router.replace('/(auth)/registerDetails');
@@ -81,13 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             setStoredValue('auth_hasLoggedInBefore', true);
             SecureStore.setItemAsync('auth_email', email);
-            
-            const userProfile = await getUserProfile(user.uid); //check registration stage to direct to
-            if (userProfile) {
-                if (userProfile.registrationStage === "name") {
-                    router.replace('/(auth)/registerDetails');
-                }
-            }
 
             setUserState(user);
 
@@ -137,8 +134,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const getProfile = async () => {
+        setLoading(true);
+        if (!userProfile) {
+            try {
+                if (user) {
+                    const profile = await getUserProfile(user.uid);
+                    if (profile) {
+                        setUserProfile(profile);
+                        return profile;
+                    } else {
+                        console.error('User profile not found');
+                        return null;
+                    }
+
+                } else {
+                    console.error('User not authenticated');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                return null;
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+            return userProfile;
+        }
+    }
+
+    const updateProfile = async (updates: any) => {
+        setLoading(true);
+        try {
+            if (user) {
+                await updateUserProfile(user.uid, updates);
+                setUserProfile({ ...userProfile, ...updates });
+                return true;
+            } else {
+                console.error('User not authenticated');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, signInUser, signOut, createUser }}>
+        <AuthContext.Provider value={{ user, loading, signInUser, getProfile, updateProfile, signOut, createUser }}>
             {children}
         </AuthContext.Provider>
     );

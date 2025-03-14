@@ -6,18 +6,39 @@ import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, Activ
 import InputField from '@/components/InputField';
 import CheckBox from 'expo-checkbox';
 import validate from '@/utils/fieldValidation';
+import { updateUserProfile } from '@/services/profileService';
+
 
 const { width, height } = Dimensions.get('window');
 
 
 // Gender, cancer type, age
 const DetailsScreen = () => {
-    const [fName, setFName] = useState('');
+    const [cancerType, setCancerType] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [sex, setSex] = useState('');
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
+    const router = useRouter();
 
     const doContinue = async () => {
-    
+        setLoading(true);
+        try {
+            if (user){
+                await updateUserProfile(user.uid, {
+                    cancerType,
+                    birthday,
+                    sex,
+                    registrationStage: 'complete',
+                });
+                router.replace('/(tabs)');
+            }
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            Alert.alert('Error updating profile', 'An error occurred while updating your profile. Please try again later.');
+        } finally {
+            setLoading(false);
+        }        
     }
 
     return (
@@ -31,12 +52,43 @@ const DetailsScreen = () => {
                 <Text style={styles.titleText}>Your details</Text>
                 <View style={styles.content}>
                     <InputField
-                        label='First Name'
-                        value={fName}
-                        placeholder='Type your first name'
-                        onChangeText={setFName}
-                        autoComplete='given-name'
+                        label='Type of cancer'
+                        value={cancerType}
+                        placeholder='Select type(s) of cancer'
+                        onChangeText={setCancerType}
                         autoCapitalize='words'
+                        validateOnBlur
+                        validate={validate.notEmptyTextOnly}
+                        style={{
+                            input: styles.input,
+                            label: styles.inputLabel,
+                            errorText: styles.errorText,
+                            container: styles.inputContainer,
+                            errorInput: styles.errorInput,
+                        }}
+                    />
+                    <InputField
+                        label='Select date of birth'
+                        value={birthday}
+                        placeholder='Select date of birth'
+                        onChangeText={setBirthday}
+                        autoComplete='birthdate-full'
+                        validateOnBlur
+                        validate={validate.notEmptyTextOnly}
+                        style={{
+                            input: styles.input,
+                            label: styles.inputLabel,
+                            errorText: styles.errorText,
+                            container: styles.inputContainer,
+                            errorInput: styles.errorInput,
+                        }}
+                    />
+                    <InputField
+                        label='Sex'
+                        value={sex}
+                        placeholder='Select sex'
+                        onChangeText={setSex}
+                        autoComplete='gender'
                         validateOnBlur
                         validate={validate.notEmptyTextOnly}
                         style={{
