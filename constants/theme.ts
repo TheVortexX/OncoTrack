@@ -9,15 +9,22 @@ export const theme = {
         primary: "#EE6C4D",
         white: "#ffffff",
         black: "#000000",
+        lightGray: "#b2beb5",
+        gray: "#818589",
     },
     fonts: {
         openSans: {
             regular: "OpenSans_400Regular",
             semiBold: "OpenSans_600SemiBold",
+            bold: "OpenSans_700Bold",
         },
         roboto: {
             regular: "Roboto_400Regular",
             medium: "Roboto_500Medium",
         },
+        ubuntu: {
+            regular: "Ubuntu_400Regular",
+            bold: "Ubuntu_700Bold",
+        }
     },
 }
