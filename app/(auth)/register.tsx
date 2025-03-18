@@ -131,6 +131,10 @@ const RegistrationScreen = () => {
 
 
     return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+        >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <Image
@@ -320,6 +324,8 @@ const RegistrationScreen = () => {
                 </View>
             </View>
         </ScrollView>
+        </KeyboardAvoidingView>
+
     );
 };
 
@@ -334,7 +340,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.blue99,
-        justifyContent: 'center', // Center vertically
     },
     content: {
         flex: 1,

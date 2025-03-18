@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform} from 'react-native';
 import InputField from '@/components/InputField';
 
 const { width, height } = Dimensions.get('window');
@@ -27,49 +27,54 @@ const ForgotPassScreen = () => {
     };
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={styles.container}>
-                <Image
-                    source={require('@/assets/images/logo_trans_icon.png')}
-                    style={styles.logo}
-                    resizeMode='contain'
-                />
-                <Text style={styles.titleText}>
-                    Forgot Password
-                </Text>
-                <View style={styles.content}>
-                    <InputField
-                        label='Email'
-                        value={email}
-                        placeholder='Enter your email'
-                        onChangeText={setEmail}
-                        keyboardType='email-address'
-                        autoComplete='email'
-                        validateOnBlur
-                        validate={validate.email}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.container}>
+                    <Image
+                        source={require('@/assets/images/logo_trans_icon.png')}
+                        style={styles.logo}
+                        resizeMode='contain'
                     />
-                    <Text style={styles.linkText}>
-                        A link to reset your password will be sent to your email.
+                    <Text style={styles.titleText}>
+                        Forgot Password
                     </Text>
+                    <View style={styles.content}>
+                        <InputField
+                            label='Email'
+                            value={email}
+                            placeholder='Enter your email'
+                            onChangeText={setEmail}
+                            keyboardType='email-address'
+                            autoComplete='email'
+                            validateOnBlur
+                            validate={validate.email}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <Text style={styles.linkText}>
+                            A link to reset your password will be sent to your email.
+                        </Text>
+                    </View>
+                    <View style={styles.bottomContent}>
+                        <TouchableOpacity style={styles.button} onPress={doForgot}>
+                            {loading ? (
+                                <ActivityIndicator size='large' color={theme.colours.blue50} />
+                            ) : (
+                                <Text style={styles.buttonText}>Reset password</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.bottomContent}>
-                    <TouchableOpacity style={styles.button} onPress={doForgot}>
-                        {loading ? (
-                            <ActivityIndicator size='large' color={theme.colours.blue50} />
-                        ) : (
-                            <Text style={styles.buttonText}>Reset password</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 

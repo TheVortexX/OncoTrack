@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import * as SecureStorage from 'expo-secure-store';
 import { useAuth } from '@/context/auth';
-import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert} from 'react-native';
+import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform} from 'react-native';
 import  InputField from '@/components/InputField';
 import validate from '@/utils/fieldValidation';
 
@@ -37,66 +37,71 @@ const LoginScreen = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-            <View style={styles.container}>
-                <Image 
-                    source={require('@/assets/images/logo_trans_icon.png')}
-                    style={styles.logo}
-                    resizeMode='contain'
-                />
-                <Text style={styles.titleText}>
-                    Log in
-                </Text>
-                <View style={styles.content}>
-                    <InputField 
-                        label='Email'
-                        value={email}
-                        placeholder='Type email'
-                        onChangeText={setEmail}
-                        keyboardType='email-address'
-                        autoComplete='email'
-                        validateOnBlur
-                        validate={validate.email}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+            style={{flex: 1}}
+        >
+            <ScrollView contentContainerStyle={{flexGrow: 1}}>
+                <View style={styles.container}>
+                    <Image 
+                        source={require('@/assets/images/logo_trans_icon.png')}
+                        style={styles.logo}
+                        resizeMode='contain'
                     />
-                    <InputField 
-                        label='Password'
-                        value={password}
-                        placeholder='Type password'
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        validateOnBlur
-                        autoComplete='current-password'
-                        validate={validate.password}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <TouchableOpacity style={styles.linkButton} onPress={sendToForgot}>
-                        <Text style={styles.linkText}>Forgot your password?</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.titleText}>
+                        Log in
+                    </Text>
+                    <View style={styles.content}>
+                        <InputField 
+                            label='Email'
+                            value={email}
+                            placeholder='Type email'
+                            onChangeText={setEmail}
+                            keyboardType='email-address'
+                            autoComplete='email'
+                            validateOnBlur
+                            validate={validate.email}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <InputField 
+                            label='Password'
+                            value={password}
+                            placeholder='Type password'
+                            onChangeText={setPassword}
+                            secureTextEntry
+                            validateOnBlur
+                            autoComplete='current-password'
+                            validate={validate.password}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <TouchableOpacity style={styles.linkButton} onPress={sendToForgot}>
+                            <Text style={styles.linkText}>Forgot your password?</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.bottomContent}>
+                        <TouchableOpacity style={styles.button} onPress={doLogin}>
+                            {loading ? (
+                                <ActivityIndicator size='large' color={theme.colours.blue50} />
+                            ) :(
+                                <Text style={styles.buttonText}>Continue</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.bottomContent}>
-                    <TouchableOpacity style={styles.button} onPress={doLogin}>
-                        {loading ? (
-                            <ActivityIndicator size='large' color={theme.colours.blue50} />
-                        ) :(
-                            <Text style={styles.buttonText}>Continue</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 

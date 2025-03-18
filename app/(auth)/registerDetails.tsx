@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { useRouter } from 'expo-router';
-import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import InputField from '@/components/InputField';
-import CheckBox from 'expo-checkbox';
 import validate from '@/utils/fieldValidation';
-import { updateUserProfile } from '@/services/profileService';
 
 
 const { width, height } = Dimensions.get('window');
@@ -18,14 +16,14 @@ const DetailsScreen = () => {
     const [birthday, setBirthday] = useState('');
     const [sex, setSex] = useState('');
     const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const { user, updateProfile } = useAuth();
     const router = useRouter();
 
     const doContinue = async () => {
         setLoading(true);
         try {
             if (user){
-                await updateUserProfile(user.uid, {
+                await updateProfile({
                     cancerType,
                     birthday,
                     sex,
@@ -42,75 +40,80 @@ const DetailsScreen = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={styles.container}>
-                <Image
-                    source={require('@/assets/images/logo_trans_icon.png')}
-                    style={styles.logo}
-                    resizeMode='contain'
-                />
-                <Text style={styles.titleText}>Your details</Text>
-                <View style={styles.content}>
-                    <InputField
-                        label='Type of cancer'
-                        value={cancerType}
-                        placeholder='Select type(s) of cancer'
-                        onChangeText={setCancerType}
-                        autoCapitalize='words'
-                        validateOnBlur
-                        validate={validate.notEmptyTextOnly}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.container}>
+                    <Image
+                        source={require('@/assets/images/logo_trans_icon.png')}
+                        style={styles.logo}
+                        resizeMode='contain'
                     />
-                    <InputField
-                        label='Select date of birth'
-                        value={birthday}
-                        placeholder='Select date of birth'
-                        onChangeText={setBirthday}
-                        autoComplete='birthdate-full'
-                        validateOnBlur
-                        validate={validate.notEmptyTextOnly}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <InputField
-                        label='Sex'
-                        value={sex}
-                        placeholder='Select sex'
-                        onChangeText={setSex}
-                        autoComplete='gender'
-                        validateOnBlur
-                        validate={validate.notEmptyTextOnly}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
+                    <Text style={styles.titleText}>Your details</Text>
+                    <View style={styles.content}>
+                        <InputField
+                            label='Type of cancer'
+                            value={cancerType}
+                            placeholder='Select type(s) of cancer'
+                            onChangeText={setCancerType}
+                            autoCapitalize='words'
+                            validateOnBlur
+                            validate={validate.notEmptyTextOnly}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <InputField
+                            label='Select date of birth'
+                            value={birthday}
+                            placeholder='Select date of birth'
+                            onChangeText={setBirthday}
+                            autoComplete='birthdate-full'
+                            validateOnBlur
+                            validate={validate.notEmptyTextOnly}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <InputField
+                            label='Sex'
+                            value={sex}
+                            placeholder='Select sex'
+                            onChangeText={setSex}
+                            autoComplete='gender'
+                            validateOnBlur
+                            validate={validate.notEmptyTextOnly}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                    </View>
+                    <View style={styles.bottomContent}>
+                        <TouchableOpacity style={styles.button} onPress={doContinue}>
+                            {loading ? (
+                                <ActivityIndicator size='large' color={theme.colours.blue50} />
+                            ) : (
+                                <Text style={styles.buttonText}>Continue</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.bottomContent}>
-                    <TouchableOpacity style={styles.button} onPress={doContinue}>
-                        {loading ? (
-                            <ActivityIndicator size='large' color={theme.colours.blue50} />
-                        ) : (
-                            <Text style={styles.buttonText}>Continue</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
