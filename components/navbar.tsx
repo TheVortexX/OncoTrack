@@ -1,17 +1,24 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 const NavBar = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const insets = useSafeAreaInsets();
 
     const isActive = (path: string) => pathname === path;
 
     return (
         <View style={styles.container}>
-            <View style={styles.navContent}>
+            <View style={[
+                styles.navContent,
+                Platform.OS === 'ios'
+                    ? { paddingBottom: insets.bottom-10, height: 50 + insets.bottom }
+                    : null
+            ]}>
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {

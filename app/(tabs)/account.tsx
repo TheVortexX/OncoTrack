@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { theme } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/context/auth';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AccountScreen = () => {
     // TODO get actual profile information
@@ -47,101 +48,109 @@ const AccountScreen = () => {
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Account Settings</Text>
-            </View>
-
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Profile Information</Text>
-
-                <View style={styles.settingRow}>
-                    <View style={styles.settingInfo}>
-                        <Text style={styles.settingLabel}>Name</Text>
-                        <Text style={styles.settingValue}>{displayName}</Text>
-                    </View>
-                    <TouchableOpacity onPress={handleEditDisplayName} style={styles.actionButton}>
-                        <Text style={styles.actionButtonText}>Edit</Text>
-                    </TouchableOpacity>
+        <SafeAreaView style={styles.container}>
+            <ScrollView style={styles.scrollContent}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Account Settings</Text>
                 </View>
 
-                <View style={styles.settingRow}>
-                    <View style={styles.settingInfo}>
-                        <Text style={styles.settingLabel}>Email</Text>
-                        <Text style={styles.settingValue}>{email}</Text>
-                    </View>
-                </View>
-            </View>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Profile Information</Text>
 
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Security</Text>
-
-                <TouchableOpacity onPress={()=>{}} style={styles.menuItem}>
-                    <View style={styles.menuItemContent}>
-                        <Ionicons name="lock-closed-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                        <Text style={styles.menuItemText}>Reset Password</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
-                </TouchableOpacity>
-
-                {isFaceIDSupported && (
-                    <View style={styles.menuItem}>
-                        <View style={styles.menuItemContent}>
-                            <Ionicons
-                                name={Platform.OS === 'ios' ? "id-card-outline" : "finger-print"}
-                                size={24}
-                                color={theme.colours.primary}
-                                style={styles.menuItemIcon}
-                            />
-                            <Text style={styles.menuItemText}>
-                                {Platform.OS === 'ios' ? 'Use Face ID' : 'Use Biometric Authentication'}
-                            </Text>
+                    <View style={styles.settingRow}>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingLabel}>Name</Text>
+                            <Text style={styles.settingValue}>{displayName}</Text>
                         </View>
-                        <Switch
-                            value={isFaceIDEnabled}
-                            onValueChange={() => {}}
-                            trackColor={{ false: theme.colours.blue80, true: theme.colours.primary }}
-                            thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.gray}
-                        />
+                        <TouchableOpacity onPress={handleEditDisplayName} style={styles.actionButton}>
+                            <Text style={styles.actionButtonText}>Edit</Text>
+                        </TouchableOpacity>
                     </View>
-                )}
-            </View>
-            {/* APP SECTION */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>App</Text>
 
-                <TouchableOpacity onPress={debug_signOutPrompt} style={styles.menuItem}>
-                    <View style={styles.menuItemContent}>
-                        <Ionicons name="exit-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                        <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Sign Out</Text>
+                    <View style={styles.settingRow}>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingLabel}>Email</Text>
+                            <Text style={styles.settingValue}>{email}</Text>
+                        </View>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
-                </TouchableOpacity>
+                </View>
 
-                {/* DEBUG */}
-                <View style={styles.debugSection}>
-                    <Text style={styles.debugTitle}>Debug Options</Text>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Security</Text>
 
-                    <TouchableOpacity onPress={resetDefaults} style={styles.menuItem}>
+                    <TouchableOpacity onPress={()=>{}} style={styles.menuItem}>
                         <View style={styles.menuItemContent}>
-                            <Ionicons name="refresh-circle-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                            <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Reset App Defaults</Text>
+                            <Ionicons name="lock-closed-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                            <Text style={styles.menuItemText}>Reset Password</Text>
                         </View>
                         <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
                     </TouchableOpacity>
-                </View>
-            </View>
 
-            <View style={styles.footer}>
-                <Text style={styles.versionText}>OncoTrack v1.0.0</Text>
-            </View>
-        </ScrollView>
+                    {isFaceIDSupported && (
+                        <View style={styles.menuItem}>
+                            <View style={styles.menuItemContent}>
+                                <Ionicons
+                                    name={Platform.OS === 'ios' ? "id-card-outline" : "finger-print"}
+                                    size={24}
+                                    color={theme.colours.primary}
+                                    style={styles.menuItemIcon}
+                                />
+                                <Text style={styles.menuItemText}>
+                                    {Platform.OS === 'ios' ? 'Use Face ID' : 'Use Biometric Authentication'}
+                                </Text>
+                            </View>
+                            <Switch
+                                value={isFaceIDEnabled}
+                                onValueChange={() => {}}
+                                trackColor={{ false: theme.colours.blue80, true: theme.colours.primary }}
+                                thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.gray}
+                            />
+                        </View>
+                    )}
+                </View>
+                {/* APP SECTION */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>App</Text>
+
+                    <TouchableOpacity onPress={debug_signOutPrompt} style={styles.menuItem}>
+                        <View style={styles.menuItemContent}>
+                            <Ionicons name="exit-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                            <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Sign Out</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
+                    </TouchableOpacity>
+
+                    {/* DEBUG */}
+                    <View style={styles.debugSection}>
+                        <Text style={styles.debugTitle}>Debug Options</Text>
+
+                        <TouchableOpacity onPress={resetDefaults} style={styles.menuItem}>
+                            <View style={styles.menuItemContent}>
+                                <Ionicons name="refresh-circle-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Reset App Defaults</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={styles.footer}>
+                    <Text style={styles.versionText}>OncoTrack v1.0.0</Text>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: theme.colours.gray50,
+        marginBottom: 70,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: 20,
     },
     header: {
         padding: 16,

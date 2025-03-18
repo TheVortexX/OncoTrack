@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Platform, StatusBar } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type EmergencyContact = {
     id: string;
@@ -11,6 +12,8 @@ type EmergencyContact = {
     description: string;
     style?: any;
 };
+
+const { width } = Dimensions.get('window');
 
 export default function EmergencyContactsScreen() {
     const { user, getProfile } = useAuth();
@@ -73,29 +76,44 @@ export default function EmergencyContactsScreen() {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Emergency Contacts</Text>
-                <Text style={styles.subHeaderText}>Tap a contact to call</Text>
+        <>
+            <View style={{
+                backgroundColor: theme.colours.primary,
+                height: Platform.OS === 'ios' ? 50 : 0
+            }}>
+                <StatusBar
+                    backgroundColor={theme.colours.primary}
+                    barStyle="light-content"
+                />
             </View>
 
-            <FlatList
-                data={contacts}
-                renderItem={renderContactItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-            />
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>Emergency Contacts</Text>
+                    <Text style={styles.subHeaderText}>Tap a contact to call</Text>
+                </View>
 
-            {user && (
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => {/* TODO Navigate to add contact screen */ }}
-                >
-                    <Ionicons name="add-circle" size={24} color="white" />
-                    <Text style={styles.addButtonText}>Add Contact</Text>
-                </TouchableOpacity>
-            )}
-        </SafeAreaView>
+                <FlatList
+                    data={contacts}
+                    renderItem={renderContactItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.listContainer}
+                />
+
+                {user && (
+                    <TouchableOpacity
+                        style={[
+                            styles.addButton,
+                            Platform.OS === 'ios' ? { marginBottom: 30 } : { marginBottom: 20 }
+                        ]}
+                        onPress={() => {/* TODO Navigate to add contact screen */ }}
+                    >
+                        <Ionicons name="add-circle" size={24} color="white" />
+                        <Text style={styles.addButtonText}>Add Contact</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+        </>
     );
 }
 
@@ -103,10 +121,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#e6f7f7',
+        marginBottom: 70,
+        paddingBottom: 20,
     },
     header: {
         backgroundColor: theme.colours.primary,
         padding: 16,
+        paddingTop: Platform.OS === 'android' ? 50 : 16,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
     },
@@ -164,23 +185,21 @@ const styles = StyleSheet.create({
         borderRadius: 25,
     },
     addButton: {
-        backgroundColor: theme.colours.blue20,
-        flexDirection: 'row',
+        backgroundColor: theme.colours.buttonBlue,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 12,
+        flexDirection: 'row',
+        alignSelf: 'center',
+        paddingBottom: 10,
+        paddingTop: 10,
         borderRadius: 30,
-        margin: 16,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+        marginBottom: 20,
+        width: width * 0.9,
     },
     addButtonText: {
-        color: 'white',
-        fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        color: theme.colours.white,
+        fontFamily: theme.fonts.openSans.semiBold,
+        fontSize: 30,
         marginLeft: 8,
     },
 });

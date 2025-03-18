@@ -14,6 +14,12 @@ export const theme = {
         black: "#000000",
         lightGray: "#B2BEB5",
         gray: "#818589",
+        gray0: "#000000",
+        gray20: "#666666",
+        gray50: "#F0F0F0",
+        gray80: "#F5F5F5",
+        gray99: "#FAFAFA",
+        gray100: "#FFFFFF",
     },
     fonts: {
         openSans: {

@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const greeting = getGreeting(username);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={require('@/assets/images/firewatch_tower.webp')}
@@ -44,7 +44,7 @@ export default function HomeScreen() {
       <View style={styles.emergencyButtonContainer}>
         <EmergencyButton />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -69,7 +69,8 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   header: {
-    height: 200, // Adjust height as needed
+    width: "100%",
+    aspectRatio: 16/9,
   },
   headerOverlay: {
     position: 'absolute',

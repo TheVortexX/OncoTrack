@@ -74,7 +74,7 @@ const TodaySchedule = () => {
             <View style={styles.container}>
                 <Text style={styles.title}>Todays schedule</Text>
     
-                {scheduleItems.map(item => (
+                {scheduleItems.slice(0,3).map(item => (
                     <View key={item.id} style={styles.scheduleItem}>
                         <View style={styles.timeContainer}>
                             <View style={[styles.timeMarker, { backgroundColor: item.color }]} />
