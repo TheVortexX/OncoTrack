@@ -1,6 +1,7 @@
-import {getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp} from '@react-native-firebase/firestore';
+import { firestore } from '@/services/firebaseConfig';
+import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp} from 'firebase/firestore';
 
-const db = getFirestore();
+const db = firestore;
 
 export const createUserProfile = async (uid: string, initialData = {}) => {
     try {
@@ -21,7 +22,7 @@ export const createUserProfile = async (uid: string, initialData = {}) => {
 export const getUserProfile = async (uid: string) => {
     try {
         const document = await getDoc(doc(db, 'users', uid));
-        return document.exists ? document.data() : null;
+        return document.data();
     } catch (error) {
         console.error('Error fetching user profile:', error);
         return null;

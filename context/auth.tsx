@@ -2,34 +2,43 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, FirebaseAuthTypes} from '@react-native-firebase/auth';
+import { auth } from '@/services/firebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User, AuthError} from 'firebase/auth';
+import { DocumentData } from 'firebase/firestore';
 import { setStoredValue, getStoredValue } from '@/hooks/useStorage';
 import { Alert } from 'react-native';
 import { getUserProfile, updateUserProfile } from '@/services/profileService';
-import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 type AuthContextType = {
-    user: FirebaseAuthTypes.User | null;
+    user: User | null;
     loading: boolean;
     signInUser: (email: string, password: string) => Promise<boolean>;
-    createUser: (email: string, password: string) => Promise<FirebaseAuthTypes.User | null>;
-    getProfile: () => Promise<FirebaseFirestoreTypes.DocumentData | null | undefined>;
+    createUser: (email: string, password: string) => Promise<User | null>;
+    getProfile: () => Promise<DocumentData | null | undefined>;
     updateProfile: (updates: any) => Promise<boolean>;
     signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const auth = getAuth();
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUserState] = useState<FirebaseAuthTypes.User | null>(null);
+    const [user, setUserState] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const segments = useSegments();
     const router = useRouter();
 
     const publicRoutes = ['/_sitemap'];
+
+    useEffect(() => {
+        // Listen for auth state changes
+        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+            setUserState(firebaseUser);
+        });
+
+        // Cleanup subscription
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         if (loading) return;
@@ -77,18 +86,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signInUser = async (email: string, password: string) => {
-
         setLoading(true);
         try {
             const credential = await signInWithEmailAndPassword(auth, email, password);
-            const user = credential.user
+            const user = credential.user;
             
             setStoredValue('auth_hasLoggedInBefore', true);
             SecureStore.setItemAsync('auth_email', email);
 
             setUserState(user);
-
-
             return true;
         } catch (error) {
             console.error('Error signing in user: ', error);
@@ -117,16 +123,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 ]);
             }
             return userCredential.user;
-        } catch (error) {
-            const authError = error as FirebaseAuthTypes.NativeFirebaseAuthError;
+        } catch (error: any) {
             console.error('Error creating user: ', error);
-            let errorMessage = '';
-            const match = authError.message.match(/\]\s*(.*)/);
-            if (match && match[1]) {
-                errorMessage = match[1];
-            } else {
-                errorMessage = authError.message;
+            let errorMessage = error.message || 'Registration failed';
+
+            // Clean up the Firebase error message
+            if (errorMessage.includes('Firebase:')) {
+                errorMessage = errorMessage.split('Firebase:')[1].trim();
             }
+
             Alert.alert('Registration failed', errorMessage);
             return null;
         } finally {
