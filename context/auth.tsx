@@ -3,7 +3,8 @@ import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { auth } from '@/services/firebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User, AuthError} from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User} from 'firebase/auth';
+import { getErrorMessage } from '@/utils/errorMap';
 import { DocumentData } from 'firebase/firestore';
 import { setStoredValue, getStoredValue } from '@/hooks/useStorage';
 import { Alert } from 'react-native';
@@ -124,14 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             return userCredential.user;
         } catch (error: any) {
+            const errorCode = error.code || 'default';
+            const errorMessage = getErrorMessage(errorCode);
             console.error('Error creating user: ', error);
-            let errorMessage = error.message || 'Registration failed';
-
-            // Clean up the Firebase error message
-            if (errorMessage.includes('Firebase:')) {
-                errorMessage = errorMessage.split('Firebase:')[1].trim();
-            }
-
+            
             Alert.alert('Registration failed', errorMessage);
             return null;
         } finally {
