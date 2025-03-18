@@ -7,6 +7,7 @@ const InputField = ({
     value,
     onChangeText,
     placeholder,
+    placeholderTextColor = '#808080',
     secureTextEntry = false,
     keyboardType = 'default',
     autoCapitalize = 'sentences',
@@ -33,7 +34,6 @@ const InputField = ({
 
     const handleBlur = () => {
         setTouched(true);
-        print("blurHandled")
         if (validateOnBlur) {
             var validationError = validate(value);
             setError(validationError || '');
@@ -52,6 +52,7 @@ const InputField = ({
                     ]}
                     value={value}
                     placeholder={placeholder}
+                    placeholderTextColor={placeholderTextColor}
                     onChangeText={handleTextChange}
                     secureTextEntry={secureTextEntry}
                     keyboardType={keyboardType}
