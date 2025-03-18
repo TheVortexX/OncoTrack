@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { useRouter } from 'expo-router';
-import { ScrollView, View, Dimensions, Text, StyleSheet, TextInput, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import InputField from '@/components/InputField';
-import CheckBox from 'expo-checkbox';
+import CheckBox from '@/components/checkbox';
 import { Octicons } from '@expo/vector-icons';
 import { createUserProfile } from '@/services/profileService';
 
@@ -135,195 +134,195 @@ const RegistrationScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
         >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={styles.container}>
-                <Image
-                    source={require('@/assets/images/logo_trans_icon.png')}
-                    style={styles.logo}
-                    resizeMode='contain'
-                />
-                <Text style={styles.titleText}>Register</Text>
-                <View style={styles.content}>
-                    <InputField
-                        label='First Name'
-                        value={fName}
-                        placeholder='Type your first name'
-                        onChangeText={setFName}
-                        autoComplete='given-name'
-                        autoCapitalize='words'
-                        validateOnBlur
-                        validate={validate.notEmptyTextOnly}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.container}>
+                    <Image
+                        source={require('@/assets/images/logo_trans_icon.png')}
+                        style={styles.logo}
+                        resizeMode='contain'
                     />
-                    <InputField
-                        label='Last Name'
-                        value={lName}
-                        placeholder='Type your last name'
-                        onChangeText={setLName}
-                        autoComplete='family-name'
-                        autoCapitalize='words'
-                        validateOnBlur
-                        validate={validate.notEmptyTextOnly}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <InputField
-                        label='Email'
-                        value={email}
-                        placeholder='Type email'
-                        onChangeText={setEmail}
-                        keyboardType='email-address'
-                        autoComplete='email'
-                        validateOnBlur
-                        validate={validate.email}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <InputField
-                        label='Password'
-                        value={password}
-                        placeholder='Type password'
-                        onChangeText={updatePass}
-                        secureTextEntry
-                        validateOnBlur
-                        autoComplete='new-password'
-                        autoCapitalize='none'
-                        validate={validate.password}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <View style={{ marginBottom: 30, marginLeft: -20 }}>
-                        <Text style={styles.passwordHint}>
-                            Your password must:
-                        </Text>
-
-                        <View style={styles.passwordRequirementRow}>
-                            <Octicons
-                                name={passLen ? "check" : "dot-fill"}
-                                size={20}
-                                color={passLen ? theme.colours.black : theme.colours.primary}
-                            />
-                            <Text style={[
-                                styles.passwordHintList,
-                                !passLen && { color: theme.colours.primary }
-                            ]}>Be at least 8 characters long</Text>
-                        </View>
-
-                        <View style={styles.passwordRequirementRow}>
-                            <Octicons
-                                name={passUpper ? "check" : "dot-fill"}
-                                size={20}
-                                color={passUpper ? theme.colours.black : theme.colours.primary}
-                            />
-                            <Text style={[
-                                styles.passwordHintList,
-                                !passUpper && { color: theme.colours.primary }
-                            ]}>Contain at least one upper case letter</Text>
-                        </View>
-
-                        <View style={styles.passwordRequirementRow}>
-                            <Octicons
-                                name={passLower ? "check" : "dot-fill"}
-                                size={20}
-                                color={passLower ? theme.colours.black : theme.colours.primary}
-                            />
-                            <Text style={[
-                                styles.passwordHintList,
-                                !passLower && { color: theme.colours.primary }
-                            ]}>Contain at least one lower case letter</Text>
-                        </View>
-
-                        <View style={styles.passwordRequirementRow}>
-                            <Octicons
-                                name={passNum ? "check" : "dot-fill"}
-                                size={20}
-                                color={passNum ? theme.colours.black : theme.colours.primary}
-                            />
-                            <Text style={[
-                                styles.passwordHintList,
-                                !passNum && { color: theme.colours.primary }
-                            ]}>Contain at least one number</Text>
-                        </View>
-                    </View>
-                    <InputField
-                        label='Confirm password'
-                        value={confPassword}
-                        placeholder='Re-enter your password'
-                        onChangeText={setConfPassword}
-                        secureTextEntry
-                        validateOnBlur
-                        autoComplete='new-password'
-                        autoCapitalize='none'
-                        validate={validate.passMatch}
-                        style={{
-                            input: styles.input,
-                            label: styles.inputLabel,
-                            errorText: styles.errorText,
-                            container: styles.inputContainer,
-                            errorInput: styles.errorInput,
-                        }}
-                    />
-                    <View style={styles.checkboxContainer}>
-                        <CheckBox
-                            value={tosChecked}
-                            onValueChange={setTosChecked}
-                            style={styles.checkbox}
-                            color={tosChecked ? theme.colours.primary : undefined}
+                    <Text style={styles.titleText}>Register</Text>
+                    <View style={styles.content}>
+                        <InputField
+                            label='First Name'
+                            value={fName}
+                            placeholder='Type your first name'
+                            onChangeText={setFName}
+                            autoComplete='given-name'
+                            autoCapitalize='words'
+                            validateOnBlur
+                            validate={validate.notEmptyTextOnly}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
                         />
-                        <Text style={styles.checkboxText}>I agree to the </Text><TouchableOpacity onPress={toTOS}><Text style={[styles.checkboxText, { textDecorationLine: "underline" }]}>Terms of Service</Text></TouchableOpacity>
-                    </View>
-                    <View style={styles.checkboxContainer}>
-                        <CheckBox
-                            value={privacyChecked}
-                            onValueChange={setPrivacyChecked}
-                            style={styles.checkbox}
-                            color={privacyChecked ? theme.colours.primary : undefined}
+                        <InputField
+                            label='Last Name'
+                            value={lName}
+                            placeholder='Type your last name'
+                            onChangeText={setLName}
+                            autoComplete='family-name'
+                            autoCapitalize='words'
+                            validateOnBlur
+                            validate={validate.notEmptyTextOnly}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
                         />
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.checkboxText}>
-                                I confirm that I agree to OncoTrack's{' '}
-                                <Text
-                                    onPress={toPrivacy}
-                                    style={[styles.checkboxText, { textDecorationLine: "underline" }]}
-                                >
-                                    Privacy Policy
-                                </Text>
+                        <InputField
+                            label='Email'
+                            value={email}
+                            placeholder='Type email'
+                            onChangeText={setEmail}
+                            keyboardType='email-address'
+                            autoComplete='email'
+                            validateOnBlur
+                            validate={validate.email}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <InputField
+                            label='Password'
+                            value={password}
+                            placeholder='Type password'
+                            onChangeText={updatePass}
+                            secureTextEntry
+                            validateOnBlur
+                            autoComplete='new-password'
+                            autoCapitalize='none'
+                            validate={validate.password}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <View style={{ marginBottom: 30, marginLeft: -20 }}>
+                            <Text style={styles.passwordHint}>
+                                Your password must:
                             </Text>
+
+                            <View style={styles.passwordRequirementRow}>
+                                <Octicons
+                                    name={passLen ? "check" : "dot-fill"}
+                                    size={20}
+                                    color={passLen ? theme.colours.black : theme.colours.primary}
+                                />
+                                <Text style={[
+                                    styles.passwordHintList,
+                                    !passLen && { color: theme.colours.primary }
+                                ]}>Be at least 8 characters long</Text>
+                            </View>
+
+                            <View style={styles.passwordRequirementRow}>
+                                <Octicons
+                                    name={passUpper ? "check" : "dot-fill"}
+                                    size={20}
+                                    color={passUpper ? theme.colours.black : theme.colours.primary}
+                                />
+                                <Text style={[
+                                    styles.passwordHintList,
+                                    !passUpper && { color: theme.colours.primary }
+                                ]}>Contain at least one upper case letter</Text>
+                            </View>
+
+                            <View style={styles.passwordRequirementRow}>
+                                <Octicons
+                                    name={passLower ? "check" : "dot-fill"}
+                                    size={20}
+                                    color={passLower ? theme.colours.black : theme.colours.primary}
+                                />
+                                <Text style={[
+                                    styles.passwordHintList,
+                                    !passLower && { color: theme.colours.primary }
+                                ]}>Contain at least one lower case letter</Text>
+                            </View>
+
+                            <View style={styles.passwordRequirementRow}>
+                                <Octicons
+                                    name={passNum ? "check" : "dot-fill"}
+                                    size={20}
+                                    color={passNum ? theme.colours.black : theme.colours.primary}
+                                />
+                                <Text style={[
+                                    styles.passwordHintList,
+                                    !passNum && { color: theme.colours.primary }
+                                ]}>Contain at least one number</Text>
+                            </View>
+                        </View>
+                        <InputField
+                            label='Confirm password'
+                            value={confPassword}
+                            placeholder='Re-enter your password'
+                            onChangeText={setConfPassword}
+                            secureTextEntry
+                            validateOnBlur
+                            autoComplete='new-password'
+                            autoCapitalize='none'
+                            validate={validate.passMatch}
+                            style={{
+                                input: styles.input,
+                                label: styles.inputLabel,
+                                errorText: styles.errorText,
+                                container: styles.inputContainer,
+                                errorInput: styles.errorInput,
+                            }}
+                        />
+                        <View style={styles.checkboxContainer}>
+                            <CheckBox
+                                value={tosChecked}
+                                onValueChange={setTosChecked}
+                                style={styles.checkbox}
+                                color={tosChecked ? theme.colours.primary : undefined}
+                            />
+                            <Text style={styles.checkboxText}>I agree to the </Text><TouchableOpacity onPress={toTOS}><Text style={[styles.checkboxText, { textDecorationLine: "underline" }]}>Terms of Service</Text></TouchableOpacity>
+                        </View>
+                        <View style={styles.checkboxContainer}>
+                            <CheckBox
+                                value={privacyChecked}
+                                onValueChange={setPrivacyChecked}
+                                style={styles.checkbox}
+                                color={privacyChecked ? theme.colours.primary : undefined}
+                            />
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.checkboxText}>
+                                    I confirm that I agree to OncoTrack's{' '}
+                                    <Text
+                                        onPress={toPrivacy}
+                                        style={[styles.checkboxText, { textDecorationLine: "underline" }]}
+                                    >
+                                        Privacy Policy
+                                    </Text>
+                                </Text>
+                            </View>
                         </View>
                     </View>
+                    <View style={styles.bottomContent}>
+                        <TouchableOpacity style={styles.button} onPress={doRegister}>
+                            {loading ? (
+                                <ActivityIndicator size='large' color={theme.colours.blue50} />
+                            ) : (
+                                <Text style={styles.buttonText}>Create account</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.bottomContent}>
-                    <TouchableOpacity style={styles.button} onPress={doRegister}>
-                        {loading ? (
-                            <ActivityIndicator size='large' color={theme.colours.blue50} />
-                        ) : (
-                            <Text style={styles.buttonText}>Create account</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
         </KeyboardAvoidingView>
 
     );
@@ -430,6 +429,8 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 5,
         marginRight: 20,
+        borderWidth: 3,
+        borderColor: theme.colours.buttonBlue,
     },
 
     checkboxText: {
