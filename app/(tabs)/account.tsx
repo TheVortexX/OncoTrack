@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Pl
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
-import { MMKV } from '@/utils/staticStorage';
 import { theme } from '@/constants/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/context/auth';
 
 const AccountScreen = () => {
@@ -33,7 +33,7 @@ const AccountScreen = () => {
     };
 
     const debug_resetStorage = () => {
-        MMKV.clearAll();
+        AsyncStorage.clear()
         SecureStore.deleteItemAsync('auth_email');
         SecureStore.deleteItemAsync('auth_password');
         signOut();

@@ -3,7 +3,7 @@ import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, FirebaseAuthTypes} from '@react-native-firebase/auth';
-import { setStoredValue, getStoredValue } from '@/utils/staticStorage';
+import { setStoredValue, getStoredValue } from '@/hooks/useStorage';
 import { Alert } from 'react-native';
 import { getUserProfile, updateUserProfile } from '@/services/profileService';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
