@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     titleText: {
         fontFamily: theme.fonts.roboto.medium,
         fontSize: 80,
-        color: "#000000",
+        color: theme.colours.black,
         textAlign: 'center',
         marginBottom: height * 0.05,
     },

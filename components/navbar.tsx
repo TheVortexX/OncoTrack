@@ -59,14 +59,14 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        router.navigate('/reports');
+                        router.navigate('/chat');
                      }}
                 >
                     <Ionicons
-                        name="document-text-outline"
+                        name="chatbox-ellipses-outline"
                         size={30}
                     />
-                    <Text style={styles.navText}>Reports</Text>
+                    <Text style={styles.navText}>Chat</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

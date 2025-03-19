@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Reports = () => {
+const Chat = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Reports Screen Placeholder</Text>
+            <Text style={styles.text}>Chat Screen Placeholder</Text>
         </View>
     );
 };
@@ -22,4 +22,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Reports;
+export default Chat;
