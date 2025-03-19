@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Platform, StatusBar } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Platform, StatusBar, Linking } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useEmergencyContacts } from '@/context/emergencyContacts';
 
 type EmergencyContact = {
     id: string;
@@ -16,8 +17,8 @@ type EmergencyContact = {
 const { width } = Dimensions.get('window');
 
 export default function EmergencyContactsScreen() {
-    const { user, getProfile } = useAuth();
-    const [contacts, setContacts] = useState<EmergencyContact[]>([
+    // TODO allow deleting of contacts
+    const defaultContacts: EmergencyContact[] = [
         {
             id: 'emergency-services',
             name: 'Emergency Services',
@@ -32,31 +33,26 @@ export default function EmergencyContactsScreen() {
                 },
             }
         },
-        {
-            id: 'user-contact-1',
-            name: 'Mum',
-            number: '+4478512132923',
-            description: 'Mum\'s mobile'
-        },
-        {
-            id: 'user-contact-2',
-            name: 'Dad',
-            number: '+44754124124124',
-            description: 'Dad\'s mobile'
+    ]
+    const { user, getProfile } = useAuth();
+    const router  = useRouter();
+    const { contacts } = useEmergencyContacts();
+
+
+    const handleCall = async (number: string) => {
+        const formattedNum = number.replace(/\s/g, '');
+        const phoneUrl = `tel:${formattedNum}`;
+
+        try {
+            return await Linking.openURL(phoneUrl);
+        } catch (err) {
+            console.error(err);
+            Alert.alert(
+                'Phone Call Not Supported',
+                'Your device does not support making phone calls',
+                [{ text: 'OK' }]
+            );
         }
-    ]);
-
-    useEffect(() => {
-        // TODO Fetch emergency contacts even when not authenticated
-    }, []);
-
-    const handleCall = (number: string) => {
-        // TODO MAKE PHONE CALL
-        Alert.alert(
-            'Phone Call Not Supported',
-            'Your device does not support making phone calls',
-            [{ text: 'OK' }]
-        );
     };
 
     const renderContactItem = ({ item }: { item: EmergencyContact }) => (
@@ -106,7 +102,7 @@ export default function EmergencyContactsScreen() {
                             styles.addButton,
                             Platform.OS === 'ios' ? { marginBottom: 30 } : { marginBottom: 20 }
                         ]}
-                        onPress={() => {/* TODO Navigate to add contact screen */ }}
+                        onPress={() => {router.navigate('/emergencyContacts/new')}}
                     >
                         <Ionicons name="add-circle" size={24} color="white" />
                         <Text style={styles.addButtonText}>Add Contact</Text>

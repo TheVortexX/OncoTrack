@@ -5,6 +5,7 @@ import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import EmergencyButton from '@/components/emergencyButton';
 import TodaySchedule from '@/components/todaySchedule';
+import { StatusBar } from 'expo-status-bar';
 
 export default function HomeScreen() {
   const { getProfile } = useAuth();
@@ -24,6 +25,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={require('@/assets/images/firewatch_tower.webp')}
@@ -61,7 +63,7 @@ function getGreeting(username: string) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: theme.colours.blue99,
     marginBottom: 70,
   },
   scrollContent: {
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
     bottom: 10,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(41,50,65,0.78)',
+    backgroundColor: theme.colours.blue0,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderTopLeftRadius: 5,
