@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,11 +11,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const AccountScreen = () => {
     // TODO get actual profile information
     const router = useRouter();
-    const { user, signOut } = useAuth();
+    const { user, getProfile, signOut } = useAuth();
     const [isFaceIDEnabled, setIsFaceIDEnabled] = useState(true);
     const [isFaceIDSupported, setIsFaceIDSupported] = useState(true);
     const [displayName, setDisplayName] = useState('Not set');
-    const [email, setEmail] = useState('Not set');
+    const [email, setEmail] = useState(user?.email || 'Not set');
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            const profile = await getProfile();
+            if (profile) {
+                setDisplayName(profile.fName + ' ' + profile.lName);
+            }
+        }
+        loadProfile();
+    }, []);
 
 
     const handleEditDisplayName = () => {
@@ -101,8 +111,11 @@ const AccountScreen = () => {
                             </View>
                             <Switch
                                 value={isFaceIDEnabled}
-                                onValueChange={() => {}}
-                                trackColor={{ false: theme.colours.blue80, true: theme.colours.primary }}
+                                onValueChange={(toggle) => {
+                                    // TODO check biometric support
+                                    setIsFaceIDEnabled(toggle)
+                                }}
+                                trackColor={{ false: theme.colours.blue80, true: theme.colours.gray50 }}
                                 thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.gray}
                             />
                         </View>
