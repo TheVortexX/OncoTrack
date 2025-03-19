@@ -18,6 +18,13 @@ const validate = {
         if (!/^[A-Za-z\- ]+$/.test(value)) return 'Field can contain only letters, hyphens, and spaces';
         return '';
     },
+    phone: (value: string) => {
+        if (!value.trim()) return 'Phone number is required';
+        // PHONE VALIDATION TODO
+        if (!/^(?:\+\d{1,3})?\s*\d{4,5}\s*\d{3,6}\s*\d{0,4}$/.test(value))
+            return 'Please enter a valid phone number';
+        return '';
+    }
 };
 
 export default validate;
