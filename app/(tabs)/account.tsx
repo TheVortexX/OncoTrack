@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { theme } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/context/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AccountScreen = () => {
-    // TODO get actual profile information
     const router = useRouter();
     const { user, getProfile, signOut } = useAuth();
     const [isFaceIDEnabled, setIsFaceIDEnabled] = useState(true);
@@ -26,7 +24,6 @@ const AccountScreen = () => {
         }
         loadProfile();
     }, []);
-
 
     const handleEditDisplayName = () => {
         router.push('/');
@@ -58,178 +55,209 @@ const AccountScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView style={styles.scrollContent}>
+        <>
+            <View style={{
+                backgroundColor: theme.colours.blue20,
+                height: Platform.OS === 'ios' ? 50 : 0
+            }}>
+                <StatusBar
+                    backgroundColor={theme.colours.blue20}
+                    barStyle="light-content"
+                />
+            </View>
+
+            <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Account Settings</Text>
+                    <Text style={styles.headerText}>Account Settings</Text>
+                    <Text style={styles.subHeaderText}>Manage your profile and preferences</Text>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Profile Information</Text>
+                <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Profile Information</Text>
 
-                    <View style={styles.settingRow}>
-                        <View style={styles.settingInfo}>
-                            <Text style={styles.settingLabel}>Name</Text>
-                            <Text style={styles.settingValue}>{displayName}</Text>
+                        <View style={styles.settingRow}>
+                            <View style={styles.settingInfo}>
+                                <Text style={styles.settingLabel}>Name</Text>
+                                <Text style={styles.settingValue}>{displayName}</Text>
+                            </View>
+                            <TouchableOpacity onPress={handleEditDisplayName} style={styles.actionButton}>
+                                <Text style={styles.actionButtonText}>Edit</Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity onPress={handleEditDisplayName} style={styles.actionButton}>
-                            <Text style={styles.actionButtonText}>Edit</Text>
-                        </TouchableOpacity>
+
+                        <View style={styles.settingRow}>
+                            <View style={styles.settingInfo}>
+                                <Text style={styles.settingLabel}>Email</Text>
+                                <Text style={styles.settingValue}>{email}</Text>
+                            </View>
+                        </View>
                     </View>
 
-                    <View style={styles.settingRow}>
-                        <View style={styles.settingInfo}>
-                            <Text style={styles.settingLabel}>Email</Text>
-                            <Text style={styles.settingValue}>{email}</Text>
-                        </View>
-                    </View>
-                </View>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Security</Text>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Security</Text>
-
-                    <TouchableOpacity onPress={()=>{}} style={styles.menuItem}>
-                        <View style={styles.menuItemContent}>
-                            <Ionicons name="lock-closed-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                            <Text style={styles.menuItemText}>Reset Password</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
-                    </TouchableOpacity>
-
-                    {isFaceIDSupported && (
-                        <View style={styles.menuItem}>
+                        <TouchableOpacity onPress={() => { }} style={styles.menuItem}>
                             <View style={styles.menuItemContent}>
-                                <Ionicons
-                                    name={Platform.OS === 'ios' ? "id-card-outline" : "finger-print"}
-                                    size={24}
-                                    color={theme.colours.primary}
-                                    style={styles.menuItemIcon}
+                                <Ionicons name="lock-closed-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                <Text style={styles.menuItemText}>Reset Password</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                        </TouchableOpacity>
+
+                        {isFaceIDSupported && (
+                            <View style={styles.menuItem}>
+                                <View style={styles.menuItemContent}>
+                                    <Ionicons
+                                        name={Platform.OS === 'ios' ? "id-card-outline" : "finger-print"}
+                                        size={24}
+                                        color={theme.colours.primary}
+                                        style={styles.menuItemIcon}
+                                    />
+                                    <Text style={styles.menuItemText}>
+                                        {Platform.OS === 'ios' ? 'Use Face ID' : 'Use Biometric Authentication'}
+                                    </Text>
+                                </View>
+                                <Switch
+                                    value={isFaceIDEnabled}
+                                    onValueChange={(toggle) => {
+                                        setIsFaceIDEnabled(toggle)
+                                    }}
+                                    trackColor={{ false: theme.colours.gray50, true: theme.colours.primaryLight50 }}
+                                    thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.lightGray}
                                 />
-                                <Text style={styles.menuItemText}>
-                                    {Platform.OS === 'ios' ? 'Use Face ID' : 'Use Biometric Authentication'}
-                                </Text>
                             </View>
-                            <Switch
-                                value={isFaceIDEnabled}
-                                onValueChange={(toggle) => {
-                                    // TODO check biometric support
-                                    setIsFaceIDEnabled(toggle)
-                                }}
-                                trackColor={{ false: theme.colours.blue80, true: theme.colours.gray50 }}
-                                thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.gray}
-                            />
-                        </View>
-                    )}
-                </View>
-                {/* APP SECTION */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>App</Text>
-
-                    <TouchableOpacity onPress={debug_signOutPrompt} style={styles.menuItem}>
-                        <View style={styles.menuItemContent}>
-                            <Ionicons name="exit-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                            <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Sign Out</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
-                    </TouchableOpacity>
-
-                    {/* DEBUG */}
-                    <View style={styles.debugSection}>
-                        <Text style={styles.debugTitle}>Debug Options</Text>
-
-                        <TouchableOpacity onPress={resetDefaults} style={styles.menuItem}>
-                            <View style={styles.menuItemContent}>
-                                <Ionicons name="refresh-circle-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
-                                <Text style={[styles.menuItemText, { color: theme.colours.primary }]}>Reset App Defaults</Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue0} />
-                        </TouchableOpacity>
+                        )}
                     </View>
-                </View>
 
-                <View style={styles.footer}>
-                    <Text style={styles.versionText}>OncoTrack v1.0.0</Text>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>App</Text>
+
+                        <TouchableOpacity onPress={debug_signOutPrompt} style={styles.menuItem}>
+                            <View style={styles.menuItemContent}>
+                                <Ionicons name="exit-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                <Text style={styles.menuItemText}>Sign Out</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                        </TouchableOpacity>
+
+                        <View style={styles.debugSection}>
+                            <Text style={styles.debugTitle}>Debug Options</Text>
+
+                            <TouchableOpacity onPress={resetDefaults} style={styles.menuItem}>
+                                <View style={styles.menuItemContent}>
+                                    <Ionicons name="refresh-circle-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                    <Text style={styles.menuItemText}>Reset App Defaults</Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.footer}>
+                        <Text style={styles.versionText}>OncoTrack v1.0.0</Text>
+                    </View>
+                </ScrollView>
+            </View>
+        </>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colours.gray50,
+        backgroundColor: '#e6f7f7',
         marginBottom: 70,
-    },
-    scrollContent: {
-        flexGrow: 1,
         paddingBottom: 20,
     },
     header: {
+        backgroundColor: theme.colours.blue20,
         padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colours.lightGray,
+        paddingTop: Platform.OS === 'android' ? 50 : 16,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
     },
-    headerTitle: {
+    headerText: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: theme.colours.blue0,
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: 'white',
+        textAlign: 'center',
+    },
+    subHeaderText: {
+        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: 'white',
+        textAlign: 'center',
+        marginTop: 4,
+    },
+    scrollContent: {
+        flex: 1,
+    },
+    scrollContentContainer: {
+        paddingBottom: 100, // Extra padding for scrolling past the bottom tab bar
     },
     section: {
-        marginVertical: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: 'white',
-        borderRadius: 8,
+        marginVertical: 12,
         marginHorizontal: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        backgroundColor: theme.colours.surface,
+        borderRadius: 12,
+        shadowColor: theme.colours.blue0,
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        shadowRadius: 4,
+        elevation: 3,
+        overflow: 'hidden',
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: theme.colours.blue20,
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
     },
     settingRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colours.lightGray,
+        borderBottomColor: theme.colours.divider,
     },
     settingInfo: {
         flex: 1,
     },
     settingLabel: {
         fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
     },
     settingValue: {
         fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textSecondary,
         marginTop: 4,
     },
     actionButton: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        borderColor: theme.colours.primary,
-        borderWidth: 1,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: theme.colours.primary,
     },
     actionButtonText: {
         fontSize: 14,
-        color: theme.colours.primary,
-        fontWeight: '500',
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: theme.colours.white,
     },
     menuItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 16,
+        paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colours.lightGray,
+        borderBottomColor: theme.colours.divider,
     },
     menuItemContent: {
         flexDirection: 'row',
@@ -240,24 +268,30 @@ const styles = StyleSheet.create({
     },
     menuItemText: {
         fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
     },
     debugSection: {
-        marginTop: 16,
-        paddingTop: 16,
+        marginTop: 8,
+        paddingTop: 8,
         borderTopWidth: 1,
-        borderTopColor: theme.colours.lightGray,
+        borderTopColor: theme.colours.divider,
     },
     debugTitle: {
         fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 12,
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: theme.colours.gray,
+        marginHorizontal: 16,
+        marginTop: 8,
+        marginBottom: 8,
     },
     footer: {
-        padding: 16,
+        padding: 24,
         alignItems: 'center',
     },
     versionText: {
         fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.gray,
     },
 });
