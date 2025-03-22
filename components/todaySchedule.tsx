@@ -12,6 +12,7 @@ interface ScheduleItem {
 
 const TodaySchedule = () => {
     // TODO DEBUG Get from firebase
+    // Set items by time in seconds and work out by using multiples?
     const scheduleItems: ScheduleItem[] = [
         {
             id: '1',
