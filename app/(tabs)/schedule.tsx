@@ -1,13 +1,11 @@
 import React, { useState, useEffect, FC } from 'react';
-import { View, Text, StyleSheet, ScrollView, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ViewStyle, TextStyle, StatusBar, Platform } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 
 interface Appointment {
     id: string;
@@ -19,33 +17,6 @@ interface Appointment {
     dateFormatted: string;
     userId: string;
     [key: string]: any; // Allow additional properties
-}
-
-interface StylesType {
-    container: ViewStyle;
-    calendarStrip: ViewStyle;
-    calendarHeader: TextStyle;
-    dateNumber: TextStyle;
-    dateName: TextStyle;
-    highlightedDateNumber: TextStyle;
-    highlightedDateName: TextStyle;
-    disabledDateName: TextStyle;
-    disabledDateNumber: TextStyle;
-    appointmentsContainer: ViewStyle;
-    dayHeader: ViewStyle;
-    dayNumber: TextStyle;
-    dayName: TextStyle;
-    appointmentCard: ViewStyle;
-    appointmentTime: ViewStyle;
-    timeText: TextStyle;
-    appointmentDetails: ViewStyle;
-    providerName: TextStyle;
-    appointmentType: TextStyle;
-    staffInfo: TextStyle;
-    initialsCircle: ViewStyle;
-    initialsText: TextStyle;
-    noAppointments: ViewStyle;
-    noAppointmentsText: TextStyle;
 }
 
 const ScheduleScreen: FC = () => {
@@ -132,61 +103,96 @@ const ScheduleScreen: FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="dark" translucent />
-            <CalendarStrip
-                style={styles.calendarStrip}
-                calendarColor={theme.colours.background}
-                calendarHeaderStyle={styles.calendarHeader}
-                dateNumberStyle={styles.dateNumber}
-                dateNameStyle={styles.dateName}
-                highlightDateNumberStyle={styles.highlightedDateNumber}
-                highlightDateNameStyle={styles.highlightedDateName}
-                disabledDateNameStyle={styles.disabledDateName}
-                disabledDateNumberStyle={styles.disabledDateNumber}
-                iconContainer={{ flex: 0.1 }}
-                onDateSelected={(date: any) => setSelectedDate(date)}
-                selectedDate={selectedDate}
-                scrollable
-                highlightDateContainerStyle={{
-                    backgroundColor: theme.colours.primary,
-                    borderRadius: 30,
-                }}
-                customDatesStyles={[
-                    {
+        <>
+            <View style={{
+                backgroundColor: theme.colours.blue20,
+                height: Platform.OS === 'ios' ? 50 : 0
+            }}>
+                <StatusBar
+                    backgroundColor={theme.colours.blue20}
+                    barStyle="light-content"
+                />
+            </View>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>Schedule</Text>
+                    <Text style={styles.subHeaderText}>Your weeks schedule</Text>
+                </View>
+                <CalendarStrip
+                    style={styles.calendarStrip}
+                    calendarColor={theme.colours.background}
+                    calendarHeaderStyle={styles.calendarHeader}
+                    dateNumberStyle={styles.dateNumber}
+                    dateNameStyle={styles.dateName}
+                    highlightDateNumberStyle={styles.highlightedDateNumber}
+                    highlightDateNameStyle={styles.highlightedDateName}
+                    disabledDateNameStyle={styles.disabledDateName}
+                    disabledDateNumberStyle={styles.disabledDateNumber}
+                    iconContainer={{ flex: 0.1 }}
+                    onDateSelected={(date: any) => setSelectedDate(date)}
+                    selectedDate={selectedDate}
+                    scrollable
+                    highlightDateContainerStyle={{
+                        backgroundColor: theme.colours.primary,
+                        borderColor: theme.colours.calendar.selected,
+                        borderRadius: 30,
+                    }}
+                    customDatesStyles={[
+                        {
 
-                        // Example of custom styling for specific dates (like appointment dates)
-                        // TODO highlight dates with appointments
-                        dates: [new Date()],
-                        dateContainerStyle: {
-                            borderWidth: 2,
-                            borderColor: theme.colours.calendar?.appointment,
-                            borderRadius: 20,
-                        },
-                    }
-                ]}
-            />
+                            // Example of custom styling for specific dates (like appointment dates)
+                            // TODO highlight dates with appointments
+                            dates: [new Date()],
+                            dateContainerStyle: {
+                                borderWidth: 2,
+                                borderColor: theme.colours.calendar?.appointment,
+                                borderRadius: 20,
+                            },
+                        }
+                    ]}
+                />
 
-            <ScrollView style={styles.appointmentsContainer}>
-                {renderDayHeader()}
+                <ScrollView style={styles.appointmentsContainer}>
+                    {renderDayHeader()}
 
-                {appointments.length > 0 ? (
-                    appointments.map(appointment => renderAppointment(appointment))
-                ) : (
-                    <View style={styles.noAppointments}>
-                        <Ionicons name="calendar-outline" size={48} color={theme.colours.textSecondary} />
-                        <Text style={styles.noAppointmentsText}>No appointments scheduled for this day</Text>
-                    </View>
-                )}
-            </ScrollView>
-        </SafeAreaView>
+                    {appointments.length > 0 ? (
+                        appointments.map(appointment => renderAppointment(appointment))
+                    ) : (
+                        <View style={styles.noAppointments}>
+                            <Ionicons name="calendar-outline" size={48} color={theme.colours.textSecondary} />
+                            <Text style={styles.noAppointmentsText}>No appointments scheduled for this day</Text>
+                        </View>
+                    )}
+                </ScrollView>
+            </View>
+        </>
     );
 };
 
-const styles = StyleSheet.create < StylesType > ({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
+    },
+    header: {
+        backgroundColor: theme.colours.blue20,
+        padding: 16,
+        paddingTop: Platform.OS === 'android' ? 50 : 16,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    headerText: {
+        fontSize: 24,
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: 'white',
+        textAlign: 'center',
+    },
+    subHeaderText: {
+        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: 'white',
+        textAlign: 'center',
+        marginTop: 4,
     },
     calendarStrip: {
         height: 100,
@@ -196,29 +202,36 @@ const styles = StyleSheet.create < StylesType > ({
     },
     calendarHeader: {
         color: theme.colours.textPrimary,
-        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 18,
     },
     dateNumber: {
         color: theme.colours.textPrimary,
-        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 16,
     },
     dateName: {
+        fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
-        fontSize: 12,
+        fontSize: 14,
     },
     highlightedDateNumber: {
+        fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textOnPrimary,
         fontSize: 14,
     },
     highlightedDateName: {
+        fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textOnPrimary,
         fontSize: 12,
     },
     disabledDateName: {
+        fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.lightGray,
         fontSize: 12,
     },
     disabledDateNumber: {
+        fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.lightGray,
         fontSize: 14,
     },
@@ -233,12 +246,14 @@ const styles = StyleSheet.create < StylesType > ({
         borderBottomColor: theme.colours.divider,
     },
     dayNumber: {
-        fontSize: 24,
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 26,
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
     dayName: {
-        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 18,
         color: theme.colours.textSecondary,
     },
     appointmentCard: {
@@ -258,25 +273,29 @@ const styles = StyleSheet.create < StylesType > ({
         marginRight: 15,
     },
     timeText: {
-        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 16,
         color: theme.colours.textSecondary,
     },
     appointmentDetails: {
         flex: 1,
     },
     providerName: {
-        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 18,
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
         marginBottom: 4,
     },
     appointmentType: {
-        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 16,
         color: theme.colours.textSecondary,
         marginBottom: 2,
     },
     staffInfo: {
-        fontSize: 12,
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 14,
         color: theme.colours.gray,
     },
     initialsCircle: {
@@ -288,8 +307,9 @@ const styles = StyleSheet.create < StylesType > ({
         marginLeft: 10,
     },
     initialsText: {
+        fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
     },
     noAppointments: {
@@ -299,7 +319,8 @@ const styles = StyleSheet.create < StylesType > ({
     },
     noAppointmentsText: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: 18,
+        fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },
 });
