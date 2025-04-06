@@ -1,9 +1,10 @@
 import { firestore } from '@/services/firebaseConfig';
-import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp} from 'firebase/firestore';
+import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy} from 'firebase/firestore';
 
 const db = firestore;
 
-export const createUserProfile = async (uid: string, initialData = {}) => {
+export const createUserProfile = async (uid?: string, initialData = {}) => {
+    if (!uid) return false; // Ensure uid is provided
     try {
         const userData = {
             uid,
@@ -19,7 +20,8 @@ export const createUserProfile = async (uid: string, initialData = {}) => {
     }
 };
 
-export const getUserProfile = async (uid: string) => {
+export const getUserProfile = async (uid?: string) => {
+    if (!uid) return null; // Ensure uid is provided
     try {
         const document = await getDoc(doc(db, 'users', uid));
         return document.data();
@@ -28,6 +30,19 @@ export const getUserProfile = async (uid: string) => {
         return null;
     }
 };
+
+    export const getUserAppointments = async (uid?: string) => {
+        if (!uid) return []; // Ensure uid is provided
+        try {
+            const appointmentsCollection = collection(db, 'users', uid, 'appointments');
+            const q = query(appointmentsCollection, orderBy('startTime', 'asc'));
+            const snapshot = await getDocs(q);
+            return snapshot.docs;
+        } catch (error) {
+            console.error('Error fetching user appointments:', error);
+            return [];
+        }
+    };
 
 export const updateUserProfile = async (uid: string, updates:any) => {
     try {
@@ -42,7 +57,8 @@ export const updateUserProfile = async (uid: string, updates:any) => {
     }
 };
 
-export const deleteUserProfile = async (uid: string) => {
+export const deleteUserProfile = async (uid?: string) => {
+    if (!uid) return null; // Ensure uid is provided
     try {
         await deleteDoc(doc(db, 'users', uid));
         return true;
