@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,33 @@ const NavBar = () => {
     const insets = useSafeAreaInsets();
 
     const isActive = (path: string) => pathname === path;
+
+    const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+
+    React.useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setKeyboardVisible(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false);
+            }
+        );
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    // If keyboard is visible on Android, don't show the navbar
+    if (Platform.OS === 'android' && isKeyboardVisible) {
+        return null;
+    }
 
     return (
         <View style={styles.container}>
@@ -100,7 +127,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         paddingHorizontal: 10,
         backgroundColor: '#F47A60',
-        height: 70,
         paddingVertical: 10,
     },
     navItem: {
