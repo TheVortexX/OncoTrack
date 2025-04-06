@@ -1,98 +1,125 @@
-import React, { useState, useEffect, FC } from 'react';
-import { View, Text, StyleSheet, ScrollView, ViewStyle, TextStyle, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { firestore } from '@/services/firebaseConfig';
-import { Ionicons } from '@expo/vector-icons';
+import moment from 'moment';
+import { Timestamp } from 'firebase/firestore';
+import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
+import { getUserAppointments } from '@/services/profileService';
+import { create } from 'react-test-renderer';
+
+//TODO adding of appointments
+
 
 interface Appointment {
     id: string;
+    description: string;
     provider: string;
-    startTime: string;
-    endTime: string;
+    startTime: moment.Moment;
+    endTime: moment.Moment;
     appointmentType: string;
     staff: string;
-    dateFormatted: string;
-    userId: string;
     [key: string]: any; // Allow additional properties
 }
 
-const ScheduleScreen: FC = () => {
-    const [selectedDate, setSelectedDate] = useState < Date > (new Date());
+const ScheduleScreen = () => {
+    const [selectedDate, setSelectedDate] = useState < moment.Moment > (moment());
     const [appointments, setAppointments] = useState < Appointment[] > ([]);
     const { user } = useAuth();
 
     useEffect(() => {
-        fetchAppointments(selectedDate);
-    }, [selectedDate]);
-
-    const fetchAppointments = async (date: Date): Promise<void> => {
-        try {
-            const formattedDate = date.toISOString().split('T')[0];
-
-            // Query Firestore for appointments on the selected date
-            // TODO sort firestore storage of appointments and add appointment functionality
-            const appointmentsRef = collection(firestore, 'appointments');
-            const q = query(
-                appointmentsRef,
-                where('userId', '==', user?.uid),
-                where('dateFormatted', '==', formattedDate)
-            );
-
-            const querySnapshot = await getDocs(q);
+        getUserAppointments(user?.uid).then((appointmentDocs) => {
             const appointmentData: Appointment[] = [];
-
-            querySnapshot.forEach((doc) => {
+            appointmentDocs.forEach((doc) => {
                 const data = doc.data();
                 appointmentData.push({
+                    ...data, // Include any additional fields
                     id: doc.id,
+                    description: data.description || '',
                     provider: data.provider || '',
-                    startTime: data.startTime || '',
-                    endTime: data.endTime || '',
+                    startTime: timestampToMoment(data.startTime),
+                    endTime: timestampToMoment(data.endTime),
                     appointmentType: data.appointmentType || '',
                     staff: data.staff || '',
-                    dateFormatted: data.dateFormatted || '',
-                    userId: data.userId || '',
-                    ...data // Include any additional fields
+                    colour: getAppointmentColour(data.appointmentType),
                 });
             });
-
             setAppointments(appointmentData);
-        } catch (error) {
-            console.error("Error fetching appointments:", error);
-        }
+        })
+    }, []);
+
+    
+    const timestampToMoment = (timestamp: Timestamp) => {
+        const jsDate = timestamp.toDate();
+        return moment(jsDate);
     };
 
-    const renderAppointment = (appointment: Appointment) => {
+    const getAppointmentColour = (type: string) => {
+        switch (type) {
+            case "Medication":
+                return theme.colours.primary;
+            case "Appointment":
+                return theme.colours.blue80;
+            default:
+                return theme.colours.buttonBlue;
+        }
+
+    };
+    
+    const getUpcomingAppointments = useCallback(() => {
+        if (appointments.length === 0) return [];
+        const today = moment();
+        return appointments.filter(appointment => appointment.startTime.isAfter(today, 'day'));
+    }, [appointments])
+
+    // TODO allow appointments that span over multiple days
+    const dayAppointments = useCallback((appointments: Appointment[], date: moment.Moment) => {
+        if (appointments.length === 0) return [];
+        return appointments.filter(appointment => date.isSame(appointment.startTime, 'day'));
+    }, [appointments, selectedDate]);
+
+    const renderAppointment = (appointment: Appointment, future?: boolean) => {
         const initials = appointment.provider
             .split(' ')
             .map(name => name && name[0])
-            .join('');
+            .join('')
+            .slice(0, 4);
+
+        const size = initials.length > 3 ? 16 : 20;
 
         return (
             <View key={appointment.id} style={styles.appointmentCard}>
-                <View style={styles.appointmentTime}>
-                    <Text style={styles.timeText}>{`${appointment.startTime} - ${appointment.endTime}`}</Text>
+                <View style={styles.appointmentIconTime}>
+                    <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
+                        <Text style={[styles.initialsText, { fontSize: size } ]}>{initials}</Text>
+                    </View>
+                    <View style={styles.appointmentTime}>
+                        {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}
+                        <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                        {!appointment.startTime.isSame(appointment.endTime, "minute") && 
+                        <>
+                            <Text style={styles.timeSep}>I</Text>
+                            <Text style={styles.timeText}>{appointment.endTime.format("HH:mm")}</Text>
+                        </>
+                        }
+                    </View>
                 </View>
-
                 <View style={styles.appointmentDetails}>
                     <Text style={styles.providerName}>{appointment.provider}</Text>
-                    <Text style={styles.appointmentType}>{appointment.appointmentType}</Text>
-                    <Text style={styles.staffInfo}>{appointment.staff}</Text>
-                </View>
-
-                <View style={[styles.initialsCircle, { backgroundColor: theme.colours.primary }]}>
-                    <Text style={styles.initialsText}>{initials}</Text>
+                    <Text style={styles.appointmentType}>
+                        {appointment.appointmentType}
+                        {appointment.staff ? ` with ${appointment.staff}` : ''}
+                    </Text>
+                    <Text style={styles.staffInfo}>{appointment.description}</Text>
                 </View>
             </View>
         );
     };
 
     const renderDayHeader = () => {
-        const day = selectedDate.getDate();
-        const dayName = selectedDate.toLocaleDateString('en-GB', { weekday: 'short' });
+        const day = selectedDate.date();
+        const dayName = selectedDate.format('ddd');
 
         return (
             <View style={styles.dayHeader}>
@@ -102,6 +129,19 @@ const ScheduleScreen: FC = () => {
         );
     };
 
+    const getDateDots = (date: moment.Moment) => {
+        const dotsForDate: { dots: { color: string, selectedColor?: string }[] } = { dots: [] };
+        dayAppointments(appointments, date).forEach(appointment => {
+            dotsForDate.dots.push({
+                color: appointment.colour,
+                selectedColor: appointment.colour == theme.colours.primary ? theme.colours.blue99 : appointment.colour,
+            });
+        });
+        return dotsForDate;
+    }
+
+    const addNewAppointment = () => {}
+    
     return (
         <>
             <View style={{
@@ -117,6 +157,19 @@ const ScheduleScreen: FC = () => {
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Schedule</Text>
                     <Text style={styles.subHeaderText}>Your weeks schedule</Text>
+                    <TouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            right: 20,
+                            top: Platform.OS === 'android' ? 50 : 10,
+                            padding: 8,
+                            alignItems: 'center',
+                        }}
+                        onPress={addNewAppointment}
+                    >
+                        <FontAwesome6 name="calendar-plus" size={30} color="white" />
+                        <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', marginTop: 2 }}>New</Text>
+                    </TouchableOpacity>
                 </View>
                 <CalendarStrip
                     style={styles.calendarStrip}
@@ -129,7 +182,7 @@ const ScheduleScreen: FC = () => {
                     disabledDateNameStyle={styles.disabledDateName}
                     disabledDateNumberStyle={styles.disabledDateNumber}
                     iconContainer={{ flex: 0.1 }}
-                    onDateSelected={(date: any) => setSelectedDate(date)}
+                    onDateSelected={(date) => setSelectedDate(date)}
                     selectedDate={selectedDate}
                     scrollable
                     highlightDateContainerStyle={{
@@ -139,28 +192,37 @@ const ScheduleScreen: FC = () => {
                     }}
                     customDatesStyles={[
                         {
-
-                            // Example of custom styling for specific dates (like appointment dates)
-                            // TODO highlight dates with appointments
+                            // Current date circle
                             dates: [new Date()],
                             dateContainerStyle: {
-                                borderWidth: 2,
+                                borderWidth: 2.5,
                                 borderColor: theme.colours.calendar?.appointment,
-                                borderRadius: 20,
+                                borderRadius: 30,
                             },
                         }
                     ]}
+                    markedDates={getDateDots}
                 />
 
                 <ScrollView style={styles.appointmentsContainer}>
                     {renderDayHeader()}
-
-                    {appointments.length > 0 ? (
-                        appointments.map(appointment => renderAppointment(appointment))
+                    {dayAppointments(appointments, selectedDate).length > 0 ? (
+                        dayAppointments(appointments, selectedDate).map(appointment => renderAppointment(appointment))
                     ) : (
                         <View style={styles.noAppointments}>
                             <Ionicons name="calendar-outline" size={48} color={theme.colours.textSecondary} />
                             <Text style={styles.noAppointmentsText}>No appointments scheduled for this day</Text>
+                        </View>
+                    )}
+                    <View style={styles.upcomingHeader}>
+                        <Text style={styles.upcomingText}>Upcoming</Text>
+                    </View>
+                    {getUpcomingAppointments().length > 0 ? (
+                        getUpcomingAppointments().map(appointment => renderAppointment(appointment, true))
+                    ) : (
+                        <View style={styles.noAppointments}>
+                            <Ionicons name="calendar-outline" size={48} color={theme.colours.textSecondary} />
+                            <Text style={styles.noAppointmentsText}>No upcoming appointments</Text>
                         </View>
                     )}
                 </ScrollView>
@@ -251,6 +313,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
+    upcomingHeader: {
+        padding: 15,
+        backgroundColor: theme.colours.blue99,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colours.divider,
+    },
+    upcomingText: {
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.colours.textPrimary,
+        marginTop: 60,
+    },
     dayName: {
         fontFamily: theme.fonts.ubuntu.regular,
         fontSize: 18,
@@ -262,19 +337,41 @@ const styles = StyleSheet.create({
         marginHorizontal: 15,
         marginVertical: 8,
         borderRadius: 10,
-        padding: 15,
+        padding: 10,
         shadowColor: theme.colours.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
         elevation: 2,
     },
-    appointmentTime: {
+    appointmentIconTime: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginRight: 15,
+        borderRightWidth: 1,
+        borderRightColor: theme.colours.divider,
+    },
+    appointmentTime: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        paddingHorizontal: 5,
     },
     timeText: {
         fontFamily: theme.fonts.ubuntu.regular,
         fontSize: 16,
+        color: theme.colours.textSecondary,
+    },
+    timeSep: {
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 16,
+        color: theme.colours.textSecondary,
+    },
+    futureDateText: {
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: 14,
         color: theme.colours.textSecondary,
     },
     appointmentDetails: {
@@ -304,12 +401,10 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: 10,
     },
     initialsText: {
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
-        fontSize: 20,
         fontWeight: 'bold',
     },
     noAppointments: {
