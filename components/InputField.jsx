@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { theme } from '@/constants/theme';
 
 const InputField = ({
-    label,
+    label = "",
     value,
     onChangeText,
     placeholder,

@@ -256,7 +256,7 @@ const ChatScreen = () => {
         );
     };
 
-    const attachImage = async () => {}
+    const attachImage = async () => {} // TODO add image upload logic here2
 
 
     return (

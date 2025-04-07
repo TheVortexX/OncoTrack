@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Platform, StatusBar } from 'react-native';
 import { theme } from '@/constants/theme';
 
 const Track = () => {
-    console.log('Track');
     return (
         <>
             <View style={{
