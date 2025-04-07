@@ -6,12 +6,8 @@ import { Timestamp } from 'firebase/firestore';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { getUserAppointments } from '@/services/profileService';
-import Modal from '@/components/modal';
-import AppointmentForm from '@/components/appointmentForm';
-
-//TODO adding of appointments
-
+import { deleteUserAppointment, getUserAppointments, saveUserAppointment, updateUserAppointment } from '@/services/profileService';
+import AppointmentForm from '@/components/appointmentFormModal';
 
 interface Appointment {
     id: string;
@@ -21,41 +17,166 @@ interface Appointment {
     endTime: moment.Moment;
     appointmentType: string;
     staff: string;
+    travelTime: moment.Duration;
+    colour?: string;
     [key: string]: any; // Allow additional properties
 }
 
+interface AppointmentsMap {
+    [id: string]: Appointment;
+}
+
 const ScheduleScreen = () => {
-    const [selectedDate, setSelectedDate] = useState < moment.Moment > (moment());
-    const [appointments, setAppointments] = useState < Appointment[] > ([]);
-    const [showNewAppointmentModal, setShowNewAppointmentModal] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
+    const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+
+    // modal params
+    const [modalTitle, setModalTitle] = useState('New');
+    const [readonly, setReadonly] = useState(false);
+    const [rightButtonText, setRightButtonText] = useState('Add');
+    const [rightButtonAction, setRightButtonAction] = useState(() => (appointment: any) => { });
+    const [existingAppointment, setExistingAppointment] = useState<Appointment | null>(null);
 
     const { user } = useAuth();
 
     useEffect(() => {
         getUserAppointments(user?.uid).then((appointmentDocs) => {
-            const appointmentData: Appointment[] = [];
+            const newAppointmentsMap: AppointmentsMap = {};
+
             appointmentDocs.forEach((doc) => {
                 const data = doc.data();
-                appointmentData.push({
+                const id = doc.id;
+
+                newAppointmentsMap[id] = {
                     ...data, // Include any additional fields
-                    id: doc.id,
+                    id,
                     description: data.description || '',
                     provider: data.provider || '',
                     startTime: timestampToMoment(data.startTime),
                     endTime: timestampToMoment(data.endTime),
                     appointmentType: data.appointmentType || '',
                     staff: data.staff || '',
+                    travelTime: moment.duration(data.travelTime || 0),
                     colour: getAppointmentColour(data.appointmentType),
-                });
+                };
             });
-            setAppointments(appointmentData);
-        })
+
+            setAppointmentsMap(newAppointmentsMap);
+        });
     }, []);
 
-    
+    const showNewAppointmentModal = () => {
+        setRightButtonAction(() => {
+            return (newAppointment: any) => {
+                addNewAppointment(newAppointment as Appointment);
+                setShowAppointmentModal(false);
+            };
+        });
+
+        setExistingAppointment(null);
+        setModalTitle('New');
+        setReadonly(false);
+        setRightButtonText('Add');
+        setShowAppointmentModal(true);
+    }
+
+    const showEditAppointmentModal = (appointment: Appointment) => {
+        setExistingAppointment(appointment);
+
+        setRightButtonAction(() => {
+            return (updatedAppointment: any) => {
+                editAppointment(updatedAppointment as Appointment);
+                setShowAppointmentModal(false);
+            };
+        });
+
+        setModalTitle('Edit');
+        setReadonly(false);
+        setRightButtonText('Save');
+        setShowAppointmentModal(true);
+    }
+
+    const showViewAppointmentModal = (appointment: Appointment) => {
+        setExistingAppointment(appointment);
+        setRightButtonAction(() => {
+            return (app: any) => {
+                showEditAppointmentModal(appointment);
+            };
+        });
+
+        setModalTitle(' ');
+        setReadonly(true);
+        setRightButtonText('Edit');
+        setShowAppointmentModal(true);
+    }
+
+    const addNewAppointment = (appointment: Appointment) => {
+        if (!user) return;
+
+        const appointmentToSave = {
+            ...appointment,
+            startTime: momentToTimestamp(appointment.startTime),
+            endTime: momentToTimestamp(appointment.endTime),
+            travelTime: appointment.travelTime ? appointment.travelTime.asMilliseconds() : 0
+        };
+
+        saveUserAppointment(user.uid, appointmentToSave).then((id) => {
+            if (id) {
+                appointment.id = id;
+                appointment.colour = getAppointmentColour(appointment.appointmentType);
+                setAppointmentsMap(prevMap => ({
+                    ...prevMap,
+                    [id]: appointment
+                }));
+            }
+        });
+    }
+
+    const editAppointment = (appointment: Appointment) => {
+        if (!user || !appointment.id) return;
+
+        const appointmentToSave = {
+            ...appointment,
+            startTime: momentToTimestamp(appointment.startTime),
+            endTime: momentToTimestamp(appointment.endTime),
+            travelTime: appointment.travelTime ? appointment.travelTime.asMilliseconds() : 0
+        };
+
+        updateUserAppointment(user.uid, appointment.id, appointmentToSave).then((res) => {
+            if (res) {
+                setAppointmentsMap(prevMap => ({
+                    ...prevMap,
+                    [appointment.id]: {
+                        ...appointment,
+                        colour: getAppointmentColour(appointment.appointmentType)
+                    }
+                }));
+            }
+        });
+    }
+
+    const deleteAppointment = (appointmentId: string) => {
+        if (!user || !appointmentId) return;
+        deleteUserAppointment(user.uid, appointmentId).then((res) => {
+            if (res) {
+                setAppointmentsMap(prevMap => {
+                    const newMap = { ...prevMap };
+                    delete newMap[appointmentId];
+                    return newMap;
+                });
+                setShowAppointmentModal(false);
+            }
+        });
+    }
+
     const timestampToMoment = (timestamp: Timestamp) => {
         const jsDate = timestamp.toDate();
         return moment(jsDate);
+    };
+
+    const momentToTimestamp = (momentObj: moment.Moment) => {
+        return Timestamp.fromDate(momentObj.toDate());
     };
 
     const getAppointmentColour = (type: string) => {
@@ -67,20 +188,32 @@ const ScheduleScreen = () => {
             default:
                 return theme.colours.buttonBlue;
         }
-
     };
-    
+
+    // Convert the map to array when needed for filtering
+    const getAllAppointments = useCallback((): Appointment[] => {
+        return Object.values(appointmentsMap);
+    }, [appointmentsMap]);
+
     const getUpcomingAppointments = useCallback(() => {
-        if (appointments.length === 0) return [];
+        const allAppointments = getAllAppointments();
+        if (allAppointments.length === 0) return [];
+
         const today = moment();
-        return appointments.filter(appointment => appointment.startTime.isAfter(today, 'day'));
-    }, [appointments])
+        return allAppointments.filter(appointment =>
+            appointment.startTime.isAfter(today, 'day')
+        );
+    }, [appointmentsMap]);
 
     // TODO allow appointments that span over multiple days
-    const dayAppointments = useCallback((appointments: Appointment[], date: moment.Moment) => {
-        if (appointments.length === 0) return [];
-        return appointments.filter(appointment => date.isSame(appointment.startTime, 'day'));
-    }, [appointments, selectedDate]);
+    const dayAppointments = useCallback((date: moment.Moment) => {
+        const allAppointments = getAllAppointments();
+        if (allAppointments.length === 0) return [];
+
+        return allAppointments.filter(appointment =>
+            date.isSame(appointment.startTime, 'day')
+        );
+    }, [appointmentsMap, selectedDate]);
 
     const renderAppointment = (appointment: Appointment, future?: boolean) => {
         const initials = appointment.provider
@@ -92,31 +225,36 @@ const ScheduleScreen = () => {
         const size = initials.length > 3 ? 16 : 20;
 
         return (
-            <View key={appointment.id} style={styles.appointmentCard}>
-                <View style={styles.appointmentIconTime}>
-                    <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
-                        <Text style={[styles.initialsText, { fontSize: size } ]}>{initials}</Text>
+            <TouchableOpacity
+                key={appointment.id}
+                onPress={() => { showViewAppointmentModal(appointment) }}
+            >
+                <View style={styles.appointmentCard}>
+                    <View style={styles.appointmentIconTime}>
+                        <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
+                            <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                        </View>
+                        <View style={styles.appointmentTime}>
+                            {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}
+                            <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                            {!appointment.startTime.isSame(appointment.endTime, "minute") &&
+                                <>
+                                    <Text style={styles.timeSep}>I</Text>
+                                    <Text style={styles.timeText}>{appointment.endTime.format("HH:mm")}</Text>
+                                </>
+                            }
+                        </View>
                     </View>
-                    <View style={styles.appointmentTime}>
-                        {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}
-                        <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
-                        {!appointment.startTime.isSame(appointment.endTime, "minute") && 
-                        <>
-                            <Text style={styles.timeSep}>I</Text>
-                            <Text style={styles.timeText}>{appointment.endTime.format("HH:mm")}</Text>
-                        </>
-                        }
+                    <View style={styles.appointmentDetails}>
+                        <Text style={styles.providerName}>{appointment.provider}</Text>
+                        <Text style={styles.appointmentType}>
+                            {appointment.appointmentType}
+                            {appointment.staff ? ` with ${appointment.staff}` : ''}
+                        </Text>
+                        <Text style={styles.staffInfo}>{appointment.description}</Text>
                     </View>
                 </View>
-                <View style={styles.appointmentDetails}>
-                    <Text style={styles.providerName}>{appointment.provider}</Text>
-                    <Text style={styles.appointmentType}>
-                        {appointment.appointmentType}
-                        {appointment.staff ? ` with ${appointment.staff}` : ''}
-                    </Text>
-                    <Text style={styles.staffInfo}>{appointment.description}</Text>
-                </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 
@@ -134,22 +272,18 @@ const ScheduleScreen = () => {
 
     const getDateDots = (date: moment.Moment) => {
         const dotsForDate: { dots: { color: string, selectedColor?: string }[] } = { dots: [] };
-        dayAppointments(appointments, date).forEach(appointment => {
+        const appsForDay = dayAppointments(date);
+
+        appsForDay.forEach(appointment => {
             dotsForDate.dots.push({
-                color: appointment.colour,
-                selectedColor: appointment.colour == theme.colours.primary ? theme.colours.blue99 : appointment.colour,
+                color: appointment.colour || theme.colours.buttonBlue,
+                selectedColor: appointment.colour === theme.colours.primary
+                    ? theme.colours.blue99
+                    : appointment.colour,
             });
         });
         return dotsForDate;
-    }
-
-    const addNewAppointment = () => {
-        setShowNewAppointmentModal(true);
-    }
-    
-    const saveNewAppointment = (appointment: Appointment) => {
-        console.log("Would save appointment", appointment);
-    }
+    };
 
     return (
         <>
@@ -162,20 +296,23 @@ const ScheduleScreen = () => {
                     barStyle="light-content"
                 />
             </View>
-            <Modal
-                visible={showNewAppointmentModal}
-                onClose={() => setShowNewAppointmentModal(false)}
+            <AppointmentForm
+                visible={showAppointmentModal}
+                onClose={() => setShowAppointmentModal(false)}
                 leftButtonText="Cancel"
-                rightButtonText="Add"
-                onLeftButtonPress={() => setShowNewAppointmentModal(false)}
-                onRightButtonPress={() => addNewAppointment()}
-                backgroundColor={theme.colours.background}            
-                title='New'
-            >
-                <AppointmentForm 
-                    onSave={saveNewAppointment}
-                />
-            </Modal>
+                rightButtonText={rightButtonText}
+                onLeftButtonPress={() => setShowAppointmentModal(false)}
+                onDeleteAppointment={() => {
+                    if (existingAppointment) {
+                        deleteAppointment(existingAppointment.id);
+                    }
+                }}
+                onRightButtonPress={rightButtonAction}
+                backgroundColor={theme.colours.background}
+                existingAppointment={existingAppointment}
+                title={modalTitle}
+                readonly={readonly}
+            />
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Schedule</Text>
@@ -188,7 +325,7 @@ const ScheduleScreen = () => {
                             padding: 8,
                             alignItems: 'center',
                         }}
-                        onPress={addNewAppointment}
+                        onPress={showNewAppointmentModal}
                     >
                         <FontAwesome6 name="calendar-plus" size={30} color="white" />
                         <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', marginTop: 2 }}>New</Text>
@@ -229,8 +366,8 @@ const ScheduleScreen = () => {
 
                 <ScrollView style={styles.appointmentsContainer}>
                     {renderDayHeader()}
-                    {dayAppointments(appointments, selectedDate).length > 0 ? (
-                        dayAppointments(appointments, selectedDate).map(appointment => renderAppointment(appointment))
+                    {dayAppointments(selectedDate).length > 0 ? (
+                        dayAppointments(selectedDate).map(appointment => renderAppointment(appointment))
                     ) : (
                         <View style={styles.noAppointments}>
                             <Ionicons name="calendar-outline" size={48} color={theme.colours.textSecondary} />
@@ -255,6 +392,7 @@ const ScheduleScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    // Styles remain unchanged
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,

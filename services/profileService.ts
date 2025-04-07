@@ -1,5 +1,5 @@
 import { firestore } from '@/services/firebaseConfig';
-import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy} from 'firebase/firestore';
+import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy, addDoc} from 'firebase/firestore';
 
 const db = firestore;
 
@@ -31,18 +31,61 @@ export const getUserProfile = async (uid?: string) => {
     }
 };
 
-    export const getUserAppointments = async (uid?: string) => {
-        if (!uid) return []; // Ensure uid is provided
-        try {
-            const appointmentsCollection = collection(db, 'users', uid, 'appointments');
-            const q = query(appointmentsCollection, orderBy('startTime', 'asc'));
-            const snapshot = await getDocs(q);
-            return snapshot.docs;
-        } catch (error) {
-            console.error('Error fetching user appointments:', error);
-            return [];
-        }
-    };
+export const getUserAppointments = async (uid?: string) => {
+    if (!uid) return []; // Ensure uid is provided
+    try {
+        const appointmentsCollection = collection(db, 'users', uid, 'appointments');
+        const q = query(appointmentsCollection, orderBy('startTime', 'asc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs;
+    } catch (error) {
+        console.error('Error fetching user appointments:', error);
+        return [];
+    }
+};
+
+export const updateUserAppointment = async (uid: string, appointmentId: string, updates: any) => {
+    if (!uid || !appointmentId) return false;
+    try {
+        const appointmentRef = doc(db, 'users', uid, 'appointments', appointmentId);
+        await updateDoc(appointmentRef, {
+            ...updates,
+            updatedAt: serverTimestamp()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating user appointment:', error);
+        return false;
+    }
+}
+
+export const deleteUserAppointment = async (uid: string, appointmentId: string) => {
+    if (!uid || !appointmentId) return false;
+    try {
+        const appointmentRef = doc(db, 'users', uid, 'appointments', appointmentId);
+        await deleteDoc(appointmentRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting user appointment:', error);
+        return false;
+    }
+};
+
+export const saveUserAppointment = async (uid: string, appointmentData: any) => {
+    if (!uid) return "";
+    try {
+        const appointmentColRef = collection(db, 'users', uid, 'appointments');
+        const docRef = await addDoc(appointmentColRef, {
+            ...appointmentData,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving user appointment:', error);
+        return "";
+    }
+}
 
 export const updateUserProfile = async (uid: string, updates:any) => {
     try {

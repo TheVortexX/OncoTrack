@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
 
 const InputField = ({
@@ -14,41 +14,83 @@ const InputField = ({
     autoComplete = 'off',
     multiline = false,
     numberOfLines = 1,
+    editable = true,
     autoCorrect = false,
     required = false,
     errorMessage = "Invalid input",
     validate = (text) => '',
     validateOnBlur = false,
+    validateOnChange = false,
+    clearErrorOnChange = true,
     style = {}
-
 }) => {
     const [error, setError] = useState('');
     const [touched, setTouched] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
+
+    // Update error when errorMessage prop changes
+    useEffect(() => {
+        if (errorMessage && touched) {
+            setError(errorMessage);
+        }
+    }, [errorMessage]);
 
     const handleTextChange = (text) => {
         onChangeText(text);
-        if (error && text) {
+
+        if (clearErrorOnChange && error) {
             setError('');
         }
-    }
+
+        if (validateOnChange) {
+            const validationError = validate(text);
+            setError(validationError || '');
+        }
+    };
 
     const handleBlur = () => {
         setTouched(true);
+        setIsFocused(false);
+
         if (validateOnBlur) {
-            var validationError = validate(value);
+            const validationError = validate(value);
             setError(validationError || '');
         }
-    }
+    };
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
 
     return (
-        <View style={style.container}>
-            {label && <Text style={style.label}>{label}{required ? '*': ''}</Text>}
-            <View style={styles.inputContainer}>
+        <View style={[
+            styles.container,
+            style.container
+        ]}>
+            {label && (
+                <View style={styles.labelContainer}>
+                    <Text style={[styles.label, style.label]}>
+                        {label}
+                        {required && <Text style={styles.requiredAsterisk}>*</Text>}
+                    </Text>
+                </View>
+            )}
+
+            <View style={[
+                styles.inputContainer,
+                isFocused && styles.focusedInputContainer,
+                error && styles.errorInputContainer,
+                style.inputContainer
+            ]}>
                 <TextInput
                     style={[
-                        style.input,
-                        error ? style.errorInput : {},
-                        multiline && { height: 24*numberOfLines, textAlignVertical: 'top' }
+                        styles.input,
+                        error ? styles.errorInput : {},
+                        multiline && {
+                            height: 24 * numberOfLines,
+                            textAlignVertical: 'top'
+                        },
+                        style.input
                     ]}
                     value={value}
                     placeholder={placeholder}
@@ -57,31 +99,71 @@ const InputField = ({
                     secureTextEntry={secureTextEntry}
                     keyboardType={keyboardType}
                     onBlur={handleBlur}
+                    onFocus={handleFocus}
                     autoCapitalize={autoCapitalize}
                     multiline={multiline}
                     numberOfLines={multiline ? numberOfLines : undefined}
                     autoCorrect={autoCorrect}
                     autoComplete={autoComplete}
+                    editable={editable}
                 />
+
                 {touched && error ? (
                     <View style={styles.errorIconContainer}>
                         <Text style={styles.errorIcon}>!</Text>
                     </View>
                 ) : null}
             </View>
-            {touched && error ?(
-                <Text style={style.errorText}>{error || errorMessage}</Text>
+
+            {touched && error ? (
+                <Text style={[styles.errorText, style.errorText]}>
+                    {error || errorMessage}
+                </Text>
             ) : null}
         </View>
     );
 };
 
-
 const styles = StyleSheet.create({
+    container: {
+        marginBottom: 5,
+    },
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    label: {
+        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.medium,
+        color: theme.colours.textPrimary,
+    },
+    requiredAsterisk: {
+        color: theme.colours.primary,
+        fontSize: 16,
+        marginLeft: 2,
+    },
     inputContainer: {
         flexDirection: 'row',
         position: 'relative',
         alignItems: 'center',
+        borderRadius: 8,
+        backgroundColor: theme.colours.surface,
+    },
+    errorInputContainer: {
+        borderWidth: 1,
+        borderColor: theme.colours.primary,
+    },
+    input: {
+        flex: 1,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
+    },
+    errorInput: {
+        // You can add additional styles for error state input
     },
     errorIconContainer: {
         position: 'absolute',
@@ -97,6 +179,12 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 14,
+    },
+    errorText: {
+        marginTop: 5,
+        color: theme.colours.primary,
+        fontSize: 14,
+        fontFamily: theme.fonts.ubuntu.regular,
     }
 });
 

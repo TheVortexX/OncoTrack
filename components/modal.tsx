@@ -51,14 +51,12 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
         if (onLeftButtonPress) {
             onLeftButtonPress();
         }
-        onClose();
     };
 
     const handleRightButtonPress = () => {
         if (onRightButtonPress) {
             onRightButtonPress();
         }
-        onClose();
     };
 
     return (
