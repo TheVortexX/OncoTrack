@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from 'moment';
@@ -7,7 +7,8 @@ import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { getUserAppointments } from '@/services/profileService';
-import { create } from 'react-test-renderer';
+import Modal from '@/components/modal';
+import AppointmentForm from '@/components/appointmentForm';
 
 //TODO adding of appointments
 
@@ -26,6 +27,8 @@ interface Appointment {
 const ScheduleScreen = () => {
     const [selectedDate, setSelectedDate] = useState < moment.Moment > (moment());
     const [appointments, setAppointments] = useState < Appointment[] > ([]);
+    const [showNewAppointmentModal, setShowNewAppointmentModal] = useState(false);
+
     const { user } = useAuth();
 
     useEffect(() => {
@@ -140,8 +143,14 @@ const ScheduleScreen = () => {
         return dotsForDate;
     }
 
-    const addNewAppointment = () => {}
+    const addNewAppointment = () => {
+        setShowNewAppointmentModal(true);
+    }
     
+    const saveNewAppointment = (appointment: Appointment) => {
+        console.log("Would save appointment", appointment);
+    }
+
     return (
         <>
             <View style={{
@@ -153,6 +162,20 @@ const ScheduleScreen = () => {
                     barStyle="light-content"
                 />
             </View>
+            <Modal
+                visible={showNewAppointmentModal}
+                onClose={() => setShowNewAppointmentModal(false)}
+                leftButtonText="Cancel"
+                rightButtonText="Add"
+                onLeftButtonPress={() => setShowNewAppointmentModal(false)}
+                onRightButtonPress={() => addNewAppointment()}
+                backgroundColor={theme.colours.background}            
+                title='New'
+            >
+                <AppointmentForm 
+                    onSave={saveNewAppointment}
+                />
+            </Modal>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Schedule</Text>
