@@ -1,45 +1,74 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
-import { getUserAppointments } from '@/services/profileService';
+import { deleteUserAppointment, getUserAppointments, updateUserAppointment } from '@/services/profileService';
 import { Timestamp } from 'firebase/firestore'
 import moment from 'moment';
 import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppointmentForm from '@/components/appointmentFormModal';
+
 
 interface Appointment {
     id: string;
     description: string;
+    provider: string;
     startTime: moment.Moment;
+    endTime: moment.Moment;
     appointmentType: string;
-    colour: string;
+    staff: string;
+    travelTime: moment.Duration;
+    colour?: string;
     timeUntil?: string;
     [key: string]: any; // Allow additional properties
 }
 
+interface AppointmentsMap {
+    [id: string]: Appointment;
+}
+
 const TodaySchedule = () => {
-    const [appointments, setAppointments] = useState < Appointment[] > ([]);
-    const appointmentRef = useRef < Appointment[] > ([]);
+    const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
+    const [visibleAppointmentIds, setVisibleAppointmentIds] = useState<string[]>([]);
+
+    const appointmentsMapRef = useRef<AppointmentsMap>({});
     const { user } = useAuth();
-    const intervalRef = useRef < NodeJS.Timeout | null > (null);
-    const firstSyncRef = useRef < NodeJS.Timeout | null > (null);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const firstSyncRef = useRef<NodeJS.Timeout | null>(null);
+
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState('New');
+    const [readonly, setReadonly] = useState(false);
+    const [rightButtonText, setRightButtonText] = useState('Add');
+    const [rightButtonAction, setRightButtonAction] = useState(() => (appointment: any) => { });
+    const [existingAppointment, setExistingAppointment] = useState<Appointment | null>(null);
 
     useEffect(() => {
         getUserAppointments(user?.uid).then((appointmentDocs) => {
-            const appointmentData: Appointment[] = [];
+            const newAppointmentsMap: AppointmentsMap = {};
+
             appointmentDocs.forEach((doc) => {
                 const data = doc.data();
-                appointmentData.push({
+                const appointment = {
                     ...data, // Include any additional fields
                     id: doc.id,
                     description: data.description || '',
                     startTime: timestampToMoment(data.startTime),
                     appointmentType: data.appointmentType || '',
                     colour: getAppointmentColour(data.appointmentType),
-                });
+                    endTime: timestampToMoment(data.endTime),
+                    travelTime: moment.duration(data.travelTime || 0),
+                    provider: data.provider || '',
+                    staff: data.staff || '',
+                };
+
+                newAppointmentsMap[doc.id] = appointment;
             });
-            setAppointments(appointmentData);
-            filterFutureOnly(appointmentData);
+
+            setAppointmentsMap(newAppointmentsMap);
+            appointmentsMapRef.current = newAppointmentsMap;
+            filterFutureOnly();
             setMinuteSync();
         })
 
@@ -50,8 +79,8 @@ const TodaySchedule = () => {
     }, []);
 
     useEffect(() => {
-        appointmentRef.current = appointments;
-    }, [appointments]);
+        appointmentsMapRef.current = appointmentsMap;
+    }, [appointmentsMap]);
 
     const setMinuteSync = () => {
         const now = moment()
@@ -62,27 +91,39 @@ const TodaySchedule = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
 
         firstSyncRef.current = setTimeout(() => {
-            filterFutureOnly(appointmentRef.current);
+            filterFutureOnly();
 
             intervalRef.current = setInterval(() => {
-                filterFutureOnly(appointmentRef.current);
+                filterFutureOnly();
             }, 60000); // 1 minute interval
         }, timeout);
     }
 
-    const filterFutureOnly = (appointments: Appointment[]) => {
+    const filterFutureOnly = () => {
         const now = moment().startOf('minute');
+        const currentMap = appointmentsMapRef.current;
+        const updatedMap: AppointmentsMap = {};
+        const visibleIds: string[] = [];
 
-        const filteredAppointments = appointments
-            .filter(appointment => appointment.startTime.isAfter(now) && appointment.startTime.isSame(now, 'day'))
-            .map(appointment => {
+        // Filter appointments that are in the future and on the same day
+        Object.keys(currentMap).forEach(id => {
+            const appointment = currentMap[id];
+            if (appointment.startTime.isAfter(now) && appointment.startTime.isSame(now, 'day')) {
                 const timeUntil = calculateTimeUntil(appointment.startTime, now);
-                return {
+                updatedMap[id] = {
                     ...appointment,
                     timeUntil,
                 };
-            });
-        setAppointments(filteredAppointments);
+                visibleIds.push(id);
+            }
+        });
+
+        visibleIds.sort((a, b) => {
+            return updatedMap[a].startTime.diff(updatedMap[b].startTime);
+        });
+
+        setAppointmentsMap(updatedMap);
+        setVisibleAppointmentIds(visibleIds);
     }
 
     const calculateTimeUntil = (startTime: moment.Moment, now: moment.Moment) => {
@@ -122,30 +163,123 @@ const TodaySchedule = () => {
             default:
                 return theme.colours.buttonBlue;
         }
-
     };
 
-    const renderAppointment = (appointment: Appointment) => {
+    const momentToTimestamp = (momentObj: moment.Moment) => {
+        return Timestamp.fromDate(momentObj.toDate());
+    };
+
+    const editAppointment = (appointment: Appointment) => {
+        if (!user || !appointment.id) return;
+
+        const appointmentToSave = {
+            ...appointment,
+            startTime: momentToTimestamp(appointment.startTime),
+            endTime: momentToTimestamp(appointment.endTime),
+            travelTime: appointment.travelTime ? appointment.travelTime.asMilliseconds() : 0
+        };
+
+        updateUserAppointment(user.uid, appointment.id, appointmentToSave).then((res) => {
+            if (res) {
+                const now = moment().startOf('minute');
+                const updatedAppointment = {
+                    ...appointment,
+                    timeUntil: calculateTimeUntil(appointment.startTime, now),
+                    colour: getAppointmentColour(appointment.appointmentType)
+                };
+
+                setAppointmentsMap(prevMap => ({
+                    ...prevMap,
+                    [appointment.id]: updatedAppointment
+                }));
+            }
+        });
+    }
+
+    const showEditAppointmentModal = (appointmentId: string) => {
+        const appointment = appointmentsMap[appointmentId];
+        if (!appointment) return;
+
+        setExistingAppointment(appointment);
+
+        setRightButtonAction(() => {
+            return (updatedAppointment: any) => {
+                editAppointment(updatedAppointment as Appointment);
+                setShowAppointmentModal(false);
+            };
+        });
+
+        setModalTitle('Edit');
+        setReadonly(false);
+        setRightButtonText('Save');
+        setShowAppointmentModal(true);
+    }
+
+    const showViewAppointmentModal = (appointmentId: string) => {
+        const appointment = appointmentsMap[appointmentId];
+        if (!appointment) return;
+
+        setExistingAppointment(appointment);
+        setRightButtonAction(() => {
+            return (app: any) => {
+                showEditAppointmentModal(appointment.id);
+            };
+        });
+
+        setModalTitle(' ');
+        setReadonly(true);
+        setRightButtonText('Edit');
+        setShowAppointmentModal(true);
+    }
+
+    const deleteAppointment = (appointmentId: string) => {
+        if (!user || !appointmentId) return;
+        deleteUserAppointment(user.uid, appointmentId).then((res) => {
+            if (res) {
+                setAppointmentsMap(prevMap => {
+                    const newMap = { ...prevMap };
+                    delete newMap[appointmentId];
+                    return newMap;
+                });
+
+                setVisibleAppointmentIds(prevIds =>
+                    prevIds.filter(id => id !== appointmentId)
+                );
+
+                setShowAppointmentModal(false);
+            }
+        });
+    }
+
+    const renderAppointment = (appointmentId: string) => {
+        const appointment = appointmentsMap[appointmentId];
+        if (!appointment) return null;
+
         return (
-            <View key={appointment.id} style={styles.appointmentCard}>
-                <View style={styles.appointmentIconTime}>
-                    <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}></View>
-                    <View style={styles.appointmentTime}>
-                        <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
-                        <Text style={styles.timeText}>{appointment.timeUntil}</Text>
+            <TouchableOpacity
+                key={appointment.id}
+                onPress={() => showViewAppointmentModal(appointment.id)}
+            >
+                <View style={styles.appointmentCard}>
+                    <View style={styles.appointmentIconTime}>
+                        <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}></View>
+                        <View style={styles.appointmentTime}>
+                            <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                            <Text style={styles.timeText}>{appointment.timeUntil}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.appointmentDetails}>
+                        <Text style={styles.appointmentType}>
+                            {appointment.appointmentType}
+                        </Text>
+                        <Text style={styles.staffInfo}>{appointment.description}</Text>
                     </View>
                 </View>
-                <View style={styles.appointmentDetails}>
-                    <Text style={styles.appointmentType}>
-                        {appointment.appointmentType}
-                    </Text>
-                    <Text style={styles.staffInfo}>{appointment.description}</Text>
-                </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 
-    if (appointments.length == 0) {
+    if (visibleAppointmentIds.length === 0) {
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>Todays schedule</Text>
@@ -157,18 +291,38 @@ const TodaySchedule = () => {
         );
     } else {
         return (
-            <View style={styles.container}>
-                <Text style={styles.title}>Todays schedule</Text>
-    
-                {appointments.slice(0,4).map(item => (
-                    renderAppointment(item)
-                ))}
-            </View>
+            <>
+                <AppointmentForm
+                    visible={showAppointmentModal}
+                    onClose={() => setShowAppointmentModal(false)}
+                    leftButtonText="Cancel"
+                    rightButtonText={rightButtonText}
+                    onLeftButtonPress={() => setShowAppointmentModal(false)}
+                    onDeleteAppointment={() => {
+                        if (existingAppointment) {
+                            deleteAppointment(existingAppointment.id);
+                        }
+                    }}
+                    onRightButtonPress={rightButtonAction}
+                    backgroundColor={theme.colours.background}
+                    existingAppointment={existingAppointment}
+                    title={modalTitle}
+                    readonly={readonly}
+                />
+                <View style={styles.container}>
+                    <Text style={styles.title}>Todays schedule</Text>
+
+                    {visibleAppointmentIds.slice(0, 4).map(id => (
+                        renderAppointment(id)
+                    ))}
+                </View>
+            </>
         );
     }
 };
 
 const styles = StyleSheet.create({
+    // Styles remain unchanged
     container: {
         marginTop: 20,
         paddingHorizontal: 16,
