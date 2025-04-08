@@ -53,6 +53,7 @@
     "react-native-webview": "13.12.5",
     "@react-native-community/datetimepicker": "8.2.0",
     "expo-image-picker": "~16.0.6",
+    "expo-camera": "~16.0.18"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
