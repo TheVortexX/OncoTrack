@@ -8,11 +8,11 @@ interface history {
 }
 
 const modelConfig: GenerateContentConfig = {
-    temperature: 0.3,
+    temperature: 0.1,
     topP: 0.95,
     topK: 40,
-    maxOutputTokens: 8192,
-    systemInstruction: "You are a chatbot designed to support cancer patients through the in-app chat, patients may ask questions about their treatment, symptoms or upload photos.\n Responses should always be classified by either \"chat\" or \"action\", an \"action\"response is one that will trigger an event in the application.Valid actions are: [\"Appointment\"]\nActions should have properties provided based on the schema\nChat responses are responses to what the user has said and should reassure the patient to reduce any anxiety they may face and ensure they are provided with accurate, helpful information\nYou should only answer questions relating to the patient and their treatment and provide responses only in plaintext, bullet point lists are acceptable, using a hyphen as the bullet point.",
+    maxOutputTokens: 1000,
+    systemInstruction: "You are a chatbot designed to support cancer patients through the in-app chat, patients may ask questions about their treatment, symptoms or upload photos.\n\nResponses should always be classified by either \"chat\" or \"action\", an \"action\"response is one that will trigger an event in the application. Valid actions are: [\"Appointment\"]\n\nActions should have properties provided based on the schema\n\nChat responses are responses to what the user has said and should reassure the patient to reduce any anxiety they may face and ensure they are provided with accurate, helpful information\n\nYou should only answer questions relating to the patient and their treatment, including uploaded images and provide responses only in plaintext.\n\nIf the user has submitted a photo of an appointment, then the responseType 'action' should always be used so the appointment can be added.\n\nIf you do not know any information, or the user has not provided enough information, please ask them to provide more information and do not answer the question with hallucinated information.",
     responseMimeType: "application/json",
     safetySettings: [
         {
@@ -71,17 +71,17 @@ const modelConfig: GenerateContentConfig = {
                             },
                             provider: {
                                 type: Type.STRING,
-                                description: "Healthcare provider or facility where the appointment will take place"
+                                description: "Healthcare provider or facility where the appointment will take place, this should be short and usually the hospital that it takes place at"
                             },
                             startTime: {
                                 type: Type.STRING,
                                 format: "date-time",
-                                description: "Start time of the appointment"
+                                description: "Start date and time of the appointment in the ISO date-time format"
                             },
                             endTime: {
                                 type: Type.STRING,
                                 format: "date-time",
-                                description: "End time of the appointment"
+                                description: "End date and time of the appointment in the ISO date-time format"
                             },
                             staff: {
                                 type: Type.STRING,
@@ -90,7 +90,7 @@ const modelConfig: GenerateContentConfig = {
                             },
                             notes: {
                                 type: Type.STRING,
-                                description: "Additional notes for healthcare providers",
+                                description: "Additional notes about the appointment such as location, contact information, etc.",
                                 nullable: true
                             }
                         },
@@ -144,35 +144,35 @@ export async function getResponseWithImage(prompt: string, path: string) {
         const filename = path.split('/').pop() || 'image.jpg';
         const file = new File([blob], filename, { type: blob.type });
 
-    const image = await ai.files.upload({
+        const image = await ai.files.upload({
             file: file,
-    });
-
-    if (!image || !image.uri || !image.mimeType) {
-        return JSON.stringify({
-            responseType: "chat",
-            content: "Unable to complete your request, the image upload failed",        
         });
-    }
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
-        config: modelConfig,
-        contents: [
-            createUserContent([
-                prompt,
-                createPartFromUri(image.uri, image.mimeType),
-            ])
-        ]
-    });
-    if (!response || !response.text) {
-        return JSON.stringify({
-            responseType: "chat",
-            content: "Unable to complete your request, the response was empty",        
+        if (!image || !image.uri || !image.mimeType) {
+            return JSON.stringify({
+                responseType: "chat",
+                content: "Unable to complete your request, the image upload failed",        
+            });
+        }
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            config: modelConfig,
+            contents: [
+                createUserContent([
+                    prompt,
+                    createPartFromUri(image.uri, image.mimeType),
+                ])
+            ]
         });
-    }
+        if (!response || !response.text) {
+            return JSON.stringify({
+                responseType: "chat",
+                content: "Unable to complete your request, the response was empty",        
+            });
+        }
         console.log(response.text);
-    return response.text;
+        return response.text;
     } catch (error) {
         console.error('Error uploading image:', error);
         throw error;
