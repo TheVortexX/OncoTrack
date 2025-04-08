@@ -68,7 +68,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     const [showEndTime, setShowEndTime] = useState(false);
     const [showTravelTime, setShowTravelTime] = useState(false);
 
-    const appointmentTypes = ['Consultation', 'Treatment', 'Check-up', 'Test', 'Surgery', 'Medication', 'Appointment', 'Other'];
+    const appointmentTypes = ['Appointment', 'Check-up', 'Consultation', 'Medication', 'Surgery', 'Test', 'Treatment', 'Other'];
 
 
     const saveOriginalAppointment = (appointment?: Appointment | null) => {
@@ -621,8 +621,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             editable={!readonly}
                             style={{
                                 input: [styles.input, getReadonlyStyle()],
-                                errorInput: styles.errorInput,
-                                errorText: styles.errorText
                             }}
                         />
 
@@ -635,8 +633,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             editable={!readonly}
                             style={{
                                 input: [styles.input, getReadonlyStyle()],
-                                errorInput: styles.errorInput,
-                                errorText: styles.errorText
                             }}
                         />
 
@@ -650,8 +646,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             editable={!readonly}
                             style={{
                                 input: [styles.descriptionInput, getReadonlyStyle()],
-                                errorInput: styles.errorInput,
-                                errorText: styles.errorText
                             }}
                         />
                     </View>
@@ -681,8 +675,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             editable={!readonly}
                             style={{
                                 input: [styles.descriptionInput, { minHeight: 100 }, getReadonlyStyle()],
-                                errorInput: styles.errorInput,
-                                errorText: styles.errorText
                             }}
                         />
                     </View>
@@ -762,15 +754,6 @@ const styles = StyleSheet.create({
     innerDivider: {
         borderBottomWidth: 1,
         borderBottomColor: theme.colours.lightGray,
-    },
-    errorInput: {
-        borderColor: theme.colours.primary,
-        borderWidth: 2,
-    },
-    errorText: {
-        color: theme.colours.primary,
-        fontSize: 16,
-        fontFamily: theme.fonts.ubuntu.regular,
     },
     timeRow: {
         flexDirection: 'row',
