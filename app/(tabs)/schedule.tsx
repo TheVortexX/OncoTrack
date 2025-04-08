@@ -8,6 +8,7 @@ import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { deleteUserAppointment, getUserAppointments, saveUserAppointment, updateUserAppointment } from '@/services/profileService';
 import AppointmentForm from '@/components/appointmentFormModal';
+import { useLocalSearchParams } from 'expo-router';
 
 interface Appointment {
     id: string;
@@ -27,6 +28,7 @@ interface AppointmentsMap {
 }
 
 const ScheduleScreen = () => {
+    const params = useLocalSearchParams();
     const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
     const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
@@ -39,6 +41,15 @@ const ScheduleScreen = () => {
     const [existingAppointment, setExistingAppointment] = useState<Appointment | null>(null);
 
     const { user } = useAuth();
+
+    useEffect(() => {
+        if (params.openNewAppointment === 'true') {
+            setTimeout(() => {
+                showNewAppointmentModal();
+            }, 500);
+        }
+    }, [params.openNewAppointment]);
+
 
     useEffect(() => {
         getUserAppointments(user?.uid).then((appointmentDocs) => {
@@ -392,7 +403,6 @@ const ScheduleScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    // Styles remain unchanged
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
