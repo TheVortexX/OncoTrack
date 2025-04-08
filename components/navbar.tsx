@@ -75,7 +75,7 @@ const NavBar = () => {
                     <TouchableOpacity
                         style={styles.trackButton}
                         onPress={() => {
-                            router.navigate('/track');
+                            router.navigate('/(tabs)/track')
                          }}
                     >
                         <Ionicons name="add" size={40} color="#000" />

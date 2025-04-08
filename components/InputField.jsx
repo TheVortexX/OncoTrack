@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
         color: theme.colours.textPrimary,
     },
     errorInput: {
-        // You can add additional styles for error state input
     },
     errorIconContainer: {
         position: 'absolute',
