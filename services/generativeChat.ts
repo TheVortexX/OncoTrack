@@ -137,8 +137,15 @@ export async function getResponseWithHistory(prompt: string, prevTurns?: history
 }
 
 export async function getResponseWithImage(prompt: string, path: string) {
+    try {
+        const imgRes = await fetch(path);
+        const blob = await imgRes.blob();
+
+        const filename = path.split('/').pop() || 'image.jpg';
+        const file = new File([blob], filename, { type: blob.type });
+
     const image = await ai.files.upload({
-        file: path,
+            file: file,
     });
 
     if (!image || !image.uri || !image.mimeType) {
@@ -164,5 +171,10 @@ export async function getResponseWithImage(prompt: string, path: string) {
             content: "Unable to complete your request, the response was empty",        
         });
     }
+        console.log(response.text);
     return response.text;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
 }

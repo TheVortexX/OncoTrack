@@ -47,6 +47,13 @@
         {
           "faceIDPermission": "Allow OncoTrack to use Face ID to log in."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow OncoTrack to access your photos.",
+          "cameraPermission": "Allow OncoTrack to use the camera."
+        }
       ]
     ],
     "experiments": {
