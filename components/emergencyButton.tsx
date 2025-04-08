@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
+import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const EmergencyButton = ({ onPress }: { onPress?: () => void }) => {
@@ -23,13 +23,14 @@ const styles = StyleSheet.create({
     button: {
         width: 70,
         height: 70,
-        borderRadius: 30,
+        borderRadius: 35,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 1, height: 4 },
         shadowRadius: 3.84,
         elevation: 5,
+        shadowOpacity: 0.5
     },
     image: {
         width: '100%',
