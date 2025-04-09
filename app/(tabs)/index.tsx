@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native';
 import TrackingOptionsScroll from '@/components/trackingButtons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -7,9 +7,16 @@ import EmergencyButton from '@/components/emergencyButton';
 import TodaySchedule from '@/components/todaySchedule';
 import { StatusBar } from 'expo-status-bar';
 
+const headerImages = [
+  require('@/assets/images/homeSplash/firewatch_tower.webp'),
+  require('@/assets/images/homeSplash/river_boat.webp'),
+  require('@/assets/images/homeSplash/zen_garden.webp'),
+];
+
 export default function HomeScreen() {
   const { getProfile } = useAuth();
   const [username, setUsername] = useState('');
+  const [headerImage, setHeaderImage] = useState(headerImages[0]);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -17,9 +24,16 @@ export default function HomeScreen() {
       if (profile) {
         setUsername(profile.fName);
       }
-    }
+    };
+
+    const selectRandomImage = () => {
+      const randomIndex = Math.floor(Math.random() * headerImages.length);
+      setHeaderImage(headerImages[randomIndex]);
+    };
+
     loadProfile();
-  });
+    selectRandomImage();
+  }, []);
 
   const greeting = getGreeting(username);
 
@@ -28,8 +42,9 @@ export default function HomeScreen() {
       <StatusBar translucent />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
-          source={require('@/assets/images/firewatch_tower.webp')}
+          source={headerImage || require('@/assets/images/homeSplash/firewatch_tower.webp')}
           style={styles.header}
+          resizeMode="cover"
         >
           <View style={styles.headerOverlay}>
             <Text style={styles.greeting}>
