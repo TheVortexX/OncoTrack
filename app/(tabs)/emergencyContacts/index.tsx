@@ -102,7 +102,7 @@ export default function EmergencyContactsScreen() {
                             styles.addButton,
                             Platform.OS === 'ios' ? { marginBottom: 30 } : { marginBottom: 20 }
                         ]}
-                        onPress={() => {router.navigate('/emergencyContacts/new')}}
+                        onPress={() => {router.push('/emergencyContacts/new')}}
                     >
                         <Ionicons name="add-circle" size={24} color="white" />
                         <Text style={styles.addButtonText}>Add Contact</Text>
