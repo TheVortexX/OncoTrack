@@ -87,6 +87,69 @@ export const saveUserAppointment = async (uid: string, appointmentData: any) => 
     }
 }
 
+export const getUserSymptomLogs = async (uid?: string) => {
+    if (!uid) return []; // Ensure uid is provided
+    try {
+        const logColRef = collection(db, 'users', uid, 'symptomLogs');
+        const q = query(logColRef, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs;
+    } catch (error) {
+        console.error('Error fetching user symptom logs:', error);
+    }
+}
+
+export const updateUserSymptomLog = async (uid: string, logId: string, updates: any) => {
+    if (!uid || !logId) return false;
+    try {
+        const logRef = doc(db, 'users', uid, 'symptomLogs', logId);
+        const updatedLog = updates
+        delete updatedLog.date;
+        await updateDoc(logRef, {
+            symptoms: {
+                ...updatedLog,
+            },
+            updatedAt: serverTimestamp()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating user symptom log:', error);
+        return false;
+    }
+}
+
+export const deleteUserSymptomLog = async (uid: string, logId: string) => {
+    if (!uid || !logId) return false;
+    try {
+        const logRef = doc(db, 'users', uid, 'symptomLogs', logId);
+        await deleteDoc(logRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting user symptom log:', error);
+        return false;
+    }
+};
+
+export const saveUserSymptomLog = async (uid: string, symptomData: any) => {
+    if (!uid || !symptomData.date) return false;
+    try {
+        const logDocRef = doc(db, 'users', uid, 'symptomLogs', symptomData.date);
+        await setDoc(logDocRef, {
+            date: symptomData.date,
+            symptoms: {
+                ...symptomData,
+                date: undefined,
+            },
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error saving user symptom log:', error);
+        return false;
+    }
+}
+
 export const updateUserProfile = async (uid: string, updates:any) => {
     try {
         await updateDoc(doc(db, 'users', uid), {

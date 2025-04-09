@@ -27,6 +27,7 @@ export const theme = {
         successLight: "#E8F5E9", // Light background for success
         warning: "#FF9800",      // Orange for warnings
         warningLight: "#FFF3E0", // Light background for warnings
+        danger: "#EE6C4D",        // Using primary for danger buttons
         error: "#EE6C4D",        // Using primary for errors/alerts
         errorLight: "#FACCC1",   // Using primaryLight25 for error backgrounds
 
