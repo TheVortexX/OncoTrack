@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
+import { useRouter } from 'expo-router';
 
 interface TrackingCardProps {
     icon: React.ReactNode;
@@ -20,6 +21,7 @@ const TrackingCard = ({ icon, title, onPress, style}: TrackingCardProps) => (
 );
 
 const TrackingOptionsScroll = () => {
+    const router = useRouter();
     return (
         <View style={styles.container}>
             <Text style={styles.sectionTitle}>Track your well-being</Text>
@@ -29,6 +31,11 @@ const TrackingOptionsScroll = () => {
                 contentContainerStyle={styles.scrollContent}
             >
                 <TrackingCard
+                    icon={<Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />}
+                    title="Record your symptoms"
+                    onPress={() => router.push('/(tabs)/track/symptomTrack?today=true')}
+                />
+                <TrackingCard
                     icon={<FontAwesome5 name="smile" size={60} color="#000" />}
                     title="Record your mood"
                     onPress={() => console.log('Mood pressed')}
@@ -37,11 +44,6 @@ const TrackingOptionsScroll = () => {
                     icon={<FontAwesome5 name="thermometer-half" size={60} color="#000" />}
                     title="Record your temperature"
                     onPress={() => console.log('Temperature pressed')}
-                />
-                <TrackingCard
-                    icon={<Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />}
-                    title="Record your symptoms"
-                    onPress={() => console.log('Symptoms pressed')}
                 />
                 <TrackingCard
                     icon={<FontAwesome5 name="edit" size={60} color="#000" />}
