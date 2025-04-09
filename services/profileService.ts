@@ -134,11 +134,13 @@ export const saveUserSymptomLog = async (uid: string, symptomData: any) => {
     if (!uid || !symptomData.date) return false;
     try {
         const logDocRef = doc(db, 'users', uid, 'symptomLogs', symptomData.date);
+        const date = symptomData.date;
+        const newLog = symptomData;
+        delete newLog.date;
         await setDoc(logDocRef, {
-            date: symptomData.date,
+            date,
             symptoms: {
-                ...symptomData,
-                date: undefined,
+                ...newLog,
             },
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
