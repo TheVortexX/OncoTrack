@@ -355,6 +355,7 @@ const ScheduleScreen = () => {
                     iconContainer={{ flex: 0.1 }}
                     onDateSelected={(date) => setSelectedDate(date)}
                     selectedDate={selectedDate}
+                    startingDate={moment().subtract(3, 'days')}
                     scrollable
                     highlightDateContainerStyle={{
                         backgroundColor: theme.colours.primary,
