@@ -49,7 +49,7 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        router.navigate('/');
+                        router.push('/');
                     }}
                 >
                     <Ionicons

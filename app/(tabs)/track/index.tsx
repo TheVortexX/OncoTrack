@@ -29,7 +29,7 @@ const TrackScreen = () => {
                 {/* Main Content */}
                 <View style={styles.content}>
                     {/* Symptoms Card */}
-                    <TouchableOpacity style={styles.card} onPress={() => console.log('Symptoms pressed')}>
+                    <TouchableOpacity style={styles.card} onPress={() => router.navigate('/(tabs)/track/symptomTrack')}>
                         <View style={styles.iconContainer}>
                             <Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />
                         </View>
@@ -49,7 +49,7 @@ const TrackScreen = () => {
                     </TouchableOpacity>
 
                     {/* Appointment Card */}
-                    <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/track/appointment')}>
+                    <TouchableOpacity style={styles.card} onPress={() => router.navigate('/(tabs)/track/appointment')}>
                         <View style={styles.iconContainer}>
                             <Ionicons name="calendar-number-outline" size={60} color="black" />
                         </View>

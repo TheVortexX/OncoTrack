@@ -7,7 +7,7 @@ const EmergencyButton = ({ onPress }: { onPress?: () => void }) => {
     return (
         <TouchableOpacity
             style={styles.button}
-            onPress={onPress || (() => router.navigate('/(tabs)/emergencyContacts'))}
+            onPress={onPress || (() => router.push('/(tabs)/emergencyContacts'))}
             activeOpacity={0.7}
         >
             <Image

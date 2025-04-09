@@ -5,15 +5,12 @@ export default function AuthLayout() {
     return(
         <View style={styles.container}>
             <Stack 
-                screenOptions={{headerShown: false}}
+                screenOptions={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                }}
                 initialRouteName="index"
-            >
-                <Stack.Screen name="index" options={{title: "Welcome"}} />
-                <Stack.Screen name="login" options={{title: "Log in"}} />
-                <Stack.Screen name="register" options={{title: "Create account"}} />
-                <Stack.Screen name="registerDetails" options={{ title: "Profile Details" }} />
-                <Stack.Screen name="forgot" options={{title: "Forgot Password"}} />
-            </Stack>
+            />
         </View>
     )
 }

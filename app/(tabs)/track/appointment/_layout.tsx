@@ -1,8 +1,12 @@
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 
-
-export default function TrackAppointmentOptLayout() {
+export default function AppointmentLayout() {
     return (
-        <Slot/>
+        <Stack
+            screenOptions={{
+                headerShown: false,
+                animation: 'slide_from_right',
+            }}
+        />
     );
 }
