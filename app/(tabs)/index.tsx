@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native';
 import TrackingOptionsScroll from '@/components/trackingButtons';
 import { theme } from '@/constants/theme';
@@ -6,6 +6,7 @@ import { useAuth } from '@/context/auth';
 import EmergencyButton from '@/components/emergencyButton';
 import TodaySchedule from '@/components/todaySchedule';
 import { StatusBar } from 'expo-status-bar';
+import { useFocusEffect } from 'expo-router';
 
 const headerImages = [
   require('@/assets/images/homeSplash/firewatch_tower.webp'),
@@ -18,22 +19,24 @@ export default function HomeScreen() {
   const [username, setUsername] = useState('');
   const [headerImage, setHeaderImage] = useState(headerImages[0]);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const profile = await getProfile();
-      if (profile) {
-        setUsername(profile.fName);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const loadProfile = async () => {
+        const profile = await getProfile();
+        if (profile) {
+          setUsername(profile.fName);
+        }
+      };
 
-    const selectRandomImage = () => {
-      const randomIndex = Math.floor(Math.random() * headerImages.length);
-      setHeaderImage(headerImages[randomIndex]);
-    };
+      const selectRandomImage = () => {
+        const randomIndex = Math.floor(Math.random() * headerImages.length);
+        setHeaderImage(headerImages[randomIndex]);
+      };
 
-    loadProfile();
-    selectRandomImage();
-  }, []);
+      loadProfile();
+      selectRandomImage();
+    }, [])
+  );
 
   const greeting = getGreeting(username);
 

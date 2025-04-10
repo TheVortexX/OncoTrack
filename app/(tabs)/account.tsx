@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { theme } from '@/constants/theme';
@@ -15,15 +15,18 @@ const AccountScreen = () => {
     const [displayName, setDisplayName] = useState('Not set');
     const [email, setEmail] = useState(user?.email || 'Not set');
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            const profile = await getProfile();
-            if (profile) {
-                setDisplayName(profile.fName + ' ' + profile.lName);
-            }
-        }
-        loadProfile();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            const loadProfile = async () => {
+                const profile = await getProfile();
+                if (profile) {
+                    setDisplayName(profile.fName + ' ' + profile.lName);
+                    setEmail(profile.email);
+                }
+            };
+            loadProfile();
+        }, [])
+    );
 
     const handleEditDisplayName = () => {
         router.push('/');

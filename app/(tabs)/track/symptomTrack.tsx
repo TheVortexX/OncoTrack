@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, StatusBar, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import CalendarStrip from 'react-native-calendar-strip';
 import { theme } from '@/constants/theme';
 import moment from 'moment';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { deleteUserSymptomLog, saveUserSymptomLog, updateUserSymptomLog, getUserSymptomLogs } from '@/services/profileService';
 import { useAuth } from '@/context/auth';
@@ -109,28 +109,30 @@ const SymptomTrackingScreen = () => {
         };
     }, []);
 
-    useEffect(() => {
-        const fetchLogs = async () => {
-            if (!user) return;
-            const logs = await getUserSymptomLogs(user.uid);
-            const logsMap: DatesWithLogsMap = {};
-            if (logs) {
-                logs.forEach((log: any) => {
-                    const data = log.data()
-                    logsMap[data.date] = {
-                        date: moment(data.date, 'YYYY-MM-DD'),
-                        symptoms: data.symptoms,
-                    }
-                    if (moment(data.date, 'YYYY-MM-DD').isSame(selectedDate, 'day')) {
-                        setSelectedSymptoms(data.symptoms);
-                        setNotes(data.notes || '');
-                    }
-                });
-                setDatesWithLogs(logsMap)
-            }
-        }
-        fetchLogs()
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            const fetchLogs = async () => {
+                if (!user) return;
+                const logs = await getUserSymptomLogs(user.uid);
+                const logsMap: DatesWithLogsMap = {};
+                if (logs) {
+                    logs.forEach((log: any) => {
+                        const data = log.data()
+                        logsMap[data.date] = {
+                            date: moment(data.date, 'YYYY-MM-DD'),
+                            symptoms: data.symptoms,
+                        }
+                        if (moment(data.date, 'YYYY-MM-DD').isSame(selectedDate, 'day')) {
+                            setSelectedSymptoms(data.symptoms);
+                            setNotes(data.notes || '');
+                        }
+                    });
+                    setDatesWithLogs(logsMap)
+                }
+            };
+            fetchLogs();
+        }, [])
+    );
 
     const toggleSymptom = (category: string, symptomValue: string) => {
         setSelectedSymptoms(prev => {

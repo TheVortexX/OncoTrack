@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
@@ -11,9 +11,9 @@ const NavBar = () => {
 
     const isActive = (path: string) => pathname === path;
 
-    const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {

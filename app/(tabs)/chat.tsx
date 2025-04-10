@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar, Dimensions, Keyboard, Alert} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo, Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import Modal from '@/components/modal'
 import moment from 'moment';
 import AppointmentForm from '@/components/appointmentFormModal';
 import { saveUserAppointment } from '@/services/profileService';
+import { useFocusEffect } from 'expo-router';
 
 // TypeScript interfaces
 interface Message {
@@ -68,10 +69,10 @@ const ChatScreen = () => {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [extractedAppointment, setExtractedAppointment] = useState<Appointment | null>(null);
     
-    const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const bottomMargin = Platform.OS === 'ios' ?  50 + insets.bottom : 70
 
-    React.useEffect(() => {
+    useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
@@ -92,69 +93,71 @@ const ChatScreen = () => {
     }, []);
 
 
-    useEffect(() => {
-        if (!user?.uid) return;
-        const loadMessages = async () => {
-            try {
-                // Get the latest chat document
-                let latestChatDoc = await getLatestChatDoc();
+    useFocusEffect(
+        useCallback(() => {
+            if (!user?.uid) return;
+            const loadMessages = async () => {
+                try {
+                    // Get the latest chat document
+                    let latestChatDoc = await getLatestChatDoc();
 
-                if (!latestChatDoc) { //if it does't exist create it
-                    const ref = await createNewChat();
-                    if (!ref) {
-                        console.error("Failed to create new chat document");
+                    if (!latestChatDoc) { //if it doesn't exist create it
+                        const ref = await createNewChat();
+                        if (!ref) {
+                            console.error("Failed to create new chat document");
+                            return;
+                        }
+                        updateLatestChatRef(ref);
+                        latestChatDoc = await getLatestChatDoc();
+                    }
+
+                    if (!latestChatDoc) {
+                        console.error("Document should have been created as it doesn't exist");
                         return;
                     }
-                    updateLatestChatRef(ref);
-                    latestChatDoc = await getLatestChatDoc();
-                }
 
-                if (!latestChatDoc) {
-                    console.error("Document should have been created as it doesnt exist");
-                    return;
-                }
+                    // Get the chatRef from the document
+                    const chatRefFromDoc = latestChatDoc.data().chatRef;
+                    setChatRef(chatRefFromDoc);
 
-                // Get the chatRef from the document
-                const chatRefFromDoc = latestChatDoc.data().chatRef;
-                setChatRef(chatRefFromDoc);
+                    if (!chatRefFromDoc) {
+                        console.error("No chat reference found");
+                        return;
+                    }
 
-                if (!chatRefFromDoc) {
-                    console.error("No chat reference found");
-                    return;
-                }
+                    // Verify the chat document exists
+                    const chatDoc = await getDoc(chatRefFromDoc);
+                    if (!chatDoc.exists()) {
+                        console.error("Chat document does not exist");
+                        return;
+                    }
 
-                // Verify the chat document exists
-                const chatDoc = await getDoc(chatRefFromDoc);
-                if (!chatDoc.exists()) {
-                    console.error("Chat document does not exist");
-                    return;
-                }
+                    // Fetch messages from the subcollection
+                    const messagesSnapshot = await getDocs(
+                        query(
+                            collection(firestore, chatRefFromDoc.path, 'messages'),
+                            orderBy('sentAt', 'asc')
+                        )
+                    );
 
-                // Fetch messages from the subcollection
-                const messagesSnapshot = await getDocs(
-                    query(
-                        collection(firestore, chatRefFromDoc.path, 'messages'),
-                        orderBy('sentAt', 'asc')
-                    )
-                );
-
-                const messagesArray: Message[] = [];
-                messagesSnapshot.forEach(doc => {
-                    const messageData = doc.data() as Message;
-                    messagesArray.push({
-                        ...messageData,
-                        id: doc.id
+                    const messagesArray: Message[] = [];
+                    messagesSnapshot.forEach(doc => {
+                        const messageData = doc.data() as Message;
+                        messagesArray.push({
+                            ...messageData,
+                            id: doc.id
+                        });
                     });
-                });
-                setMessages(messagesArray);
-            } catch (error) {
-                console.error("Error loading messages:", error);
-            }
-        };
+                    setMessages(messagesArray);
+                } catch (error) {
+                    console.error("Error loading messages:", error);
+                }
+            };
 
-        // Load messages once when component mounts
-        loadMessages();
-    }, []);
+            // Load messages when
+            loadMessages();
+        }, [user?.uid])
+    );
 
     const createNewChat = async () => {
         if (!user?.uid) return;

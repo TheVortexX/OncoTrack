@@ -8,7 +8,7 @@ import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { deleteUserAppointment, getUserAppointments, saveUserAppointment, updateUserAppointment } from '@/services/profileService';
 import AppointmentForm from '@/components/appointmentFormModal';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 interface Appointment {
     id: string;
@@ -51,31 +51,33 @@ const ScheduleScreen = () => {
     }, [params.openNewAppointment]);
 
 
-    useEffect(() => {
-        getUserAppointments(user?.uid).then((appointmentDocs) => {
-            const newAppointmentsMap: AppointmentsMap = {};
+    useFocusEffect(
+        useCallback(() => {
+            getUserAppointments(user?.uid).then((appointmentDocs) => {
+                const newAppointmentsMap: AppointmentsMap = {};
 
-            appointmentDocs.forEach((doc) => {
-                const data = doc.data();
-                const id = doc.id;
+                appointmentDocs.forEach((doc) => {
+                    const data = doc.data();
+                    const id = doc.id;
 
-                newAppointmentsMap[id] = {
-                    ...data, // Include any additional fields
-                    id,
-                    description: data.description || '',
-                    provider: data.provider || '',
-                    startTime: timestampToMoment(data.startTime),
-                    endTime: timestampToMoment(data.endTime),
-                    appointmentType: data.appointmentType || '',
-                    staff: data.staff || '',
-                    travelTime: moment.duration(data.travelTime || 0),
-                    colour: getAppointmentColour(data.appointmentType),
-                };
+                    newAppointmentsMap[id] = {
+                        ...data, // Include any additional fields
+                        id,
+                        description: data.description || '',
+                        provider: data.provider || '',
+                        startTime: timestampToMoment(data.startTime),
+                        endTime: timestampToMoment(data.endTime),
+                        appointmentType: data.appointmentType || '',
+                        staff: data.staff || '',
+                        travelTime: moment.duration(data.travelTime || 0),
+                        colour: getAppointmentColour(data.appointmentType),
+                    };
+                });
+
+                setAppointmentsMap(newAppointmentsMap);
             });
-
-            setAppointmentsMap(newAppointmentsMap);
-        });
-    }, []);
+        }, [])
+    );
 
     const showNewAppointmentModal = () => {
         setRightButtonAction(() => {

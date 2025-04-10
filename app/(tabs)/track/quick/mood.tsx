@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '@/context/auth';
 import moment from 'moment';
 import { getUserSymptomLogs, saveUserSymptomLog, updateUserSymptomLog } from '@/services/profileService'
@@ -76,33 +76,34 @@ const MoodTrackingScreen: React.FC = () => {
         { iconName: 'meh', label: 'Average', value: 'average' },
         { iconName: 'smile-beam', label: 'Excellent', value: 'excellent' },
     ];
+    useFocusEffect(
+        useCallback(() => {
+            // Check if there's an existing log for today
+            const fetchTodayLog = async () => {
+                if (!user) return;
+                const logs = await getUserSymptomLogs(user.uid);
+                if (logs) {
+                    const todayLog = logs.find(log => {
+                        const data = log.data();
+                        return data.date === today;
+                    });
 
-    useEffect(() => {
-        // Check if there's an existing log for today
-        const fetchTodayLog = async () => {
-            if (!user) return;
-            const logs = await getUserSymptomLogs(user.uid);
-            if (logs) {
-                const todayLog = logs.find(log => {
-                    const data = log.data();
-                    return data.date === today;
-                });
-
-                if (todayLog) {
-                    const data = todayLog.data();
-                    if (data.symptoms) {
-                        setHasExistingLog(true);
-                        setExistingLog(data.symptoms);
-                        if (data.symptoms.mood) {
-                            setSelectedMood(data.symptoms.mood);
+                    if (todayLog) {
+                        const data = todayLog.data();
+                        if (data.symptoms) {
+                            setHasExistingLog(true);
+                            setExistingLog(data.symptoms);
+                            if (data.symptoms.mood) {
+                                setSelectedMood(data.symptoms.mood);
+                            }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        fetchTodayLog();
-    }, [user, today]);
+            fetchTodayLog();
+        }, [user, today])
+    );
 
     const handleMoodSelect = (mood: string): void => {
         setSelectedMood(mood === selectedMood ? '' : mood);

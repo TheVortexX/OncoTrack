@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/auth';
 import moment from 'moment';
@@ -122,32 +122,34 @@ const ThermometerScreen = () => {
 
     const today = moment().format('YYYY-MM-DD');
 
-    useEffect(() => {
-        // Check if there's an existing log for today
-        const fetchTodayLog = async () => {
-            if (!user) return;
-            const logs = await getUserSymptomLogs(user.uid);
-            if (logs) {
-                const todayLog = logs.find(log => {
-                    const data = log.data();
-                    return data.date === today;
-                });
-                if (todayLog) {
-                    const data = todayLog.data();
-                    if (data.symptoms) {
-                        setHasExistingLog(true);
-                        setExistingLog(data.symptoms);
-                        if (data.symptoms.temperature) {
-                            setTemperature(parseFloat(data.symptoms.temperature));
-                            setTemperatureText(data.symptoms.temperature.toString());
+    useFocusEffect(
+        useCallback(() => {
+            // Check if there's an existing log for today
+            const fetchTodayLog = async () => {
+                if (!user) return;
+                const logs = await getUserSymptomLogs(user.uid);
+                if (logs) {
+                    const todayLog = logs.find(log => {
+                        const data = log.data();
+                        return data.date === today;
+                    });
+                    if (todayLog) {
+                        const data = todayLog.data();
+                        if (data.symptoms) {
+                            setHasExistingLog(true);
+                            setExistingLog(data.symptoms);
+                            if (data.symptoms.temperature) {
+                                setTemperature(parseFloat(data.symptoms.temperature));
+                                setTemperatureText(data.symptoms.temperature.toString());
+                            }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        fetchTodayLog();
-    }, [user, today]);
+            fetchTodayLog();
+        }, [user, today])
+    );
 
     const handleTemperatureChange = (newTemperature: string) => {
         setTemperatureText(newTemperature);

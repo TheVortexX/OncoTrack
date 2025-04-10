@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
 import { deleteUserAppointment, getUserAppointments, updateUserAppointment } from '@/services/profileService';
@@ -7,6 +7,7 @@ import moment from 'moment';
 import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppointmentForm from '@/components/appointmentFormModal';
+import { useFocusEffect } from 'expo-router';
 
 
 interface Appointment {
@@ -44,39 +45,41 @@ const TodaySchedule = () => {
     const [rightButtonAction, setRightButtonAction] = useState(() => (appointment: any) => { });
     const [existingAppointment, setExistingAppointment] = useState<Appointment | null>(null);
 
-    useEffect(() => {
-        getUserAppointments(user?.uid).then((appointmentDocs) => {
-            const newAppointmentsMap: AppointmentsMap = {};
+    useFocusEffect(
+        useCallback(() => {
+            getUserAppointments(user?.uid).then((appointmentDocs) => {
+                const newAppointmentsMap: AppointmentsMap = {};
 
-            appointmentDocs.forEach((doc) => {
-                const data = doc.data();
-                const appointment = {
-                    ...data, // Include any additional fields
-                    id: doc.id,
-                    description: data.description || '',
-                    startTime: timestampToMoment(data.startTime),
-                    appointmentType: data.appointmentType || '',
-                    colour: getAppointmentColour(data.appointmentType),
-                    endTime: timestampToMoment(data.endTime),
-                    travelTime: moment.duration(data.travelTime || 0),
-                    provider: data.provider || '',
-                    staff: data.staff || '',
-                };
+                appointmentDocs.forEach((doc) => {
+                    const data = doc.data();
+                    const appointment = {
+                        ...data, // Include any additional fields
+                        id: doc.id,
+                        description: data.description || '',
+                        startTime: timestampToMoment(data.startTime),
+                        appointmentType: data.appointmentType || '',
+                        colour: getAppointmentColour(data.appointmentType),
+                        endTime: timestampToMoment(data.endTime),
+                        travelTime: moment.duration(data.travelTime || 0),
+                        provider: data.provider || '',
+                        staff: data.staff || '',
+                    };
 
-                newAppointmentsMap[doc.id] = appointment;
+                    newAppointmentsMap[doc.id] = appointment;
+                });
+
+                setAppointmentsMap(newAppointmentsMap);
+                appointmentsMapRef.current = newAppointmentsMap;
+                filterFutureOnly();
+                setMinuteSync();
             });
 
-            setAppointmentsMap(newAppointmentsMap);
-            appointmentsMapRef.current = newAppointmentsMap;
-            filterFutureOnly();
-            setMinuteSync();
-        })
-
-        return () => {
-            if (firstSyncRef.current) clearTimeout(firstSyncRef.current);
-            if (intervalRef.current) clearInterval(intervalRef.current);
-        };
-    }, []);
+            return () => {
+                if (firstSyncRef.current) clearTimeout(firstSyncRef.current);
+                if (intervalRef.current) clearInterval(intervalRef.current);
+            };
+        }, [])
+    );
 
     useEffect(() => {
         appointmentsMapRef.current = appointmentsMap;
