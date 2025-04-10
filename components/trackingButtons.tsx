@@ -38,12 +38,12 @@ const TrackingOptionsScroll = () => {
                 <TrackingCard
                     icon={<FontAwesome5 name="smile" size={60} color="#000" />}
                     title="Record your mood"
-                    onPress={() => console.log('Mood pressed')}
+                    onPress={() => router.push('/(tabs)/track/quick/mood')}
                 />
                 <TrackingCard
                     icon={<FontAwesome5 name="thermometer-half" size={60} color="#000" />}
                     title="Record your temperature"
-                    onPress={() => console.log('Temperature pressed')}
+                    onPress={() => router.push('/(tabs)/track/quick/temperature')}
                 />
                 <TrackingCard
                     icon={<FontAwesome5 name="edit" size={60} color="#000" />}

@@ -28,8 +28,10 @@ export const theme = {
         warning: "#FF9800",      // Orange for warnings
         warningLight: "#FFF3E0", // Light background for warnings
         danger: "#EE6C4D",        // Using primary for danger buttons
+        darkDanger: "#8B0000", // Dark red for critical errors
         error: "#EE6C4D",        // Using primary for errors/alerts
         errorLight: "#FACCC1",   // Using primaryLight25 for error backgrounds
+        purple: "#5D3FD3",
 
         // Surface and text colors
         background: "#E0FBFC",   // blue99 as the main background
