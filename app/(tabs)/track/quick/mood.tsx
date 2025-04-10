@@ -59,6 +59,7 @@ const MoodTrackingScreen: React.FC = () => {
     const router = useRouter();
     const [selectedMood, setSelectedMood] = useState('');
     const [hasExistingLog, setHasExistingLog] = useState(false);
+    const [existingLog, setExistingLog] = useState({});
     const insets = useSafeAreaInsets();
     const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70;
     
@@ -89,9 +90,12 @@ const MoodTrackingScreen: React.FC = () => {
 
                 if (todayLog) {
                     const data = todayLog.data();
-                    if (data.symptoms && data.symptoms.mood) {
-                        setSelectedMood(data.symptoms.mood);
+                    if (data.symptoms) {
                         setHasExistingLog(true);
+                        setExistingLog(data.symptoms);
+                        if (data.symptoms.mood) {
+                            setSelectedMood(data.symptoms.mood);
+                        }
                     }
                 }
             }
@@ -125,6 +129,7 @@ const MoodTrackingScreen: React.FC = () => {
         }
 
         const logData = {
+            ...existingLog,
             date: today,
             mood: selectedMood
         };
@@ -137,7 +142,7 @@ const MoodTrackingScreen: React.FC = () => {
                 if (result) {
                     Alert.alert(
                         "Success",
-                        "Your mood has been updated.",
+                        "Your log has been updated.",
                         [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
                     );
                 }

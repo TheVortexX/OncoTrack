@@ -116,6 +116,7 @@ const ThermometerScreen = () => {
     const [temperatureText, setTemperatureText] = useState(temperature.toString());
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [hasExistingLog, setHasExistingLog] = useState(false);
+    const [existingLog, setExistingLog] = useState({});
     const insets = useSafeAreaInsets();
     const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70;
 
@@ -131,13 +132,15 @@ const ThermometerScreen = () => {
                     const data = log.data();
                     return data.date === today;
                 });
-
                 if (todayLog) {
                     const data = todayLog.data();
-                    if (data.symptoms && data.symptoms.temperature) {
-                        setTemperature(parseFloat(data.symptoms.temperature));
-                        setTemperatureText(data.symptoms.temperature.toString());
+                    if (data.symptoms) {
                         setHasExistingLog(true);
+                        setExistingLog(data.symptoms);
+                        if (data.symptoms.temperature) {
+                            setTemperature(parseFloat(data.symptoms.temperature));
+                            setTemperatureText(data.symptoms.temperature.toString());
+                        }
                     }
                 }
             }
@@ -183,6 +186,7 @@ const ThermometerScreen = () => {
     const saveTemperature = async () => {
         if (!user) return;
         const logData = {
+            ...existingLog,
             date: today,
             temperature: temperature.toFixed(1)
         };
@@ -195,7 +199,7 @@ const ThermometerScreen = () => {
                 if (result) {
                     Alert.alert(
                         "Success",
-                        "Your temperature has been updated.",
+                        "Your log has been updated.",
                         [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
                     );
                 }
