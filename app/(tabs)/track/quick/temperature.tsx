@@ -1,18 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Platform,
-    StatusBar,
-    Animated,
-    TextInput,
-    Keyboard,
-    TouchableWithoutFeedback,
-    KeyboardAvoidingView,
-    ScrollView
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
@@ -121,6 +108,27 @@ const ThermometerScreen = () => {
             setTemperature(clampedTemp);
         }
     };
+    
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setKeyboardVisible(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false);
+            }
+        );
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+    
 
     const dismissKeyboard = () => {
         Keyboard.dismiss();
@@ -261,6 +269,7 @@ const styles = StyleSheet.create({
     },
     scrollViewContent: {
         flexGrow: 1,
+        paddingBottom: 20,
     },
     contentContainer: {
         flex: 1,
@@ -270,9 +279,11 @@ const styles = StyleSheet.create({
     thermometerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
         height: 350,
         marginBottom: 20,
+        paddingHorizontal: 20,
+        width: '100%',
+        marginLeft: '25%'
     },
     thermometerBody: {
         alignItems: 'center',
@@ -341,6 +352,7 @@ const styles = StyleSheet.create({
         fontFamily: theme.fonts.openSans.regular,
     },
     currentTempContainer: {
+        width: '50%',
         marginLeft: 20,
         alignItems: 'center',
     },
@@ -350,7 +362,7 @@ const styles = StyleSheet.create({
         color: theme.colours.textPrimary,
     },
     feverIndicator: {
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: theme.fonts.openSans.bold,
         color: theme.colours.danger,
         marginTop: 5,
@@ -358,6 +370,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 2,
         textAlign: 'center',
+        width: '100%',
     },
     inputContainer: {
         flexDirection: 'row',
