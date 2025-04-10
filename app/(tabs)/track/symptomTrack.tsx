@@ -33,13 +33,13 @@ interface SymptomOptionProps {
 const SymptomOption = ({ iconFamily, iconName, label, selected, onPress, color }: SymptomOptionProps) => {
     let icon = null;
     if (iconFamily === 'FontAwesome5') {
-        icon = <FontAwesome5 name={iconName} size={24} color={selected ? theme.colours.textOnBlue : color} />;
+        icon = <FontAwesome5 name={iconName} size={40} color={selected ? theme.colours.textOnBlue : color} />;
     } else if (iconFamily === 'MaterialCommunityIcons') {
-        icon = <MaterialCommunityIcons name={iconName as any} size={24} color={selected ? theme.colours.textOnBlue : color} />;
+        icon = <MaterialCommunityIcons name={iconName as any} size={40} color={selected ? theme.colours.textOnBlue : color} />;
     } else if (iconFamily === 'Ionicons') {
-        icon = <Ionicons name={iconName as any} size={24} color={selected ? theme.colours.textOnBlue : color} />;
+        icon = <Ionicons name={iconName as any} size={40} color={selected ? theme.colours.textOnBlue : color} />;
     } else if (iconFamily === 'Text') {
-        icon = <Text style={{ fontSize: 24, color: selected ? theme.colours.textOnBlue : color }}>{iconName}</Text>;
+        icon = <Text style={{ fontSize: 40, color: selected ? theme.colours.textOnBlue : color }}>{iconName}</Text>;
     }
 
     return (
@@ -76,7 +76,6 @@ const SymptomTrackingScreen = () => {
     const [todaySymptoms, setTodaySymptoms] = useState<Record<string, string>>({});
     const [notes, setNotes] = useState('');
     const [todayNotes, setTodayNotes] = useState('');
-    const [shouldShowNoLogWarn, setShouldShowNoLogWarn] = useState(true);
     const [datesWithLogs, setDatesWithLogs] = useState<DatesWithLogsMap>({});
     const insets = useSafeAreaInsets()
     const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70
@@ -355,6 +354,79 @@ const SymptomTrackingScreen = () => {
                             </Text>
                         </View>
                     )}
+                    {/* Feelings Section */}
+                    <CategoryTitle title="Feelings" />
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="smile-beam"
+                            label="Excellent"
+                            selected={selectedSymptoms['mood'] === 'excellent'}
+                            onPress={() => toggleSymptom('mood', 'excellent')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="smile"
+                            label="Happy"
+                            selected={selectedSymptoms['mood'] === 'happy'}
+                            onPress={() => toggleSymptom('mood', 'happy')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="meh"
+                            label="Average"
+                            selected={selectedSymptoms['mood'] === 'average'}
+                            onPress={() => toggleSymptom('mood', 'average')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="meh-blank"
+                            label="No feelings"
+                            selected={selectedSymptoms['mood'] === 'blank'}
+                            onPress={() => toggleSymptom('mood', 'blank')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="meh-rolling-eyes"
+                            label="Fed up"
+                            selected={selectedSymptoms['mood'] === 'fed-up'}
+                            onPress={() => toggleSymptom('mood', 'fed-up')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="frown"
+                            label="Sad"
+                            selected={selectedSymptoms['mood'] === 'sad'}
+                            onPress={() => toggleSymptom('mood', 'sad')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="sad-tear"
+                            label="Upset"
+                            selected={selectedSymptoms['mood'] === 'upset'}
+                            onPress={() => toggleSymptom('mood', 'upset')}
+                            color={theme.colours.primary}
+                        />
+                        <SymptomOption
+                            iconFamily="FontAwesome5"
+                            iconName="angry"
+                            label="Angry"
+                            selected={selectedSymptoms['mood'] === 'angry'}
+                            onPress={() => toggleSymptom('mood', 'angry')}
+                            color={theme.colours.primary}
+                        />
+                    </ScrollView>
                     {/* Pain Section */}
                     <CategoryTitle title="Pain" />
                     <View style={styles.optionsRow}>
@@ -719,8 +791,16 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginBottom: 10,
     },
+    optionsRowScroll: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    optionsScrollContent: {
+        paddingHorizontal: 10,
+        paddingBottom: 10,
+    },
     symptomOption: {
-        width: '22%',
+        width: 80,  // Make width fixed for consistent sizing
         aspectRatio: 1,
         backgroundColor: theme.colours.background,
         borderRadius: 10,
@@ -728,6 +808,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 10,
+        marginRight: 12,  // Consistent spacing between items
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
