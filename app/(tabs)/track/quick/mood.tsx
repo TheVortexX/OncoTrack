@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/auth';
 import moment from 'moment';
 import { getUserSymptomLogs, saveUserSymptomLog, updateUserSymptomLog } from '@/services/profileService'
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // Types
 interface HeaderProps {
     title: string;
@@ -58,6 +59,9 @@ const MoodTrackingScreen: React.FC = () => {
     const router = useRouter();
     const [selectedMood, setSelectedMood] = useState('');
     const [hasExistingLog, setHasExistingLog] = useState(false);
+    const insets = useSafeAreaInsets();
+    const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70;
+    
     const today = moment().format('YYYY-MM-DD');
 
     // Mood options configuration
@@ -100,14 +104,14 @@ const MoodTrackingScreen: React.FC = () => {
         setSelectedMood(mood === selectedMood ? '' : mood);
     };
 
-    // Reusable component for the header
+    // TODO reusable component for the header make common across all files
     const Header: React.FC<HeaderProps> = ({ title, subtitle }) => (
         <View style={styles.header}>
             <Text style={styles.headerText}>{title}</Text>
             <Text style={styles.subHeaderText}>{subtitle}</Text>
             <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.dismiss()}
+                onPress={() => router.replace('/(tabs)')}
             >
                 <FontAwesome5 name="times" size={24} color="white" />
             </TouchableOpacity>
@@ -122,7 +126,7 @@ const MoodTrackingScreen: React.FC = () => {
 
         const logData = {
             date: today,
-            symptoms: { mood: selectedMood }
+            mood: selectedMood
         };
 
         try {
@@ -134,7 +138,7 @@ const MoodTrackingScreen: React.FC = () => {
                     Alert.alert(
                         "Success",
                         "Your mood has been updated.",
-                        [{ text: "OK", onPress: () => router.dismiss() }]
+                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
                     );
                 }
             } else {
@@ -144,7 +148,7 @@ const MoodTrackingScreen: React.FC = () => {
                     Alert.alert(
                         "Success",
                         "Your mood has been saved.",
-                        [{ text: "OK", onPress: () => router.dismiss() }]
+                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
                     );
                 }
             }
@@ -167,27 +171,36 @@ const MoodTrackingScreen: React.FC = () => {
                 />
             </View>
 
-            <View style={styles.container}>
+            <View style={[styles.container, { marginBottom: bottomMargin }]}>
                 <Header
                     title="Track Your Mood"
                     subtitle="How are you feeling today?"
                 />
 
-                <View style={styles.contentContainer}>
-                    <Text style={styles.instructionText}>Select your current mood:</Text>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollViewContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.contentContainer}>
+                        <Text style={styles.instructionText}>Select your current mood:</Text>
 
-                    <View style={styles.moodGrid}>
-                        {moodOptions.map((option) => (
-                            <MoodOption
-                                key={option.value}
-                                iconName={option.iconName}
-                                label={option.label}
-                                selected={selectedMood === option.value}
-                                onPress={() => handleMoodSelect(option.value)}
-                            />
-                        ))}
+                        <View style={styles.moodGrid}>
+                            {moodOptions.map((option) => (
+                                <MoodOption
+                                    key={option.value}
+                                    iconName={option.iconName}
+                                    label={option.label}
+                                    selected={selectedMood === option.value}
+                                    onPress={() => handleMoodSelect(option.value)}
+                                />
+                            ))}
+                        </View>
                     </View>
+                </ScrollView>
 
+                {/* Save Button Container*/}
+                <View style={styles.saveButtonContainer}>
                     <TouchableOpacity
                         style={[
                             styles.saveButton,
@@ -240,9 +253,15 @@ const styles = StyleSheet.create({
         top: Platform.OS === 'android' ? 50 : 16,
         padding: 5,
     },
-    contentContainer: {
+    scrollView: {
         flex: 1,
+    },
+    scrollViewContent: {
+        paddingBottom: 0,
+    },
+    contentContainer: {
         padding: 20,
+        paddingBottom: 0,
     },
     instructionText: {
         fontSize: 18,
@@ -256,7 +275,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     moodOption: {
-        width: '48%',  // Allows for 2 columns with space in between
+        width: '48%',
         aspectRatio: 1,
         backgroundColor: theme.colours.background,
         borderRadius: 10,
@@ -287,14 +306,21 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: theme.fonts.openSans.bold,
     },
+    saveButtonContainer: {
+        padding: 15,
+        paddingBottom: 35,
+        backgroundColor: theme.colours.background,
+        borderTopWidth: 1,
+        borderColor: theme.colours.border,
+        alignItems: 'center',
+    },
     saveButton: {
         backgroundColor: theme.colours.buttonBlue,
         paddingVertical: 15,
         borderRadius: 30,
+        width: "90%",
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 'auto',
-        marginBottom: 20,
     },
     saveButtonDisabled: {
         backgroundColor: theme.colours.gray,
