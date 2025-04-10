@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/context/auth';
+import moment from 'moment';
+import { getUserSymptomLogs, saveUserSymptomLog, updateUserSymptomLog } from '@/services/profileService';
 
 const MIN_TEMP = 33;
 const MAX_TEMP = 45;
@@ -108,11 +111,40 @@ const getTempIndicatorBox = (temperature: number) => {
 
 // Main screen component
 const ThermometerScreen = () => {
+    const { user } = useAuth();
     const [temperature, setTemperature] = useState(37.0);
     const [temperatureText, setTemperatureText] = useState(temperature.toString());
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [hasExistingLog, setHasExistingLog] = useState(false);
     const insets = useSafeAreaInsets();
     const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70;
+
+    const today = moment().format('YYYY-MM-DD');
+
+    useEffect(() => {
+        // Check if there's an existing log for today
+        const fetchTodayLog = async () => {
+            if (!user) return;
+            const logs = await getUserSymptomLogs(user.uid);
+            if (logs) {
+                const todayLog = logs.find(log => {
+                    const data = log.data();
+                    return data.date === today;
+                });
+
+                if (todayLog) {
+                    const data = todayLog.data();
+                    if (data.symptoms && data.symptoms.temperature) {
+                        setTemperature(parseFloat(data.symptoms.temperature));
+                        setTemperatureText(data.symptoms.temperature.toString());
+                        setHasExistingLog(true);
+                    }
+                }
+            }
+        };
+
+        fetchTodayLog();
+    }, [user, today]);
 
     const handleTemperatureChange = (newTemperature: string) => {
         setTemperatureText(newTemperature);
@@ -148,6 +180,45 @@ const ThermometerScreen = () => {
         Keyboard.dismiss();
     };
 
+    const saveTemperature = async () => {
+        if (!user) return;
+        const logData = {
+            date: today,
+            temperature: temperature.toFixed(1)
+        };
+
+        try {
+            let result;
+            if (hasExistingLog) {
+                // Update existing log
+                result = await updateUserSymptomLog(user.uid, today, logData);
+                if (result) {
+                    Alert.alert(
+                        "Success",
+                        "Your temperature has been updated.",
+                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                    );
+                }
+            } else {
+                // Create new log
+                result = await saveUserSymptomLog(user.uid, logData);
+                if (result) {
+                    Alert.alert(
+                        "Success",
+                        "Your temperature has been saved.",
+                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                    );
+                }
+            }
+        } catch (error) {
+            Alert.alert(
+                "Error",
+                "There was an error saving your temperature. Please try again.",
+                [{ text: "OK" }]
+            );
+        }
+    };
+
     return (
         <>
             {/* Status Bar Area */}
@@ -168,7 +239,7 @@ const ThermometerScreen = () => {
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => {
-                            router.push('/(tabs)');
+                            router.replace('/(tabs)');
                         }}
                     >
                         <FontAwesome5 name="times" size={24} color="white" />
@@ -222,10 +293,8 @@ const ThermometerScreen = () => {
                     <TouchableOpacity
                         style={styles.saveButton}
                         onPress={() => {
-                            // Dismiss keyboard when saving
                             dismissKeyboard();
-                            // Add logic to save temperature reading
-                            alert(`Temperature (${temperature.toFixed(1)}°C) saved successfully!`);
+                            saveTemperature();
                         }}
                     >
                         <Text style={styles.saveButtonText}>Save</Text>
