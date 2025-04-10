@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
@@ -17,9 +17,19 @@ const Thermometer: React.FC<{ temperature: number; minTemp?: number; maxTemp?: n
     // clamp temperature
     const boundedTemp = clamp(temperature, minTemp, maxTemp);
 
-    // Calculate height percentage based on temperature range
-    const fillSpace = 0.3
-    const fillPercentage = Math.min(((boundedTemp - minTemp + fillSpace) / (maxTemp - minTemp + fillSpace)) * 100, 100);
+    const animatedHeight = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const fillSpace = 0.3
+        const fillPercentage = Math.min(((boundedTemp - minTemp + fillSpace) / (maxTemp - minTemp + fillSpace)) * 100, 100);
+
+        // Animate to new height
+        Animated.timing(animatedHeight, {
+            toValue: fillPercentage,
+            duration: 500,
+            useNativeDriver: false,
+        }).start();
+    }, [boundedTemp, animatedHeight]);
 
     // Generate scale markers
     const scaleMarkers = [];
@@ -49,10 +59,15 @@ const Thermometer: React.FC<{ temperature: number; minTemp?: number; maxTemp?: n
             <View style={styles.thermometerBody}>
                 <View style={styles.thermometerBulb} />
                 <View style={styles.thermometerTube}>
-                    <View
+                    <Animated.View
                         style={[
                             styles.thermometerMercury,
-                            { height: `${fillPercentage}%` }
+                            {
+                                height: animatedHeight.interpolate({
+                                    inputRange: [0, 100],
+                                    outputRange: ['0%', '100%']
+                                })
+                            }
                         ]}
                     />
                 </View>
@@ -81,7 +96,7 @@ const getTempIndicatorBox = (temperature: number) => {
     } else if (temperature > 37.5 && temperature <= 38.0) {
         text = "Elevated";
         colorVal = theme.colours.warning;
-    } else if (temperature > 38.0 && temperature <= 40.0){
+    } else if (temperature > 38.0 && temperature <= 40.0) {
         text = "Fever";
         colorVal = theme.colours.danger;
     } else {
@@ -108,7 +123,7 @@ const ThermometerScreen = () => {
             setTemperature(clampedTemp);
         }
     };
-    
+
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
@@ -128,7 +143,6 @@ const ThermometerScreen = () => {
             keyboardDidHideListener.remove();
         };
     }, []);
-    
 
     const dismissKeyboard = () => {
         Keyboard.dismiss();
@@ -218,9 +232,9 @@ const ThermometerScreen = () => {
                     </TouchableOpacity>
                 </View>
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding': undefined}
-                    style={[styles.avoidContainer, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin-50 : 0}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={[styles.avoidContainer, Platform.OS === 'android' && isKeyboardVisible && { marginBottom: -85 }]}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin - 50 : 0}
                 />
             </View>
         </>
