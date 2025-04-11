@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, StatusBar } from 'react-native';
 import TrackingOptionsScroll from '@/components/trackingButtons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import EmergencyButton from '@/components/emergencyButton';
 import TodaySchedule from '@/components/todaySchedule';
-import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from 'expo-router';
 
 const headerImages = [
@@ -32,9 +31,8 @@ export default function HomeScreen() {
         const randomIndex = Math.floor(Math.random() * headerImages.length);
         setHeaderImage(headerImages[randomIndex]);
       };
-
-      loadProfile();
       selectRandomImage();
+      loadProfile();
     }, [])
   );
 
@@ -42,7 +40,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent />
+      <StatusBar 
+        translucent
+        backgroundColor={"transparent"}
+      />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={headerImage || require('@/assets/images/homeSplash/firewatch_tower.webp')}

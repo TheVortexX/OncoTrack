@@ -60,6 +60,14 @@ const AppointmentScanScreen = () => {
         );
     }
 
+    const handleDismiss = () => {
+        if (router.canDismiss()) {
+            router.dismiss();
+        } else {
+            router.navigate('/(tabs)/schedule');
+        }
+    }
+
     const takePicture = async () => {
         try {
             const photo = await cameraRef.current?.takePictureAsync({
@@ -82,7 +90,7 @@ const AppointmentScanScreen = () => {
         Alert.alert(
             "Appointment Saved",
             "Your appointment has been successfully added to your calendar.",
-            [{ text: "OK", onPress: () => router.replace('/(tabs)/schedule') }]
+            [{ text: "OK", onPress: handleDismiss }]
         );
     };
 
