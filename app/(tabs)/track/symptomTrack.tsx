@@ -80,7 +80,7 @@ const SymptomTrackingScreen = () => {
     const insets = useSafeAreaInsets()
     const bottomMargin = Platform.OS === 'ios' ? 50 + insets.bottom : 70
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    
+
     useEffect(() => {
         if (params.today === 'true') {
             setTimeout(() => {
@@ -169,8 +169,9 @@ const SymptomTrackingScreen = () => {
                 Alert.alert(
                     "Success",
                     "Your symptoms have been updated.",
-                    [{ text: "OK", onPress: handleDismiss
-                     }]
+                    [{
+                        text: "OK", onPress: handleDismiss
+                    }]
                 )
             } else {
                 Alert.alert(
@@ -365,6 +366,7 @@ const SymptomTrackingScreen = () => {
                             </Text>
                         </View>
                     )}
+
                     {/* Feelings Section */}
                     <CategoryTitle title="Feelings" />
                     <ScrollView
@@ -438,9 +440,15 @@ const SymptomTrackingScreen = () => {
                             color={theme.colours.primary}
                         />
                     </ScrollView>
+
                     {/* Pain Section */}
                     <CategoryTitle title="Pain" />
-                    <View style={styles.optionsRow}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="FontAwesome5"
                             iconName="smile"
@@ -473,11 +481,16 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('pain', 'joint')}
                             color={theme.colours.blue20}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Pain Intensity Section */}
                     <CategoryTitle title="Pain Intensity" />
-                    <View style={styles.optionsRow}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="Text"
                             iconName="1"
@@ -510,11 +523,16 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('pain-intensity', 'extreme')}
                             color={theme.colours.blue20}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Energy Section */}
-                    <CategoryTitle title="Energy"/>
-                    <View style={styles.optionsRow}>
+                    <CategoryTitle title="Energy" />
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
                             iconName="sleep"
@@ -547,11 +565,16 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('energy', 'energetic')}
                             color={theme.colours.primary}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Digestive Section */}
-                    <CategoryTitle title="Digestive"/>
-                    <View style={styles.optionsRow}>
+                    <CategoryTitle title="Digestive" />
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
                             iconName="emoticon-sick-outline"
@@ -584,11 +607,16 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('digestive', 'normal')}
                             color={theme.colours.success}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Skin Section */}
                     <CategoryTitle title="Skin" />
-                    <View style={styles.optionsRow}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
                             iconName="emoticon"
@@ -621,11 +649,16 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('skin', 'discoloration')}
                             color={theme.colours.primary}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Mind Section */}
                     <CategoryTitle title="Mind" />
-                    <View style={styles.optionsRow}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={true}
+                        style={styles.optionsRowScroll}
+                        contentContainerStyle={styles.optionsScrollContent}
+                    >
                         <SymptomOption
                             iconFamily="FontAwesome5"
                             iconName="cloud"
@@ -658,7 +691,7 @@ const SymptomTrackingScreen = () => {
                             onPress={() => toggleSymptom('mind', 'calm')}
                             color={theme.colours.blue20}
                         />
-                    </View>
+                    </ScrollView>
 
                     {/* Temperature Section */}
                     <CategoryTitle title="Temperature" />
@@ -712,8 +745,8 @@ const SymptomTrackingScreen = () => {
                     </TouchableOpacity>
                 </View>
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding': undefined}
-                    style={[styles.avoidContainer, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={[styles.avoidContainer, Platform.OS === 'android' && isKeyboardVisible && { marginBottom: -85 }]}
                     keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin - 35 : 0}
                 />
             </View>
