@@ -7,7 +7,9 @@ export const theme = {
         blue50: "#255EAA",
         blue80: "#98C1D9",
         blue99: "#E0FBFC",
+        paleBlue: "a0c4ff",
         primary: "#EE6C4D",
+        blueGray: "#c7e7e8",
         primaryLight75: "#F1876C",
         primaryLight50: "#F5A18D",
         primaryLight25: "#FACCC1",
@@ -17,10 +19,14 @@ export const theme = {
         gray: "#818589",
         gray0: "#000000",
         gray20: "#666666",
-        gray50: "#F0F0F0",
-        gray80: "#F5F5F5",
-        gray99: "#FAFAFA",
+        gray50: "#7F7F7F",
+        gray60: "#a0a0a0",
+        gray80: "#CCCCCC",
+        gray90: "#E6E6E6",
+        gray99: "#F2F2F2",
         gray100: "#FFFFFF",
+
+        red: "#ff4d4d",
 
         // Status colors using blue and primary palette
         success: "#4CAF50",      // Green for success states

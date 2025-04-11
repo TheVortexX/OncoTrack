@@ -584,7 +584,7 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e6f7f7',
+        backgroundColor: theme.colours.blue99,
         marginBottom: 70,
     },
     header: {
@@ -651,10 +651,10 @@ const styles = StyleSheet.create({
     avoidContainer: {
         width: '100%',
         height: 35,
-        backgroundColor: "#B8D6D7",
+        backgroundColor: theme.colours.blueGray,
     },
     inputArea: {
-        backgroundColor: "#B8D6D7",
+        backgroundColor: theme.colours.blueGray,
         borderTopWidth: 1,
         borderTopColor: theme.colours.divider,
         width: '100%',
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        backgroundColor: theme.colours.gray80,
+        backgroundColor: theme.colours.gray99,
         borderRadius: 20,
         paddingHorizontal: 16,
         paddingVertical: 16,
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     sendButtonDisabled: {
-        backgroundColor: theme.colours.gray50,
+        backgroundColor: theme.colours.gray80,
     },
     selectedImage: {
         width: 100,

@@ -7,7 +7,7 @@ const InputField = ({
     value,
     onChangeText,
     placeholder,
-    placeholderTextColor = '#808080',
+    placeholderTextColor = theme.colours.gray50,
     secureTextEntry = false,
     keyboardType = 'default',
     autoCapitalize = 'sentences',

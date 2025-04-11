@@ -895,7 +895,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
         marginVertical: 6,
         paddingHorizontal: 5,
-        backgroundColor: theme.colours.gray50,
+        backgroundColor: theme.colours.gray90,
         borderRadius: 8,
         alignItems: 'flex-end',
         ...Platform.select({
@@ -917,7 +917,7 @@ const styles = StyleSheet.create({
         color: theme.colours.textPrimary,
     },
     pickerBox: {
-        backgroundColor: theme.colours.gray50,
+        backgroundColor: theme.colours.gray90,
         borderRadius: 8,
         paddingBottom: 5,
         margin: 10,

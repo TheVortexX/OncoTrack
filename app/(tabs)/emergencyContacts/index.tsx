@@ -116,7 +116,7 @@ export default function EmergencyContactsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e6f7f7',
+        backgroundColor: theme.colours.blue99,
         marginBottom: 70,
         paddingBottom: 20,
     },
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     callIconContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0f8f8',
+        backgroundColor: theme.colours.gray99,
         width: 50,
         height: 50,
         borderRadius: 25,

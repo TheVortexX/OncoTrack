@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     disabledButton: {
-        backgroundColor: '#a0c4ff',
+        backgroundColor: theme.colours.paleBlue,
     },
     buttonText: {
         color: theme.colours.white,

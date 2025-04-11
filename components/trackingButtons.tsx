@@ -49,7 +49,7 @@ const TrackingOptionsScroll = () => {
                     icon={<FontAwesome5 name="edit" size={60} color="#000" />}
                     title="Select what you want to record"
                     onPress={() => console.log('Edit records pressed')}
-                    style={{ card: { backgroundColor: '#f0f0f0' }, iconContainer: { marginLeft: 10 } }}
+                    style={{ card: { backgroundColor: theme.colours.gray90 }, iconContainer: { marginLeft: 10 } }}
                 />
             </ScrollView>
         </View>

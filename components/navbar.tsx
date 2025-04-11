@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Keyboard } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { theme } from '@/constants/theme';
 
 const NavBar = () => {
     const router = useRouter();
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         paddingHorizontal: 10,
-        backgroundColor: '#F47A60',
+        backgroundColor: theme.colours.primaryLight75,
         paddingVertical: 10,
     },
     navItem: {
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     trackCircle: {
-        backgroundColor: '#F47A60',
+        backgroundColor: theme.colours.primaryLight75,
         borderRadius: 30,
         width: 60,
         height: 60,

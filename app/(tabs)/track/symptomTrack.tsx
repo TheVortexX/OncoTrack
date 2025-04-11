@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
     valueInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colours.background,
+        backgroundColor: theme.colours.gray99,
         borderRadius: 10,
         paddingHorizontal: 15,
         height: 60,
@@ -916,7 +916,7 @@ const styles = StyleSheet.create({
         fontFamily: theme.fonts.openSans.semiBold,
     },
     notesInput: {
-        backgroundColor: theme.colours.background,
+        backgroundColor: theme.colours.gray99,
         borderRadius: 10,
         padding: 15,
         color: theme.colours.textPrimary,

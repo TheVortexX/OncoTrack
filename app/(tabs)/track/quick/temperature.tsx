@@ -389,9 +389,9 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: '#ff4d4d',
+        backgroundColor: theme.colours.red,
         borderWidth: 4,
-        borderColor: '#a0a0a0',
+        borderColor: theme.colours.gray60,
         position: 'absolute',
         bottom: 0,
         zIndex: 1,
@@ -399,9 +399,9 @@ const styles = StyleSheet.create({
     thermometerTube: {
         width: 30,
         height: '84.8%',
-        backgroundColor: '#e0e0e0',
+        backgroundColor: theme.colours.gray80,
         borderWidth: 4,
-        borderColor: '#a0a0a0',
+        borderColor: theme.colours.gray60,
         borderBottomWidth: 0,
         marginBottom: 50,
         borderTopLeftRadius: 15,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     },
     thermometerMercury: {
         width: '100%',
-        backgroundColor: '#ff4d4d',
+        backgroundColor: theme.colours.red,
         position: 'absolute',
         bottom: 0,
         borderTopLeftRadius: 11,
@@ -433,12 +433,12 @@ const styles = StyleSheet.create({
     majorScaleMark: {
         width: 20,
         height: 2,
-        backgroundColor: '#333',
+        backgroundColor: theme.colours.blue0,
     },
     minorScaleMark: {
         width: 10,
         height: 1,
-        backgroundColor: '#666',
+        backgroundColor: theme.colours.blue20,
     },
     scaleText: {
         position: 'absolute',
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
         width: '80%',
         padding: 15,
         borderRadius: 10,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: theme.colours.gray99,
     },
     guideTitle: {
         fontSize: 18,

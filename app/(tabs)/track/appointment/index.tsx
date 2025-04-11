@@ -61,7 +61,7 @@ const TrackAppSelScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#E8F3F4',
+        backgroundColor: theme.colours.blue99,
     },
     header: {
         backgroundColor: theme.colours.blue20,

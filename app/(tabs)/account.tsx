@@ -123,11 +123,12 @@ const AccountScreen = () => {
                                 </View>
                                 <Switch
                                     value={isFaceIDEnabled}
+                                    
                                     onValueChange={(toggle) => {
                                         setIsFaceIDEnabled(toggle)
                                     }}
-                                    trackColor={{ false: theme.colours.gray50, true: theme.colours.primaryLight50 }}
-                                    thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.lightGray}
+                                    trackColor={{ false: theme.colours.lightGray, true: theme.colours.primaryLight50 }}
+                                    thumbColor={isFaceIDEnabled ? theme.colours.primary : theme.colours.gray90}
                                 />
                             </View>
                         )}
@@ -169,7 +170,7 @@ const AccountScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e6f7f7',
+        backgroundColor: theme.colours.blue99,
         marginBottom: 70,
         paddingBottom: 20,
     },
