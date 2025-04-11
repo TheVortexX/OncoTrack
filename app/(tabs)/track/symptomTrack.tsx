@@ -134,6 +134,14 @@ const SymptomTrackingScreen = () => {
         }, [])
     );
 
+    const handleDismiss = () => {
+        if (router.canDismiss()) {
+            router.dismiss();
+        } else {
+            router.navigate('/(tabs)');
+        }
+    }
+
     const toggleSymptom = (category: string, symptomValue: string) => {
         setSelectedSymptoms(prev => {
             // If already selected this symptom, deselect it
@@ -161,7 +169,8 @@ const SymptomTrackingScreen = () => {
                 Alert.alert(
                     "Success",
                     "Your symptoms have been updated.",
-                    [{ text: "OK", onPress: () => router.dismiss() }]
+                    [{ text: "OK", onPress: handleDismiss
+                     }]
                 )
             } else {
                 Alert.alert(
@@ -212,7 +221,7 @@ const SymptomTrackingScreen = () => {
                     Alert.alert(
                         "Success",
                         "Your symptoms have been saved.",
-                        [{ text: "OK", onPress: () => router.dismiss() }]
+                        [{ text: "OK", onPress: handleDismiss }]
                     )
                 } else {
                     Alert.alert(
@@ -313,7 +322,7 @@ const SymptomTrackingScreen = () => {
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => {
-                            router.dismiss();
+                            handleDismiss();
                         }}
                     >
                         <FontAwesome5 name="times" size={24} color="white" />

@@ -122,6 +122,14 @@ const ThermometerScreen = () => {
 
     const today = moment().format('YYYY-MM-DD');
 
+    const handleDismiss = () => {
+        if (router.canDismiss()) {
+            router.dismiss();
+        } else {
+            router.navigate('/(tabs)');
+        }
+    }
+
     useFocusEffect(
         useCallback(() => {
             // Check if there's an existing log for today
@@ -202,7 +210,7 @@ const ThermometerScreen = () => {
                     Alert.alert(
                         "Success",
                         "Your log has been updated.",
-                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                        [{ text: "OK", onPress: handleDismiss }]
                     );
                 }
             } else {
@@ -212,7 +220,7 @@ const ThermometerScreen = () => {
                     Alert.alert(
                         "Success",
                         "Your temperature has been saved.",
-                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                        [{ text: "OK", onPress: () => handleDismiss }]
                     );
                 }
             }
@@ -244,9 +252,7 @@ const ThermometerScreen = () => {
                     <Text style={styles.subHeaderText}>Monitor your body temperature</Text>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => {
-                            router.replace('/(tabs)');
-                        }}
+                        onPress={handleDismiss}
                     >
                         <FontAwesome5 name="times" size={24} color="white" />
                     </TouchableOpacity>

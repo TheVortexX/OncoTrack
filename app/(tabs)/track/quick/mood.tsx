@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
@@ -105,6 +105,14 @@ const MoodTrackingScreen: React.FC = () => {
         }, [user, today])
     );
 
+    const handleDismiss = () => {
+        if (router.canDismiss()) {
+            router.dismiss();
+        } else {
+            router.navigate('/(tabs)');
+        }
+    }
+
     const handleMoodSelect = (mood: string): void => {
         setSelectedMood(mood === selectedMood ? '' : mood);
     };
@@ -116,7 +124,7 @@ const MoodTrackingScreen: React.FC = () => {
             <Text style={styles.subHeaderText}>{subtitle}</Text>
             <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.replace('/(tabs)')}
+                onPress={handleDismiss}
             >
                 <FontAwesome5 name="times" size={24} color="white" />
             </TouchableOpacity>
@@ -144,7 +152,7 @@ const MoodTrackingScreen: React.FC = () => {
                     Alert.alert(
                         "Success",
                         "Your log has been updated.",
-                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                        [{ text: "OK", onPress: handleDismiss }]
                     );
                 }
             } else {
@@ -154,7 +162,7 @@ const MoodTrackingScreen: React.FC = () => {
                     Alert.alert(
                         "Success",
                         "Your mood has been saved.",
-                        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+                        [{ text: "OK", onPress: handleDismiss }]
                     );
                 }
             }
