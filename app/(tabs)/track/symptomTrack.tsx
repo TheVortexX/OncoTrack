@@ -247,7 +247,10 @@ const SymptomTrackingScreen = () => {
                 {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () => deleteLog()
+                    onPress: () => {
+                        deleteLog()
+                        setSelectedSymptoms({});
+                    }
                 }
             ]
         )
@@ -838,13 +841,15 @@ const styles = StyleSheet.create({
     optionsRowScroll: {
         flexDirection: 'row',
         marginBottom: 10,
+        marginLeft: 0,
     },
     optionsScrollContent: {
-        paddingHorizontal: 10,
+        paddingRight: 10,
+        paddingLeft: 0,
         paddingBottom: 10,
     },
     symptomOption: {
-        width: 80,  // Make width fixed for consistent sizing
+        width: 85,
         aspectRatio: 1,
         backgroundColor: theme.colours.background,
         borderRadius: 10,
@@ -852,7 +857,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 10,
-        marginRight: 12,  // Consistent spacing between items
+        marginRight: 20,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -863,14 +868,11 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     iconContainer: {
-        width: 40,
-        height: 40,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     optionLabel: {
-        marginTop: 5,
         fontSize: 12,
         color: theme.colours.textPrimary,
         textAlign: 'center',
