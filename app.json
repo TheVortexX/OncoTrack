@@ -11,7 +11,12 @@
     "ios": {
       "supportsTablet": true,
       "newArchEnabled": true,
-      "bundleIdentifier": "com.benmc.oncotrack"
+      "bundleIdentifier": "com.benmc.oncotrack",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "newArchEnabled": true,
@@ -19,7 +24,12 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#e0fbfc"
       },
-      "package": "com.benmc.oncotrack"
+      "package": "com.benmc.oncotrack",
+      "permissions": [
+        "NOTIFICATIONS",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -53,6 +63,17 @@
         {
           "photosPermission": "Allow OncoTrack to access your photos.",
           "cameraPermission": "Allow OncoTrack to use the camera."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/images/favicon.png",
+          "color": "#E0FBFC",
+          "defaultChannel": "default",
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
         }
       ]
     ],
