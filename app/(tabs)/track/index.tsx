@@ -39,7 +39,7 @@ const TrackScreen = () => {
                     </TouchableOpacity>
 
                     {/* Medication Card */}
-                    <TouchableOpacity style={styles.card} onPress={() => console.log('Medication pressed')}>
+                    <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/track/medication')}>
                         <View style={styles.iconContainer}>
                             <Ionicons name="medkit-outline" size={60} color="black" />
                         </View>
