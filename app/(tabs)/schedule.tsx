@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from 'moment';
 import { Timestamp } from 'firebase/firestore';
@@ -9,6 +9,11 @@ import { useAuth } from '@/context/auth';
 import { deleteUserAppointment, getUserAppointments, saveUserAppointment, updateUserAppointment } from '@/services/profileService';
 import AppointmentForm from '@/components/appointmentFormModal';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import {
+    scheduleAppointmentNotification,
+    cancelAppointmentNotification,
+    scheduleAllAppointmentNotifications,
+} from '@/services/notificationService';
 
 interface Appointment {
     id: string;
@@ -20,6 +25,7 @@ interface Appointment {
     staff: string;
     travelTime: moment.Duration;
     colour?: string;
+    notificationId?: string;
     [key: string]: any; // Allow additional properties
 }
 
@@ -30,6 +36,7 @@ interface AppointmentsMap {
 const ScheduleScreen = () => {
     const params = useLocalSearchParams();
     const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
+    const [appointmentsFetched, setAppointmentsFetched] = useState(false);
     const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
@@ -43,16 +50,29 @@ const ScheduleScreen = () => {
     const { user } = useAuth();
 
     useEffect(() => {
+        if (params.appointmentId) {
+            const appointmentId = params.appointmentId as string;
+            while (!appointmentsFetched) {
+                // Wait for appointments to be fetched
+                setTimeout(() => { }, 100);
+            }
+            
+            const appointment = appointmentsMap[appointmentId];
+            if (appointment) {
+                showViewAppointmentModal(appointment);
+            }
+        }
         if (params.openNewAppointment === 'true') {
             setTimeout(() => {
                 showNewAppointmentModal();
-            }, 500);
+            }, 300);
         }
     }, [params.openNewAppointment]);
 
 
     useFocusEffect(
         useCallback(() => {
+            if (!user) return;
             getUserAppointments(user?.uid).then((appointmentDocs) => {
                 const newAppointmentsMap: AppointmentsMap = {};
 
@@ -71,10 +91,29 @@ const ScheduleScreen = () => {
                         staff: data.staff || '',
                         travelTime: moment.duration(data.travelTime || 0),
                         colour: getAppointmentColour(data.appointmentType),
+                        notificationId: data.notificationId || null,
                     };
                 });
 
                 setAppointmentsMap(newAppointmentsMap);
+                setAppointmentsFetched(true);
+
+                // Schedule notifications for all appointments so that the device last used recieves the notification
+                scheduleAllAppointmentNotifications(newAppointmentsMap, user?.uid).then(updatedAppointments => {
+                    // Update appointments with notification IDs in state
+                    setAppointmentsMap(updatedAppointments);
+
+                    // Save notification IDs to Firebase
+                    for (const id in updatedAppointments) {
+                        const appointment = updatedAppointments[id];
+                        if (appointment.notificationId &&
+                            (!newAppointmentsMap[id].notificationId ||
+                                newAppointmentsMap[id].notificationId !== appointment.notificationId)) {
+
+                            updateUserAppointment(user.uid, id, { notificationId: appointment.notificationId });
+                        }
+                    }
+                });
             });
         }, [])
     );
@@ -132,11 +171,11 @@ const ScheduleScreen = () => {
                 }
             })
         } else {
-        setRightButtonAction(() => {
-            return (app: any) => {
-                showEditAppointmentModal(appointment);
-            };
-        });
+            setRightButtonAction(() => {
+                return (app: any) => {
+                    showEditAppointmentModal(appointment);
+                };
+            });
             setRightButtonText('Edit');
         }
 
@@ -155,20 +194,40 @@ const ScheduleScreen = () => {
             travelTime: appointment.travelTime ? appointment.travelTime.asMilliseconds() : 0
         };
 
-        saveUserAppointment(user.uid, appointmentToSave).then((id) => {
+        saveUserAppointment(user.uid, appointmentToSave).then(async (id) => {
             if (id) {
                 appointment.id = id;
                 appointment.colour = getAppointmentColour(appointment.appointmentType);
+
+                // Schedule notification
+                const notificationId = await scheduleAppointmentNotification(appointment, user.uid);
+                if (notificationId) {
+                    appointment.notificationId = notificationId;
+                    // Update appointment in Firebase with the notification ID
+                    updateUserAppointment(user.uid, id, { notificationId });
+                }
+
                 setAppointmentsMap(prevMap => ({
                     ...prevMap,
                     [id]: appointment
                 }));
+
+                Alert.alert(
+                    "Appointment Created",
+                    "A notification will remind you 1 hour before the appointment.", //TODO set the reminder time to the set one
+                    [{ text: "OK" }]
+                );
             }
         });
     }
 
     const editAppointment = (appointment: Appointment) => {
         if (!user || !appointment.id) return;
+
+        // Cancel existing notification if there is one
+        if (appointment.notificationId) {
+            cancelAppointmentNotification(appointment);
+        }
 
         const appointmentToSave = {
             ...appointment,
@@ -177,8 +236,16 @@ const ScheduleScreen = () => {
             travelTime: appointment.travelTime ? appointment.travelTime.asMilliseconds() : 0
         };
 
-        updateUserAppointment(user.uid, appointment.id, appointmentToSave).then((res) => {
+        updateUserAppointment(user.uid, appointment.id, appointmentToSave).then(async (res) => {
             if (res) {
+                // Schedule a new notification for the updated appointment
+                const notificationId = await scheduleAppointmentNotification(appointment, user.uid);
+                if (notificationId) {
+                    appointment.notificationId = notificationId;
+                    // Update the appointment in Firebase with the new notification ID
+                    updateUserAppointment(user.uid, appointment.id, { notificationId });
+                }
+
                 setAppointmentsMap(prevMap => ({
                     ...prevMap,
                     [appointment.id]: {
@@ -186,12 +253,26 @@ const ScheduleScreen = () => {
                         colour: getAppointmentColour(appointment.appointmentType)
                     }
                 }));
+
+                // Show confirmation to the user
+                Alert.alert(
+                    "Appointment Updated",
+                    "The reminder has been updated for this appointment.",
+                    [{ text: "OK" }]
+                );
             }
         });
     }
 
     const deleteAppointment = (appointmentId: string) => {
         if (!user || !appointmentId) return;
+
+        // Cancel notification for the appointment being deleted
+        const appointment = appointmentsMap[appointmentId];
+        if (appointment && appointment.notificationId) {
+            cancelAppointmentNotification(appointment);
+        }
+
         deleteUserAppointment(user.uid, appointmentId).then((res) => {
             if (res) {
                 setAppointmentsMap(prevMap => {
@@ -257,7 +338,7 @@ const ScheduleScreen = () => {
             .slice(0, 4);
 
         const size = initials.length > 3 ? 16 : 20;
-
+        
         if (appointment.appointmentType === 'Medication Log') {
             return (
                 <TouchableOpacity
@@ -325,6 +406,12 @@ const ScheduleScreen = () => {
                             {appointment.staff ? ` with ${appointment.staff}` : ''}
                         </Text>
                         <Text style={styles.staffInfo}>{appointment.description}</Text>
+                        {appointment.notificationId && appointment.endTime.isAfter(moment()) && (
+                            <View style={styles.notificationIndicator}>
+                                <Ionicons name="notifications" size={16} color={theme.colours.primary} />
+                                <Text style={styles.notificationText}>Reminder set</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
             </TouchableOpacity>
@@ -651,6 +738,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
+    },
+    notificationIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    notificationText: {
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 12,
+        color: theme.colours.primary,
+        marginLeft: 4,
     },
 });
 
