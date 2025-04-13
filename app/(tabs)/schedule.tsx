@@ -122,7 +122,7 @@ const ScheduleScreen = () => {
                         [
                             { text: 'Cancel', style: 'cancel' },
                             {
-                                text: 'Delete', onPress: () => {
+                                text: 'Delete', style: 'destructive', onPress: () => {
                                     deleteAppointment(appointment.id);
                                     setShowAppointmentModal(false);
                                 }
