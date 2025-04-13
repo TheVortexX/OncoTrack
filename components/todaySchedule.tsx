@@ -64,7 +64,7 @@ const TodaySchedule = () => {
                         provider: data.provider || '',
                         staff: data.staff || '',
                     };
-
+                    if (appointment.appointmentType === 'Medication Log') return;
                     newAppointmentsMap[doc.id] = appointment;
                 });
 
