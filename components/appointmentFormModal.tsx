@@ -387,7 +387,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     onChange={(event, date) => handleTimeChange(event, date, true)}
                                     is24Hour={true}
                                     textColor={readonly ? theme.colours.textSecondary : theme.colours.textPrimary}
-                                    minuteInterval={15}
+                                    minuteInterval={5}
                                     themeVariant="light"
                                     style={{ marginLeft: -10 }}
                                     disabled={readonly}
@@ -425,7 +425,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     onChange={(event, date) => handleTimeChange(event, date, false)}
                                     is24Hour={true}
                                     textColor={readonly ? theme.colours.textSecondary : theme.colours.textPrimary}
-                                    minuteInterval={15}
+                                    minuteInterval={5}
                                     themeVariant="light"
                                     style={{ marginLeft: -10 }}
                                     disabled={readonly}
@@ -448,7 +448,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     onChange={handleTravelTimeChange}
                                     is24Hour={true}
                                     textColor={readonly ? theme.colours.textSecondary : theme.colours.textPrimary}
-                                    minuteInterval={15}
+                                    minuteInterval={5}
                                     themeVariant="light"
                                     style={{ marginLeft: -10 }}
                                     disabled={readonly}
