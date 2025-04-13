@@ -286,10 +286,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         return `${hours} hr ${minutes} min`;
     };
 
-    const pickerItems = appointmentTypes.map(type => ({
-        label: type,
-        value: type
-    }));
+    const pickerItems = appointmentTypes
+        .filter(type => type !== "Medication Log" && type !== "Medication")
+        .map(type => ({
+            label: type,
+            value: type 
+        }));
 
     // Get styles for readonly fields
     const getReadonlyStyle = () => {
@@ -333,14 +335,19 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                         dropdownIconColor={readonly ? theme.colours.textSecondary : "black"}
                         mode="dropdown"
                     >
-                        {appointmentTypes.map((type) => (
+                        {appointmentTypes.map((type) => {
+                            if (!readonly && (type === "Medication Log" || type === "Medication")) return null;
+
+                            return (
                             <Picker.Item
                                 key={type}
                                 label={type}
                                 value={type}
                                 color={readonly ? theme.colours.textSecondary : "black"}
                             />
-                        ))}
+                            )
+                        }
+                        )}
                     </Picker>
                 </View>
             );
@@ -734,6 +741,24 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                         <Text style={styles.deleteButtonText}>Delete Appointment</Text>
                     </TouchableOpacity>
                 )}
+                {appointmentType === "Medication Log" && (
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => {
+                            Alert.alert(
+                                "Confirm Deletion",
+                                "Are you sure you want to delete this medication log?",
+                                [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Delete", style: "destructive", onPress: onDeleteAppointment }
+                                ]
+                            );
+                        }}
+                    >
+                        <Text style={styles.deleteButtonText}>Delete Appointment</Text>
+                    </TouchableOpacity>
+                )}
+
             </ScrollView>
         </Modal>
     );
