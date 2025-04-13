@@ -6,13 +6,15 @@ import moment from 'moment';
 import { Timestamp } from 'firebase/firestore';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { getUserMedications, saveMedication, updateMedication, deleteMedication } from '@/services/medicationService';
+import { getUserMedications, saveMedication, updateMedication, deleteMedication, logMedicationAdherence } from '@/services/medicationService';
 import MedicationForm from '@/components/medicationForm';
+import MedicationLogForm from '@/components/medicationLogForm';
 
 interface Medication {
     id: string;
     name: string;
     dosage: string;
+    units: string;
     frequency: string;
     startDate: moment.Moment;
     endDate?: moment.Moment;
@@ -30,6 +32,7 @@ interface MedicationsMap {
 const MedicationScreen = () => {
     const [medications, setMedications] = useState<MedicationsMap>({});
     const [showMedicationModal, setShowMedicationModal] = useState(false);
+    const [showLoggingMedicationModal, setShowLogMedicationModal] = useState(false);
 
     // Modal params
     const [modalTitle, setModalTitle] = useState('New');
@@ -37,6 +40,7 @@ const MedicationScreen = () => {
     const [rightButtonText, setRightButtonText] = useState('Add');
     const [rightButtonAction, setRightButtonAction] = useState(() => (_: any) => { });
     const [existingMedication, setExistingMedication] = useState<Medication | null>(null);
+    const [timeOfDay, setTimeOfDay] = useState('morning');
 
     const { user } = useAuth();
 
@@ -57,6 +61,7 @@ const MedicationScreen = () => {
                         id,
                         name: data.name || '',
                         dosage: data.dosage || '',
+                        units: data.units || '',
                         frequency: data.frequency || '',
                         startDate: data.startDate ? timestampToMoment(data.startDate) : moment(),
                         endDate: data.endDate ? timestampToMoment(data.endDate) : undefined,
@@ -117,6 +122,37 @@ const MedicationScreen = () => {
         setRightButtonText('Edit');
         setShowMedicationModal(true);
     };
+
+    const showLogMedicationModal = (medication: Medication, timeOfDay: string) => {
+        setExistingMedication(medication);
+        setTimeOfDay(timeOfDay);
+        setShowLogMedicationModal(true);
+    }
+    
+    const handleLogMedication = (log: any) => {
+        if (!user) return;
+        
+        const medicationToLog = {
+            medicationId: log.medicationId,
+            provider: log.name,
+            staff: "Medication taken",
+            description: `Took ${log.dosage} ${log.unit}`,
+            startTime: momentToTimestamp(log.time),
+            endTime: momentToTimestamp(log.time),
+            appointmentType: "Medication Log",
+            timeofDay: log.timeOfDay,
+            notes: log.notes || "",
+        }
+
+        logMedicationAdherence(user.uid, medicationToLog).then((res) => {
+            if (res) {
+                Alert.alert("Success", "Medication adherence logged successfully.");
+                setShowLogMedicationModal(false);
+            } else {
+                Alert.alert("Error", "Failed to log medication adherence. Please try again.");
+            }
+        });
+    }
 
     const addNewMedication = (medication: Medication) => {
         if (!user) return;
@@ -290,6 +326,20 @@ const MedicationScreen = () => {
                 readonly={readonly}
             />
 
+            {/* Logging Medication Modal */}
+            <MedicationLogForm
+                visible={showLoggingMedicationModal}
+                onClose={() => setShowLogMedicationModal(false)}
+                leftButtonText="Cancel"
+                rightButtonText="Log"
+                onLeftButtonPress={() => setShowLogMedicationModal(false)}
+                onRightButtonPress={handleLogMedication}
+                backgroundColor={theme.colours.background}
+                title="Log Medication"
+                medication={existingMedication}
+                timeOfDay={timeOfDay}
+            />
+
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Medications</Text>
@@ -337,7 +387,7 @@ const MedicationScreen = () => {
                                         <TouchableOpacity
                                             key={`morning-${med.id}`}
                                             style={styles.scheduleItem}
-                                            onPress={() => showViewMedicationModal(med)}
+                                            onPress={() => showLogMedicationModal(med, "morning")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
                                             <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>
@@ -361,7 +411,7 @@ const MedicationScreen = () => {
                                         <TouchableOpacity
                                             key={`afternoon-${med.id}`}
                                             style={styles.scheduleItem}
-                                            onPress={() => showViewMedicationModal(med)}
+                                            onPress={() => showLogMedicationModal(med, "afternoon")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
                                             <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>
@@ -385,7 +435,7 @@ const MedicationScreen = () => {
                                         <TouchableOpacity
                                             key={`evening-${med.id}`}
                                             style={styles.scheduleItem}
-                                            onPress={() => showViewMedicationModal(med)}
+                                            onPress={() => showLogMedicationModal(med, "evening")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
                                             <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>

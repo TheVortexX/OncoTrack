@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, query, where, Timestamp } from '@firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, query, where, Timestamp, serverTimestamp } from '@firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 
 const db = firestore;
@@ -46,3 +46,19 @@ export const deleteMedication = async (userId: string, medicationId: string) => 
         return false;
     }
 };
+
+export const logMedicationAdherence = async (userId: string, info: any) => {
+    try {
+        const logRef = collection(db, 'users', userId, 'appointments');
+        const data = {
+            ...info,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+        }
+        const docRef = await addDoc(logRef, data);
+        return docRef.id;
+    } catch (error) {
+        console.error('Error logging medication adherence:', error);
+        return null;
+    }
+}

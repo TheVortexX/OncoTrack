@@ -61,7 +61,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     const [notes, setNotes] = useState('');
     const [isPickerVisible, setIsPickerVisible] = useState(false);
 
-    // State for showing/hiding date and time pickers
+    // State for showing/hiding date and time pickers for android
     const [showStartDate, setShowStartDate] = useState(false);
     const [showStartTime, setShowStartTime] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
