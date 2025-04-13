@@ -22,6 +22,7 @@ const InputField = ({
     validateOnBlur = false,
     validateOnChange = false,
     clearErrorOnChange = true,
+    returnKeyType = 'default',
     style = {}
 }) => {
     const [error, setError] = useState('');
@@ -106,6 +107,7 @@ const InputField = ({
                     autoCorrect={autoCorrect}
                     autoComplete={autoComplete}
                     editable={editable}
+                    returnKeyType={returnKeyType}
                 />
 
                 {touched && error ? (

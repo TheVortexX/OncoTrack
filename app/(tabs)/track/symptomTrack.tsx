@@ -706,6 +706,7 @@ const SymptomTrackingScreen = () => {
                             placeholderTextColor={theme.colours.gray}
                             onChangeText={(text) => toggleSymptom('temperature', text)}
                             value={selectedSymptoms['temperature'] || ''}
+                            returnKeyType='done'
                         />
                         <Text style={styles.valueUnit}>°C</Text>
                     </View>
