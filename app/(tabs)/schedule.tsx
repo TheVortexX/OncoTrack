@@ -112,15 +112,36 @@ const ScheduleScreen = () => {
 
     const showViewAppointmentModal = (appointment: Appointment) => {
         setExistingAppointment(appointment);
+        if (appointment.appointmentType === 'Medication Log') {
+            setRightButtonText('Delete');
+            setRightButtonAction(() => {
+                return (app: any) => {
+                    Alert.alert(
+                        'Delete Log',
+                        'Are you sure you want to delete this log?',
+                        [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                                text: 'Delete', onPress: () => {
+                                    deleteAppointment(appointment.id);
+                                    setShowAppointmentModal(false);
+                                }
+                            }
+                        ]
+                    );
+                }
+            })
+        } else {
         setRightButtonAction(() => {
             return (app: any) => {
                 showEditAppointmentModal(appointment);
             };
         });
+            setRightButtonText('Edit');
+        }
 
         setModalTitle(' ');
         setReadonly(true);
-        setRightButtonText('Edit');
         setShowAppointmentModal(true);
     }
 
@@ -237,6 +258,45 @@ const ScheduleScreen = () => {
 
         const size = initials.length > 3 ? 16 : 20;
 
+        if (appointment.appointmentType === 'Medication Log') {
+            return (
+                <TouchableOpacity
+                    key={appointment.id}
+                    onPress={() => { showViewAppointmentModal(appointment) }}
+                >
+                    <View style={styles.appointmentCard}>
+                        <View style={styles.appointmentIconTime}>
+                            <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
+                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                            </View>
+                            <View style={styles.appointmentTime}>
+                                {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}
+                                <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                                {!appointment.startTime.isSame(appointment.endTime, "minute") &&
+                                    <>
+                                        <Text style={styles.timeSep}>I</Text>
+                                        <Text style={styles.timeText}>{appointment.endTime.format("HH:mm")}</Text>
+                                    </>
+                                }
+                            </View>
+                        </View>
+                        <View style={styles.appointmentDetails}>
+                            <Text style={styles.providerName}>{appointment.provider}</Text>
+                            <Text style={styles.appointmentType}>
+                                {appointment.staff + " log"}
+                            </Text>
+                            <Text style={styles.staffInfo}>{appointment.description}</Text>
+                            {appointment.notificationId && (
+                                <View style={styles.notificationIndicator}>
+                                    <Ionicons name="notifications" size={16} color={theme.colours.primary} />
+                                    <Text style={styles.notificationText}>Reminder set</Text>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
         return (
             <TouchableOpacity
                 key={appointment.id}

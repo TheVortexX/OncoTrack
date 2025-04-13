@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert, Keyboard, KeyboardEvent } from 'react-native';
 import InputField from '@/components/InputField';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from '@/components/modal';
@@ -68,8 +68,33 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     const [showEndTime, setShowEndTime] = useState(false);
     const [showTravelTime, setShowTravelTime] = useState(false);
 
-    const appointmentTypes = ['Appointment', 'Check-up', 'Consultation', 'Medication', 'Surgery', 'Test', 'Treatment', 'Other'];
+    const appointmentTypes = ['Appointment', 'Check-up', 'Consultation', 'Medication', 'Surgery', 'Test', 'Treatment', 'Other', "Medication Log"];
 
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+        const showListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            (event: KeyboardEvent) => {
+                setKeyboardVisible(true);
+                setKeyboardHeight(event.endCoordinates.height);
+            }
+        );
+
+        const hideListener = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false);
+                setKeyboardHeight(0);
+            }
+        );
+
+        return () => {
+            showListener.remove();
+            hideListener.remove();
+        };
+    }, []);
 
     const saveOriginalAppointment = (appointment?: Appointment | null) => {
         if (!appointment) {
@@ -269,7 +294,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     // Get styles for readonly fields
     const getReadonlyStyle = () => {
         return readonly ? {
-            backgroundColor: theme.colours.gray50,
+            backgroundColor: theme.colours.gray90,
             color: theme.colours.textSecondary,
         } : {};
     };
@@ -444,7 +469,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={[styles.datePickerButton, styles.readonlyField]}>
+                                <View style={[styles.datePickerButton, getReadonlyStyle()]}>
                                     <Text style={[styles.datePickerButtonText, styles.readonlyText]}>
                                         {formatDateForButton(startDate)}
                                     </Text>
@@ -462,7 +487,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={[styles.timePickerButton, styles.readonlyField]}>
+                                <View style={[styles.timePickerButton, getReadonlyStyle()]}>
                                     <Text style={[styles.timePickerButtonText, styles.readonlyText]}>
                                         {formatTimeForButton(startDate)}
                                     </Text>
@@ -488,7 +513,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={[styles.datePickerButton, styles.readonlyField]}>
+                                <View style={[styles.datePickerButton, getReadonlyStyle()]}>
                                     <Text style={[styles.datePickerButtonText, styles.readonlyText]}>
                                         {formatDateForButton(endDate)}
                                     </Text>
@@ -506,7 +531,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={[styles.timePickerButton, styles.readonlyField]}>
+                                <View style={[styles.timePickerButton, getReadonlyStyle()]}>
                                     <Text style={[styles.timePickerButtonText, styles.readonlyText]}>
                                         {formatTimeForButton(endDate)}
                                     </Text>
@@ -531,7 +556,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={[styles.timePickerButton, styles.readonlyField]}>
+                                <View style={[styles.timePickerButton, getReadonlyStyle()]}>
                                     <Text style={[styles.timePickerButtonText, styles.readonlyText]}>
                                         {formatTravelTime(travelTime)}
                                     </Text>
@@ -540,7 +565,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                         </View>
                     </View>
 
-                    {/* Render Android pickers when state is true and not readonly */}
                     {!readonly && showStartDate && (
                         <DateTimePicker
                             value={startDate.toDate()}
@@ -608,8 +632,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             onRightButtonPress={handleSave}
             backgroundColor={backgroundColor || undefined}
         >
-            <ScrollView style={styles.container}
+            <ScrollView
+                style={styles.container}
                 showsVerticalScrollIndicator={true}
+                contentContainerStyle={{
+                    ...styles.scrollViewContent,
+                    paddingBottom: keyboardVisible ? keyboardHeight-150 : 20
+                }}
             >
                 {/* Input fields container */}
                 <View style={[styles.mergedContainer, getReadonlyStyle()]}>
@@ -645,7 +674,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             multiline
                             editable={!readonly}
                             style={{
-                                input: [styles.descriptionInput, getReadonlyStyle()],
+                                input: [
+                                    styles.descriptionInput,
+                                    getReadonlyStyle(),
+                                ],
                             }}
                         />
                     </View>
@@ -674,7 +706,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             multiline
                             editable={!readonly}
                             style={{
-                                input: [styles.descriptionInput, { minHeight: 100 }, getReadonlyStyle()],
+                                input: [
+                                    styles.notesInput,
+                                    getReadonlyStyle(),
+                                ],
                             }}
                         />
                     </View>
@@ -720,6 +755,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    scrollViewContent: {
+        flexGrow: 1,
+    },
     mergedContainer: {
         backgroundColor: theme.colours.surface,
         borderRadius: 10,
@@ -750,6 +788,21 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
+        textAlignVertical: 'top',
+        height: 'auto',
+    },
+    notesInput: {
+        flexGrow: 1,
+        width: '100%',
+        minHeight: 100, // Different minimum height for notes
+        paddingHorizontal: 10,
+        paddingVertical: 15,
+        backgroundColor: theme.colours.surface,
+        fontSize: 18,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
+        textAlignVertical: 'top',
+        height: 'auto',
     },
     innerDivider: {
         borderBottomWidth: 1,
@@ -778,7 +831,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 3,
-        backgroundColor: theme.colours.surface,
         borderRadius: 6,
     },
     timePickerWrapper: {
@@ -789,7 +841,6 @@ const styles = StyleSheet.create({
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.2,
                 shadowRadius: 3,
-                backgroundColor: theme.colours.surface,
                 borderRadius: 6,
             },
         }),
@@ -869,8 +920,8 @@ const styles = StyleSheet.create({
                 shadowRadius: 4,
             },
             android: {
-                height: 110,
-                elevation: 4,
+                paddingBottom: 10,
+                elevation: 3,
             },
         }),
     },
@@ -913,7 +964,6 @@ const styles = StyleSheet.create({
         color: theme.colours.textPrimary,
     },
     picker: {
-        height: 50,
         color: theme.colours.textPrimary,
     },
     pickerBox: {
@@ -928,15 +978,9 @@ const styles = StyleSheet.create({
             },
         }),
     },
-    // New styles for readonly mode
-    readonlyField: {
-        backgroundColor: theme.colours.gray50,
-        opacity: 0.9,
-    },
     readonlyText: {
         color: theme.colours.textSecondary,
     },
-    // Delete button styles
     deleteButton: {
         backgroundColor: theme.colours.primary,
         marginHorizontal: 10,
