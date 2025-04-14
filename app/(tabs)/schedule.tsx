@@ -199,12 +199,16 @@ const ScheduleScreen = () => {
                 appointment.id = id;
                 appointment.colour = getAppointmentColour(appointment.appointmentType);
 
+                let reminderTimeMins = 0;
                 // Schedule notification
-                const notificationId = await scheduleAppointmentNotification(appointment, user.uid);
-                if (notificationId) {
+                const res = await scheduleAppointmentNotification(appointment, user.uid);
+                if (res) {
+                    const [notificationId, reminderTime ] = res;
                     appointment.notificationId = notificationId;
+                    appointment.reminderTime = reminderTime;
+                    reminderTimeMins = reminderTime;
                     // Update appointment in Firebase with the notification ID
-                    updateUserAppointment(user.uid, id, { notificationId });
+                    updateUserAppointment(user.uid, id, { notificationId, reminderTime });
                 }
 
                 setAppointmentsMap(prevMap => ({
@@ -212,11 +216,31 @@ const ScheduleScreen = () => {
                     [id]: appointment
                 }));
 
+                const remTime = moment.duration(reminderTimeMins, 'minutes');
+                const remTimeHours = remTime.hours();
+                const remTimeMinutes = remTime.minutes();
+
+                let bodyStr = "A notification will remind you ";
+                if (remTimeHours > 0) {
+                    bodyStr += `${remTimeHours} hour${remTimeHours > 1 && "s" || ""}`;
+                    if (remTimeMinutes > 0) {
+                        bodyStr += ` and ${remTimeMinutes} minute${remTimeMinutes > 1 && "s" || ""}`;
+                    }
+                    bodyStr += " before the appointment";
+                } else if (remTimeMinutes > 0) {
+                    bodyStr += `${remTimeMinutes} minute${remTimeMinutes > 1 && "s" || ""}`;
+                    bodyStr += " before the appointment";
+                } else {
+                    bodyStr += "when the appointment is set to start";
+                }
+
+
                 Alert.alert(
                     "Appointment Created",
-                    "A notification will remind you 1 hour before the appointment.", //TODO set the reminder time to the set one
+                    bodyStr,
                     [{ text: "OK" }]
                 );
+
             }
         });
     }
@@ -239,11 +263,13 @@ const ScheduleScreen = () => {
         updateUserAppointment(user.uid, appointment.id, appointmentToSave).then(async (res) => {
             if (res) {
                 // Schedule a new notification for the updated appointment
-                const notificationId = await scheduleAppointmentNotification(appointment, user.uid);
-                if (notificationId) {
+                const res = await scheduleAppointmentNotification(appointment, user.uid);
+                if (res) {
+                    const [notificationId, reminderTime] = res;
                     appointment.notificationId = notificationId;
+                    appointment.reminderTime = reminderTime;
                     // Update the appointment in Firebase with the new notification ID
-                    updateUserAppointment(user.uid, appointment.id, { notificationId });
+                    updateUserAppointment(user.uid, appointment.id, { notificationId, reminderTime });
                 }
 
                 setAppointmentsMap(prevMap => ({

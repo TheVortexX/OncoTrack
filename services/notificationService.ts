@@ -59,14 +59,14 @@ export async function requestLocalNotificationPermissions(): Promise<boolean> {
 export async function scheduleAppointmentNotification(
     appointment: Appointment,
     userId?: string,
-    reminderTime?: moment.Duration,
-): Promise<string | null> {
+): Promise<[string, number] | null> {
     let reminderMinutes = 0;
     let notificationsEnabled = true;
 
-    if (reminderTime) {
-        reminderMinutes = reminderTime.asMinutes();
-    } 
+    if (appointment.travelTime) {
+        reminderMinutes += appointment.travelTime.asMinutes() || 0;
+    }
+
     if (userId) {
         try {
             const userSettingsRef = doc(db, 'users', userId, 'settings', 'notifications');
@@ -112,14 +112,14 @@ export async function scheduleAppointmentNotification(
                 title: `Upcoming: ${appointment.appointmentType}`,
                 body: `${appointment.provider}${appointment.staff ? ` with ${appointment.staff}` : ''} at ${formattedTime} on ${formattedDate}`,
                 data: { appointmentId: appointment.id },
+                sound: 'notification.wav',
             },
             trigger: {
                 type: Notifications.SchedulableTriggerInputTypes.DATE,
                 date: notificationTime,
             },
         });
-
-        return notificationId;
+        return [notificationId, reminderMinutes];
     } catch (error) {
         console.error('Error scheduling notification:', error);
         return null;
@@ -137,12 +137,13 @@ export async function scheduleAllAppointmentNotifications(
 
         // Only schedule for future appointments
         if (moment(appointment.startTime).isAfter(moment())) {
-            const notificationId = await scheduleAppointmentNotification(appointment, userId);
-
-            if (notificationId) {
+            const result = await scheduleAppointmentNotification(appointment, userId);
+            if (result) {
+                const [notificationId, reminderTime] = result;
                 updatedAppointments[id] = {
                     ...appointment,
-                    notificationId
+                    notificationId,
+                    reminderTime
                 };
             } else {
                 updatedAppointments[id] = appointment;
