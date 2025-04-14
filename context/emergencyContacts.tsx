@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { collection, getDocs, query, where, addDoc, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -20,6 +20,7 @@ type EmergencyContactsContextType = {
     loading: boolean;
     fetchContacts: () => Promise<void>;
     addContact: (contact: { name: string; number: string; description: string }) => Promise<boolean>;
+    deleteContact: (contactId: string) => Promise<boolean>;
     refreshContacts: () => void;
 };
 
@@ -44,7 +45,7 @@ const defaultContacts: EmergencyContact[] = [
 const EmergencyContactsContext = createContext<EmergencyContactsContextType | undefined>(undefined);
 
 
-export const EmergencyContactsProvider = ({ children }: {children: React.ReactNode}) => {
+export const EmergencyContactsProvider = ({ children }: { children: React.ReactNode }) => {
     const { user } = useAuth();
     const userId = user?.uid || null;
 
@@ -121,6 +122,21 @@ export const EmergencyContactsProvider = ({ children }: {children: React.ReactNo
         }
     };
 
+    const deleteContact = async (contactId: string) => {
+        if (!userId) return false;
+        if (contactId === 'emergency-services') return false; // Prevent deletion of emergency services
+
+        try {
+            await deleteDoc(doc(firestore, 'contacts', contactId));
+            setContacts(prev => prev.filter(contact => contact.id !== contactId));
+            return true;
+        } catch (error) {
+            console.error('Error deleting contact:', error);
+            Alert.alert('Error', 'Failed to delete contact. Please try again.');
+            return false;
+        }
+    };
+
     useEffect(() => {
         if (!hasFetched) {
             fetchContacts();
@@ -136,6 +152,7 @@ export const EmergencyContactsProvider = ({ children }: {children: React.ReactNo
         loading,
         fetchContacts,
         addContact,
+        deleteContact,
         refreshContacts
     };
 
