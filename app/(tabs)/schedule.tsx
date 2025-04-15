@@ -145,6 +145,7 @@ const ScheduleScreen = () => {
                                     appointmentType: 'Medication',
                                     staff: 'Medication due',
                                     travelTime: moment.duration(0),
+                                    colour: getAppointmentColour('Medication'),
 
                                 });
                             })
@@ -412,9 +413,9 @@ const ScheduleScreen = () => {
             .join('')
             .slice(0, 4);
 
-        const size = initials.length > 3 ? 16 : 20;
-        
-        if (appointment.appointmentType === 'Medication Log' || appointment.appointmentType === 'Medication') {
+            
+        if (appointment.appointmentType === 'Medication Log') {
+            const size = initials.length > 3 ? 14 : 18;
             return (
                 <TouchableOpacity
                     key={appointment.id}
@@ -422,23 +423,16 @@ const ScheduleScreen = () => {
                 >
                     <View style={styles.appointmentCard}>
                         <View style={styles.appointmentIconTime}>
-                            <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
+                            <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 40, height: 40, borderRadius: 20 }]}>
                                 <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
                             </View>
                             <View style={styles.appointmentTime}>
-                                {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}
                                 <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
-                                {!appointment.startTime.isSame(appointment.endTime, "minute") &&
-                                    <>
-                                        <Text style={styles.timeSep}>I</Text>
-                                        <Text style={styles.timeText}>{appointment.endTime.format("HH:mm")}</Text>
-                                    </>
-                                }
                             </View>
                         </View>
                         <View style={styles.appointmentDetails}>
-                            <Text style={styles.providerName}>{appointment.provider}</Text>
-                            <Text style={styles.appointmentType}>
+                            <Text style={[styles.providerName, { marginBottom: 0 }]}>{appointment.provider}</Text>
+                            <Text style={[styles.appointmentType, { marginBottom: 0 }]}>
                                 {appointment.staff + " log"}
                             </Text>
                             <Text style={styles.staffInfo}>{appointment.description}</Text>
@@ -452,7 +446,31 @@ const ScheduleScreen = () => {
                     </View>
                 </TouchableOpacity>
             );
+        } else if (appointment.appointmentType === 'Medication') {
+            const size = initials.length > 3 ? 14 : 18;
+            return(
+                <TouchableOpacity
+                    key={appointment.id}
+                    onPress={() => { showViewAppointmentModal(appointment) }}
+                >
+                    <View style={styles.appointmentCard}>
+                        <View style={styles.appointmentIconTime}>
+                            <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 40, height: 40, borderRadius: 20 }]}>
+                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                            </View>
+                            <View style={styles.appointmentTime}>
+                                <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                            </View>
+                        </View>
+                        <View style={styles.appointmentDetails}>
+                            <Text style={[styles.providerName, {marginBottom: 0}]}>Medication: {appointment.provider}</Text>
+                            <Text style={styles.staffInfo}>{appointment.description}</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            )
         }
+        const size = initials.length > 3 ? 16 : 20;
         return (
             <TouchableOpacity
                 key={appointment.id}
