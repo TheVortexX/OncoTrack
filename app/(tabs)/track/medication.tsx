@@ -143,7 +143,7 @@ const MedicationScreen = () => {
             startTime: momentToTimestamp(log.time),
             endTime: momentToTimestamp(log.time),
             appointmentType: "Medication Log",
-            timeofDay: log.timeOfDay,
+            timeOfDay: log.timeOfDay,
             notes: log.notes || "",
         }
 

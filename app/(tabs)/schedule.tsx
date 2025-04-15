@@ -16,9 +16,6 @@ import {
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 import { getUserMedications, getUserMedicationTimes } from '@/services/medicationService';
 
-// TODO if medication has already been logged, don't show
-// TODO add padding to bottom of main scrollview so the upcoming is always visible
-
 interface Appointment {
     id: string;
     description: string;
@@ -31,21 +28,6 @@ interface Appointment {
     colour?: string;
     notificationId?: string;
     [key: string]: any; // Allow additional properties
-}
-
-interface Medication {
-    id: string;
-    name: string;
-    dosage: string;
-    units: string;
-    frequency: string;
-    startDate: moment.Moment;
-    endDate?: moment.Moment;
-    timeOfDay: string[];
-    instructions: string;
-    sideEffects?: string[];
-    colour?: string;
-    [key: string]: any;
 }
 
 interface AppointmentsMap {
@@ -407,7 +389,16 @@ const ScheduleScreen = () => {
             const frequency = medication.frequency;
             return medicationDueOnDate(startDate, endDate, frequency, date);
         });
-        return [...dayAppointments, ...dayMedications].sort((a, b) => {
+        
+        const idsToRemove = dayAppointments.filter(appointment => {
+            return appointment.appointmentType === 'Medication Log'
+        }).map(appointment => appointment.medicationId + "-" + appointment.timeOfDay);
+
+        const filteredMedications = dayMedications.filter(medication => {
+            return !idsToRemove.includes(medication.id);
+        });
+
+        return [...dayAppointments, ...filteredMedications].sort((a, b) => {
             if (a.startTime.isBefore(b.startTime)) return -1;
             if (a.startTime.isAfter(b.startTime)) return 1;
             return 0;
@@ -635,6 +626,7 @@ const ScheduleScreen = () => {
                             <Text style={styles.noAppointmentsText}>No upcoming appointments</Text>
                         </View>
                     )}
+                    <View style={{ height: 100 }} />
                 </ScrollView>
             </View>
         </>
