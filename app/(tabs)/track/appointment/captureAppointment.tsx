@@ -11,6 +11,7 @@ import moment from 'moment';
 import { Timestamp } from 'firebase/firestore';
 import { saveUserAppointment } from '@/services/profileService';
 import AppointmentForm from '@/components/appointmentFormModal';
+import { momentToTimestamp } from '@/utils/dateUtils';
 
 interface Appointment {
     id: string;
@@ -106,11 +107,6 @@ const AppointmentScanScreen = () => {
 
         saveUserAppointment(user.uid, appointmentToSave);
     }
-
-    const momentToTimestamp = (momentObj: moment.Moment) => {
-        return Timestamp.fromDate(momentObj.toDate());
-    };
-    
 
     const discardImage = () => {
         setCapturedImage(null);

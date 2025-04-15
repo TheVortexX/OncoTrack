@@ -8,6 +8,7 @@ import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppointmentForm from '@/components/appointmentFormModal';
 import { useFocusEffect } from 'expo-router';
+import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 
 
 interface Appointment {
@@ -152,11 +153,6 @@ const TodaySchedule = () => {
         }
     }
 
-    const timestampToMoment = (timestamp: Timestamp) => {
-        const jsDate = timestamp.toDate();
-        return moment(jsDate);
-    };
-
     const getAppointmentColour = (type: string) => {
         switch (type) {
             case "Medication":
@@ -166,10 +162,6 @@ const TodaySchedule = () => {
             default:
                 return theme.colours.buttonBlue;
         }
-    };
-
-    const momentToTimestamp = (momentObj: moment.Moment) => {
-        return Timestamp.fromDate(momentObj.toDate());
     };
 
     const editAppointment = (appointment: Appointment) => {

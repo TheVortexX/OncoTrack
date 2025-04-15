@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from 'moment';
-import { Timestamp } from 'firebase/firestore';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -14,6 +13,7 @@ import {
     cancelAppointmentNotification,
     scheduleAllAppointmentNotifications,
 } from '@/services/notificationService';
+import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 
 interface Appointment {
     id: string;
@@ -310,15 +310,6 @@ const ScheduleScreen = () => {
             }
         });
     }
-
-    const timestampToMoment = (timestamp: Timestamp) => {
-        const jsDate = timestamp.toDate();
-        return moment(jsDate);
-    };
-
-    const momentToTimestamp = (momentObj: moment.Moment) => {
-        return Timestamp.fromDate(momentObj.toDate());
-    };
 
     const getAppointmentColour = (type: string) => {
         switch (type) {

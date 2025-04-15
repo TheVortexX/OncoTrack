@@ -9,6 +9,9 @@ import { useAuth } from '@/context/auth';
 import { getUserMedications, saveMedication, updateMedication, deleteMedication, logMedicationAdherence } from '@/services/medicationService';
 import MedicationForm from '@/components/medicationForm';
 import MedicationLogForm from '@/components/medicationLogForm';
+import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+
+// TODO: add notifications
 
 interface Medication {
     id: string;
@@ -222,14 +225,6 @@ const MedicationScreen = () => {
                 }
             ]
         );
-    };
-
-    const timestampToMoment = (timestamp: Timestamp) => {
-        return moment(timestamp.toDate());
-    };
-
-    const momentToTimestamp = (momentObj: moment.Moment) => {
-        return Timestamp.fromDate(momentObj.toDate());
     };
 
     const getMedicationColour = (name: string) => {

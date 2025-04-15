@@ -13,6 +13,7 @@ import moment from 'moment';
 import AppointmentForm from '@/components/appointmentFormModal';
 import { saveUserAppointment } from '@/services/profileService';
 import { useFocusEffect } from 'expo-router';
+import { momentToTimestamp } from '@/utils/dateUtils';
 
 // TypeScript interfaces
 interface Message {
@@ -186,9 +187,6 @@ const ChatScreen = () => {
         });
     }
 
-    const momentToTimestamp = (momentObj: moment.Moment) => {
-        return Timestamp.fromDate(momentObj.toDate());
-    };
 
     const handleSaveAppointment = (appointment:any) => {
         addNewAppointment(appointment);
