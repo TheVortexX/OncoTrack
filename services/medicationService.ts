@@ -41,7 +41,6 @@ export const getUserMedicationTimes = async (userId: string) => {
             const data = docSnap.data();
             return [data.morningTime, data.afternoonTime, data.eveningTime]
         } else {
-            console.log('No such document, returning defaults');
             return ['08:00', '12:00', '18:00'] // default times
         }
     } catch (error) {

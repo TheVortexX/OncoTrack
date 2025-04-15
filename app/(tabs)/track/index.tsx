@@ -44,7 +44,7 @@ const TrackScreen = () => {
                             <Ionicons name="medkit-outline" size={60} color="black" />
                         </View>
                         <Text style={styles.cardTitle}>
-                            <Text style={styles.boldText}>Add</Text> a medication schedule
+                            <Text style={styles.boldText}>Track</Text> your medications
                         </Text>
                     </TouchableOpacity>
 

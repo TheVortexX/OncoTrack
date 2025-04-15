@@ -435,7 +435,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                         <Text style={[styles.sectionTitle, readonly && styles.readonlyText]}>
                             Time of Day
                         </Text>
-
+                        {/* TODO When readonly have the selected colours be easier to read, check if once twice or three times a day has been selected, to check how many times have been picked */}
                         <View style={styles.timeOfDayContainer}>
                             {timeOfDayOptions.map((time) => (
                                 <TouchableOpacity
