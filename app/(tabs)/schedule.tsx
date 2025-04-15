@@ -14,6 +14,10 @@ import {
     scheduleAllAppointmentNotifications,
 } from '@/services/notificationService';
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+import { getUserMedications, getUserMedicationTimes } from '@/services/medicationService';
+
+// TODO if medication has already been logged, don't show
+// TODO add padding to bottom of main scrollview so the upcoming is always visible
 
 interface Appointment {
     id: string;
@@ -29,6 +33,21 @@ interface Appointment {
     [key: string]: any; // Allow additional properties
 }
 
+interface Medication {
+    id: string;
+    name: string;
+    dosage: string;
+    units: string;
+    frequency: string;
+    startDate: moment.Moment;
+    endDate?: moment.Moment;
+    timeOfDay: string[];
+    instructions: string;
+    sideEffects?: string[];
+    colour?: string;
+    [key: string]: any;
+}
+
 interface AppointmentsMap {
     [id: string]: Appointment;
 }
@@ -38,6 +57,7 @@ const ScheduleScreen = () => {
     const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
     const [appointmentsFetched, setAppointmentsFetched] = useState(false);
     const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
+    const [medications, setMedications] = useState<Appointment[]>([]);
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
     // modal params
@@ -114,6 +134,42 @@ const ScheduleScreen = () => {
                         }
                     }
                 });
+            });
+            getUserMedicationTimes(user.uid).then((medicationTimes) => {
+                if (medicationTimes) {
+                    const [morningTime, afternoonTime, eveningTime] = medicationTimes;
+                    getUserMedications(user.uid).then((medicationDocs) => {
+                        const newMedications: Appointment[] = [];
+
+                        medicationDocs.forEach((doc) => {
+                            const data = doc.data();
+                            const id = doc.id;
+
+                            data.timeOfDay.forEach((time: string) => {
+                                let startTime = time === 'morning' ? morningTime : time === 'afternoon' ? afternoonTime : eveningTime;
+                                newMedications.push({
+                                    ...data,
+                                    id: id + "-" + time,
+                                    description: `Need to take ${data.dosage} ${data.units}`,
+                                    provider: data.name,
+                                    startTime: moment().set({
+                                        hour: parseInt(startTime.split(':')[0]),
+                                        minute: parseInt(startTime.split(':')[1]),
+                                    }),
+                                    endTime: moment().set({
+                                        hour: parseInt(startTime.split(':')[0]),
+                                        minute: parseInt(startTime.split(':')[1]),
+                                    }),
+                                    appointmentType: 'Medication',
+                                    staff: 'Medication due',
+                                    travelTime: moment.duration(0),
+
+                                });
+                            })
+                        });
+                        setMedications(newMedications);
+                    })
+                }
             });
         }, [])
     );
@@ -342,10 +398,21 @@ const ScheduleScreen = () => {
         const allAppointments = getAllAppointments();
         if (allAppointments.length === 0) return [];
 
-        return allAppointments.filter(appointment =>
+        const dayAppointments = allAppointments.filter(appointment =>
             date.isSame(appointment.startTime, 'day')
         );
-    }, [appointmentsMap, selectedDate]);
+        const dayMedications = medications.filter(medication => {
+            const startDate = timestampToMoment(medication.startDate).startOf('day');
+            const endDate = medication.endDate ? timestampToMoment(medication.endDate.startOf('day')) : date.clone().add(1, 'day');
+            const frequency = medication.frequency;
+            return medicationDueOnDate(startDate, endDate, frequency, date);
+        });
+        return [...dayAppointments, ...dayMedications].sort((a, b) => {
+            if (a.startTime.isBefore(b.startTime)) return -1;
+            if (a.startTime.isAfter(b.startTime)) return 1;
+            return 0;
+        });
+    }, [appointmentsMap, medications, selectedDate]);
 
     const renderAppointment = (appointment: Appointment, future?: boolean) => {
         const initials = appointment.provider
@@ -356,7 +423,7 @@ const ScheduleScreen = () => {
 
         const size = initials.length > 3 ? 16 : 20;
         
-        if (appointment.appointmentType === 'Medication Log') {
+        if (appointment.appointmentType === 'Medication Log' || appointment.appointmentType === 'Medication') {
             return (
                 <TouchableOpacity
                     key={appointment.id}
@@ -451,13 +518,18 @@ const ScheduleScreen = () => {
         const dotsForDate: { dots: { color: string, selectedColor?: string }[] } = { dots: [] };
         const appsForDay = dayAppointments(date);
 
+        const uniqueAppointments = new Map<string, Appointment>();
         appsForDay.forEach(appointment => {
-            dotsForDate.dots.push({
-                color: appointment.colour || theme.colours.buttonBlue,
-                selectedColor: appointment.colour === theme.colours.primary
-                    ? theme.colours.blue99
-                    : appointment.colour,
-            });
+            const baseId = appointment.id.split('-')[0];
+            if (!uniqueAppointments.has(baseId)) {
+                uniqueAppointments.set(baseId, appointment);
+                dotsForDate.dots.push({
+                    color: appointment.colour || theme.colours.buttonBlue,
+                    selectedColor: appointment.colour === theme.colours.primary
+                        ? theme.colours.blue99
+                        : appointment.colour,
+                });
+            }
         });
         return dotsForDate;
     };
