@@ -13,6 +13,7 @@ interface Medication {
     id: string;
     name: string;
     dosage: string;
+    units: string;
     frequency: string;
     startDate: moment.Moment;
     endDate?: moment.Moment;
@@ -50,7 +51,8 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
     const originalMedicationRef = useRef<Medication | null | undefined>(null);
 
     const [name, setName] = useState('');
-    const [dosage, setDosage] = useState('');
+    const [dosage, setDosage] = useState('1');
+    const [units, setUnits] = useState('mg');
     const [frequency, setFrequency] = useState('Daily');
     const [instructions, setInstructions] = useState('');
     const [startDate, setStartDate] = useState(moment());
@@ -61,12 +63,29 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
     const [newSideEffect, setNewSideEffect] = useState('');
 
     // State for showing/hiding date pickers
+    const [showUnitsPicker, setShowUnitsPicker] = useState(false);
     const [showStartDate, setShowStartDate] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
     const [showFrequencyPicker, setShowFrequencyPicker] = useState(false);
 
-    const frequencyOptions = ['Daily', 'Twice Daily', 'Three Times Daily', 'Weekly', 'As Needed', 'Other'];
+    const frequencyOptions = ['Daily', 'Twice Daily', 'Three Times Daily', 'Every Other Day', 'Every Three Days', 'Weekly', 'Monthly', 'As Needed', 'Other'];
     const timeOfDayOptions = ['morning', 'afternoon', 'evening'];
+    const unitsOptions = ['mg', 'ml', 'tablet', 'capsule', 'drop', 'tsp', 'tbsp', 'patch', 'puff', 'injection'];
+
+
+    const increaseDosage = () => {
+        if (readonly) return;
+        const currentDosage = parseInt(dosage) || 0;
+        setDosage((currentDosage + 1).toString());
+    };
+
+    const decreaseDosage = () => {
+        if (readonly) return;
+        const currentDosage = parseInt(dosage) || 0;
+        if (currentDosage > 1) {
+            setDosage((currentDosage - 1).toString());
+        }
+    };
 
     const saveOriginalMedication = (medication?: Medication | null) => {
         if (!medication) {
@@ -87,6 +106,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
         if (original) {
             setName(original.name);
             setDosage(original.dosage);
+            setUnits(original.units || 'mg');
             setFrequency(original.frequency);
             setInstructions(original.instructions);
             setStartDate(moment(original.startDate));
@@ -97,7 +117,8 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
             setNewSideEffect('');
         } else {
             setName('');
-            setDosage('');
+            setDosage('1');
+            setUnits('mg');
             setFrequency('Daily');
             setInstructions('');
             setStartDate(moment());
@@ -131,6 +152,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
             id: existingMedication?.id || "temp-med-id",
             name,
             dosage,
+            units,
             frequency,
             startDate,
             endDate: hasEndDate ? endDate : undefined,
@@ -263,6 +285,65 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
             );
         }
     };
+    
+    const renderUnitsPicker = () => {
+        if (Platform.OS === 'ios') {
+            return (
+                <View style={styles.unitContainer}>
+                    <TouchableOpacity
+                        onPress={() => !readonly && setShowUnitsPicker(true)}
+                        disabled={readonly}
+                    >
+                        <Text style={styles.unitText}>{units}</Text>
+                    </TouchableOpacity>
+
+                    <PickerModal
+                        isVisible={showUnitsPicker && !readonly}
+                        onClose={() => setShowUnitsPicker(false)}
+                        onConfirm={(value) => setUnits(value)}
+                        value={units}
+                        items={unitsOptions.map(option => ({
+                            label: option,
+                            value: option
+                        }))}
+                        title="Dosage Units"
+                    />
+                </View>
+            );
+        } else {
+            return (
+                <View style={styles.unitContainer}>
+                    <TouchableOpacity
+                        onPress={() => !readonly && setShowUnitsPicker(true)}
+                        disabled={readonly}
+                    >
+                        <Text style={styles.unitText}>{units}</Text>
+                    </TouchableOpacity>
+
+                    {showUnitsPicker && !readonly && (
+                        <Picker
+                            selectedValue={units}
+                            onValueChange={(itemValue) => {
+                                setUnits(itemValue);
+                                setShowUnitsPicker(false);
+                            }}
+                            mode="dropdown"
+                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: theme.colours.surface }}
+                        >
+                            {unitsOptions.map((option) => (
+                                <Picker.Item
+                                    key={option}
+                                    label={option}
+                                    value={option}
+                                    color="black"
+                                />
+                            ))}
+                        </Picker>
+                    )}
+                </View>
+            );
+        }
+    };
 
     return (
         <Modal
@@ -294,15 +375,38 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
 
                         <View style={styles.innerDivider} />
 
-                        <InputField
-                            value={dosage}
-                            onChangeText={setDosage}
-                            placeholder="Dosage (e.g., 10mg, 1 tablet)"
-                            editable={!readonly}
-                            style={{
-                                input: [styles.input, getReadonlyStyle()],
-                            }}
-                        />
+                        <Text style={[styles.sectionTitle, readonly && styles.readonlyText]}>Dosage</Text>
+                        <View style={styles.dosageContainer}>
+                            <TouchableOpacity
+                                style={[styles.dosageButton, readonly && styles.readonlyField]}
+                                onPress={decreaseDosage}
+                                disabled={readonly}
+                            >
+                                <Text style={styles.dosageButtonText}>-</Text>
+                            </TouchableOpacity>
+
+                            <InputField
+                                value={dosage}
+                                onChangeText={setDosage}
+                                placeholder="Dosage"
+                                keyboardType="numeric"
+                                returnKeyType='done'
+                                editable={!readonly}
+                                style={{
+                                    container: [styles.dosageValueContainer, getReadonlyStyle()],
+                                    input: [styles.dosageValue, readonly && getReadonlyStyle()],
+                                }}
+                            />
+
+                            <TouchableOpacity
+                                style={[styles.dosageButton, readonly && styles.readonlyField]}
+                                onPress={increaseDosage}
+                                disabled={readonly}
+                            >
+                                <Text style={styles.dosageButtonText}>+</Text>
+                            </TouchableOpacity>
+                            {renderUnitsPicker()}
+                        </View>
 
                         <View style={styles.innerDivider} />
 
@@ -840,6 +944,56 @@ const styles = StyleSheet.create({
     },
     readonlyText: {
         color: theme.colours.textSecondary,
+    },
+    dosageContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderWidth: 1,
+        borderColor: theme.colours.lightGray,
+        borderRadius: 8,
+        overflow: 'hidden',
+        marginBottom: 10,
+    },
+    dosageButton: {
+        width: 50,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colours.gray90,
+    },
+    dosageButtonText: {
+        fontSize: 24,
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: theme.colours.textPrimary,
+    },
+    dosageValueContainer: {
+        flex: 1,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colours.surface,
+    },
+    dosageValue: {
+        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
+        textAlign: 'center',
+        paddingTop: 15
+    },
+    unitContainer: {
+        height: '100%',
+        paddingHorizontal: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colours.gray90,
+        borderLeftWidth: 1,
+        borderLeftColor: theme.colours.lightGray,
+    },
+    unitText: {
+        fontSize: 16,
+        fontFamily: theme.fonts.ubuntu.regular,
+        color: theme.colours.textPrimary,
     },
 });
 

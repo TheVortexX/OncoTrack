@@ -164,15 +164,18 @@ const MedicationScreen = () => {
             ...medication,
             startDate: momentToTimestamp(medication.startDate),
             endDate: medication.endDate ? momentToTimestamp(medication.endDate) : null,
+            colour: getMedicationColour(medication.name)
         };
 
         saveMedication(user.uid, medicationToSave).then((id) => {
             if (id) {
                 medication.id = id;
-                medication.colour = getMedicationColour(medication.name);
                 setMedications(prevMap => ({
                     ...prevMap,
-                    [id]: medication
+                    [id]: {
+                        ...medication,
+                        colour: getMedicationColour(medication.name)
+                    }
                 }));
             }
         });
@@ -185,6 +188,7 @@ const MedicationScreen = () => {
             ...medication,
             startDate: momentToTimestamp(medication.startDate),
             endDate: medication.endDate ? momentToTimestamp(medication.endDate) : null,
+            colour: getMedicationColour(medication.name),
         };
 
         updateMedication(user.uid, medication.id, medicationToSave).then((res) => {
@@ -266,6 +270,7 @@ const MedicationScreen = () => {
 
     const renderMedicationCard = (medication: Medication) => {
         const firstLetter = medication.name.charAt(0).toUpperCase();
+        const dosageString = `${medication.dosage} ${medication.units}${parseInt(medication.dosage) > 1 ? 's' : ''}`;
 
         return (
             <TouchableOpacity
@@ -281,7 +286,7 @@ const MedicationScreen = () => {
 
                 <View style={styles.medicationDetails}>
                     <Text style={styles.medicationName}>{medication.name}</Text>
-                    <Text style={styles.medicationDosage}>{medication.dosage}</Text>
+                    <Text style={styles.medicationDosage}>{dosageString}</Text>
                     <Text style={styles.medicationFrequency}>{medication.frequency}</Text>
                 </View>
 
@@ -385,7 +390,7 @@ const MedicationScreen = () => {
                                             onPress={() => showLogMedicationModal(med, "morning")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>
+                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
                                         </TouchableOpacity>
                                     ))
                                 }
@@ -409,7 +414,7 @@ const MedicationScreen = () => {
                                             onPress={() => showLogMedicationModal(med, "afternoon")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>
+                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
                                         </TouchableOpacity>
                                     ))
                                 }
@@ -433,7 +438,7 @@ const MedicationScreen = () => {
                                             onPress={() => showLogMedicationModal(med, "evening")}
                                         >
                                             <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage}</Text>
+                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
                                         </TouchableOpacity>
                                     ))
                                 }
