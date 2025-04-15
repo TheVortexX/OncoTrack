@@ -9,7 +9,7 @@ import { useAuth } from '@/context/auth';
 import { getUserMedications, saveMedication, updateMedication, deleteMedication, logMedicationAdherence } from '@/services/medicationService';
 import MedicationForm from '@/components/medicationForm';
 import MedicationLogForm from '@/components/medicationLogForm';
-import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 
 // TODO: add notifications
 
@@ -240,6 +240,16 @@ const MedicationScreen = () => {
             '#9c27b0', // purple
             '#2196f3', // blue
             '#4caf50', // green
+            '#00bcd4', // cyan
+            '#3f51b5', // indigo
+            '#009688', // teal
+            '#673ab7', // deep purple
+            '#03a9f4', // light blue
+            '#8bc34a', // light green
+            '#5e35b1', // deep indigo
+            '#00796b', // dark teal
+            '#1e88e5', // mid blue
+            '#43a047', // mid green
         ];
 
         const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
@@ -256,16 +266,20 @@ const MedicationScreen = () => {
 
         return allMeds.filter(med => {
             // check if medication is current
-            const hasStarted = med.startDate.isSameOrBefore(now, 'day');
             const notEnded = !med.endDate || med.endDate.isSameOrAfter(now, 'day');
-            return hasStarted && notEnded;
+            return notEnded;
         });
     }, [medications]);
 
     const getTodaysMedications = useCallback((): Medication[] => {
         const currentMeds = getCurrentMedications();
-        // TODO for simplicity, returning all current medications
-        return currentMeds;
+        const today = moment().startOf('day');
+        return currentMeds.filter(medication => {
+            const startDate = medication.startDate.startOf('day');
+            const endDate = medication.endDate ? medication.endDate.startOf('day') : today.clone().add(1, 'day');
+            const frequency = medication.frequency;
+            return medicationDueOnDate(startDate, endDate, frequency);
+        })
     }, [medications]);
 
     const renderMedicationCard = (medication: Medication) => {
@@ -356,7 +370,7 @@ const MedicationScreen = () => {
 
                 <ScrollView style={styles.medicationsContainer}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionHeaderText}>Current Medications</Text>
+                        <Text style={styles.sectionHeaderText}>Current and Future Medications</Text>
                     </View>
 
                     {getCurrentMedications().length > 0 ? (
