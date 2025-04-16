@@ -1,8 +1,9 @@
 import { firestore } from '@/services/firebaseConfig';
-import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy, addDoc} from 'firebase/firestore';
+import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy, addDoc, where} from 'firebase/firestore';
 
 const db = firestore;
 
+//TODO add settings collection
 export const createUserProfile = async (uid?: string, initialData = {}) => {
     if (!uid) return false; // Ensure uid is provided
     try {
@@ -43,6 +44,29 @@ export const getUserAppointments = async (uid?: string) => {
         return [];
     }
 };
+
+export const getTodaysAppointments = async (uid?: string) => {
+    if (!uid) return []; // Ensure uid is provided
+    try {
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+        const appointmentsCollection = collection(db, 'users', uid, 'appointments');
+        const q = query(
+            appointmentsCollection,
+            where('startTime', '>=', startOfDay),
+            where('startTime', '<=', endOfDay),
+        );
+
+        const snapshot = await getDocs(q);
+        return snapshot.docs
+
+    } catch (error) {
+        console.error('Error fetching user appointments:', error);
+        return [];
+    }
+}
 
 export const updateUserAppointment = async (uid: string, appointmentId: string, updates: any) => {
     if (!uid || !appointmentId) return false;

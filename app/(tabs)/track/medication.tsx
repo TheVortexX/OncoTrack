@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
-import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome6, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import moment from 'moment';
-import { Timestamp } from 'firebase/firestore';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
-import { getUserMedications, saveMedication, updateMedication, deleteMedication, logMedicationAdherence } from '@/services/medicationService';
+import { getUserMedications, saveMedication, updateMedication, deleteMedication, logMedicationAdherence, getUserMedicationTimes } from '@/services/medicationService';
 import MedicationForm from '@/components/medicationForm';
 import MedicationLogForm from '@/components/medicationLogForm';
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+import { getTodaysAppointments } from '@/services/profileService';
 
 // TODO: add notifications
 
@@ -28,6 +28,17 @@ interface Medication {
     [key: string]: any;
 }
 
+interface MedicationLog {
+    id: string;
+    medicationId: string;
+    startTime: moment.Moment;
+    timeOfDay: string;
+}
+
+interface MedicationLogMap {
+    [id: string]: MedicationLog;
+}
+
 interface MedicationsMap {
     [id: string]: Medication;
 }
@@ -43,6 +54,8 @@ const MedicationScreen = () => {
     const [rightButtonText, setRightButtonText] = useState('Add');
     const [rightButtonAction, setRightButtonAction] = useState(() => (_: any) => { });
     const [existingMedication, setExistingMedication] = useState<Medication | null>(null);
+    const [userMedicationTimes, setUserMedicationTimes] = useState<string[]>([]);
+    const [medicationLogsMap, setMedicationLogsMap] = useState<MedicationLogMap>({});
     const [timeOfDay, setTimeOfDay] = useState('morning');
 
     const { user } = useAuth();
@@ -77,6 +90,33 @@ const MedicationScreen = () => {
 
                 setMedications(newMedicationsMap);
             });
+
+            getUserMedicationTimes(user.uid).then((times) => {
+                if (!times) return;
+                setUserMedicationTimes(times);
+            })
+
+            getTodaysAppointments(user.uid).then((appointments) => {
+                if (!appointments) return;
+                const todayLogged: MedicationLog[] = appointments.filter((doc) => {
+                    return doc.data().appointmentType === 'Medication Log'
+                }).map((doc) => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    return {
+                        id,
+                        medicationId: data.medicationId,
+                        startTime: data.startTime ? timestampToMoment(data.startTime) : moment(),
+                        timeOfDay: data.timeOfDay,
+                    };
+                })
+                const newMedicationLogsMap: MedicationLogMap = {};
+                todayLogged.forEach((log) => {
+                    newMedicationLogsMap[log.id + '-' + log.timeOfDay] = log;
+                });
+                setMedicationLogsMap(newMedicationLogsMap);
+            })
+                        
         }, [user])
     );
 
@@ -146,6 +186,16 @@ const MedicationScreen = () => {
             timeOfDay: log.timeOfDay,
             notes: log.notes || "",
         }
+
+        const newMedicationLogsMap = { ...medicationLogsMap };
+        newMedicationLogsMap[log.medicationId + "-" + log.timeOfDay] = {
+            id: log.id,
+            medicationId: log.medicationId,
+            startTime: log.time,
+            timeOfDay: log.timeOfDay,
+        };
+        setMedicationLogsMap(newMedicationLogsMap);
+
 
         logMedicationAdherence(user.uid, medicationToLog).then((res) => {
             if (res) {
@@ -282,6 +332,78 @@ const MedicationScreen = () => {
         })
     }, [medications]);
 
+    const medicationTaken = (medicationId: string, timeOfDay: string): boolean => {
+        const today = moment().startOf('day');
+        if (medicationLogsMap) {
+            if (medicationLogsMap.hasOwnProperty(medicationId+"-"+timeOfDay)) {
+                const log = medicationLogsMap[medicationId+"-"+timeOfDay];
+                const logDate = log.startTime.startOf('day');
+                if (logDate.isSame(today)) {
+                    return log.timeOfDay === timeOfDay;
+                }
+            }
+        }
+        return false;
+    };
+
+    const medicationStatus = (medicationId: string, timeOfDay: string): "taken" | "late" | "missed" | null => {
+        const taken = medicationTaken(medicationId, timeOfDay);
+        if (taken) {
+            return "taken";
+        }
+        const now = moment();
+        const [morningTime, afternoonTime, eveningTime] = userMedicationTimes.map(time => {
+            const [hour, minute] = time.split(':').map(Number);
+            return moment().set({ hour, minute });
+        });
+        if (!morningTime || !afternoonTime || !eveningTime) return null;
+        const medicationTime = timeOfDay === "morning" ? morningTime : timeOfDay === "afternoon" ? afternoonTime : eveningTime;
+        // get the time after this to check if it has been missed
+        let afterTime: moment.Moment | null = null;
+        if (timeOfDay === "morning") {
+            afterTime = afternoonTime;
+        } else if (timeOfDay === "afternoon") {
+            afterTime = eveningTime;
+        }
+
+        if (afterTime && now.isAfter(afterTime)) {
+            return "missed";
+        }
+        if (now.isAfter(medicationTime)) {
+            return "late";
+        }
+        return null;
+    };
+
+    const renderStatusBox = (status: "taken" | "late" | "missed"| null) => {
+        if (!status) return null;
+        switch (status) {
+            case "taken":
+                return (
+                    <View style={styles.statusBox}>
+                        <Text style={[styles.scheduleItemText, { color: theme.colours.success }]}>Taken</Text>
+                        <Ionicons name="checkmark-circle-outline" size={24} color={theme.colours.success} />
+                    </View>
+                );
+            case "late":
+                return (
+                    <View style={styles.statusBox}>
+                        <Text style={[styles.scheduleItemText, { color: theme.colours.error }]}>Late</Text>
+                        <Ionicons name="alert-circle-outline" size={24} color={theme.colours.error} />
+                    </View>
+                );
+            case "missed":
+                return (
+                    <View style={styles.statusBox}>
+                        <Text style={[styles.scheduleItemText, { color: theme.colours.darkDanger }]}>Missed</Text>
+                        <Ionicons name="close-circle-outline" size={24} color={theme.colours.darkDanger} />
+                    </View>
+                );
+            default:
+                return null;
+        }
+    };
+
     const renderMedicationCard = (medication: Medication) => {
         const firstLetter = medication.name.charAt(0).toUpperCase();
         const dosageString = `${medication.dosage} ${medication.units}${parseInt(medication.dosage) > 1 ? 's' : ''}`;
@@ -397,16 +519,25 @@ const MedicationScreen = () => {
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('morning'))
-                                    .map(med => (
-                                        <TouchableOpacity
-                                            key={`morning-${med.id}`}
-                                            style={styles.scheduleItem}
-                                            onPress={() => showLogMedicationModal(med, "morning")}
-                                        >
-                                            <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
-                                        </TouchableOpacity>
-                                    ))
+                                    .map(med => {
+                                        const status = medicationStatus(med.id, "morning");
+                                        return (
+                                            <TouchableOpacity
+                                                key={`morning-${med.id}`}
+                                                style={[
+                                                    styles.scheduleItem,
+                                                    status === "taken" && styles.medicationTakenItem,
+                                                    status === "late" && styles.medicationLateItem,
+                                                    status === "missed" && styles.medicationMissedItem
+                                                ]}
+                                                onPress={() => showLogMedicationModal(med, "morning")}
+                                            >
+                                                <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
+                                                <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
+                                                {renderStatusBox(status)}
+                                            </TouchableOpacity>
+                                        );
+                                    })
                                 }
                                 {!getTodaysMedications().some(med => med.timeOfDay.includes('morning')) && (
                                     <Text style={styles.noMedicationText}>No morning medications</Text>
@@ -421,16 +552,25 @@ const MedicationScreen = () => {
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('afternoon'))
-                                    .map(med => (
-                                        <TouchableOpacity
-                                            key={`afternoon-${med.id}`}
-                                            style={styles.scheduleItem}
-                                            onPress={() => showLogMedicationModal(med, "afternoon")}
-                                        >
-                                            <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
-                                        </TouchableOpacity>
-                                    ))
+                                    .map(med => {
+                                        const status = medicationStatus(med.id, "afternoon");
+                                        return (
+                                            <TouchableOpacity
+                                                key={`afternoon-${med.id}`}
+                                                style={[
+                                                    styles.scheduleItem,
+                                                    status === "taken" && styles.medicationTakenItem,
+                                                    status === "late" && styles.medicationLateItem,
+                                                    status === "missed" && styles.medicationMissedItem
+                                                ]}
+                                                onPress={() => showLogMedicationModal(med, "afternoon")}
+                                            >
+                                                <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
+                                                <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
+                                                {renderStatusBox(status)}
+                                            </TouchableOpacity>
+                                        );
+                                    })
                                 }
                                 {!getTodaysMedications().some(med => med.timeOfDay.includes('afternoon')) && (
                                     <Text style={styles.noMedicationText}>No afternoon medications</Text>
@@ -445,16 +585,26 @@ const MedicationScreen = () => {
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('evening'))
-                                    .map(med => (
-                                        <TouchableOpacity
-                                            key={`evening-${med.id}`}
-                                            style={styles.scheduleItem}
-                                            onPress={() => showLogMedicationModal(med, "evening")}
-                                        >
-                                            <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
-                                            <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
-                                        </TouchableOpacity>
-                                    ))
+                                    .map(med => {
+                                        const status = medicationStatus(med.id, "evening");
+                                        return (
+                                            <TouchableOpacity
+                                                key={`evening-${med.id}`}
+                                                style={[
+                                                    styles.scheduleItem,
+                                                    status === "taken" && styles.medicationTakenItem,
+                                                    status === "late" && styles.medicationLateItem,
+                                                    status === "missed" && styles.medicationMissedItem
+                                                ]}
+                                                onPress={() => showLogMedicationModal(med, "evening")}
+                                            >
+                                                <View style={[styles.scheduleItemDot, { backgroundColor: med.colour }]} />
+                                                <Text style={styles.scheduleItemText}>{med.name} - {med.dosage} {med.units}{parseInt(med.dosage) > 1 ? 's' : ''}</Text>
+                                                {renderStatusBox(status)}
+
+                                            </TouchableOpacity>
+                                        );
+                                    })
                                 }
                                 {!getTodaysMedications().some(med => med.timeOfDay.includes('evening')) && (
                                     <Text style={styles.noMedicationText}>No evening medications</Text>
@@ -467,6 +617,7 @@ const MedicationScreen = () => {
                             <Text style={styles.emptyStateText}>No medications scheduled for today</Text>
                         </View>
                     )}
+                    <View style={{ height: 100 }}/>
                 </ScrollView>
             </View>
         </>
@@ -623,7 +774,8 @@ const styles = StyleSheet.create({
     scheduleItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
+        padding: 8,
+        marginBottom: 5,
         borderBottomWidth: 1,
         borderBottomColor: theme.colours.divider,
     },
@@ -645,6 +797,35 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         textAlign: 'center',
         paddingVertical: 8,
+    },
+    medicationTakenItem: {
+        backgroundColor: `${theme.colours.success}20`,
+        borderColor: theme.colours.success,
+        borderWidth: 1,
+        borderRadius: 5,
+        borderBottomColor: undefined,
+        borderBottomWidth: undefined,
+    },
+    medicationLateItem: {
+        backgroundColor: `${theme.colours.error}20`,
+        borderColor: theme.colours.error,
+        borderWidth: 1,
+        borderRadius: 5,
+        borderBottomColor: undefined,
+        borderBottomWidth: undefined,
+    },
+    medicationMissedItem: {
+        backgroundColor: `${theme.colours.darkDanger}20`,
+        borderColor: theme.colours.error,
+        borderWidth: 1,
+        borderRadius: 5,
+        borderBottomColor: undefined,
+        borderBottomWidth: undefined,
+    },
+    statusBox: {
+        marginLeft: 'auto',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

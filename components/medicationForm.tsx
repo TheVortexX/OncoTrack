@@ -68,8 +68,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
     const [showEndDate, setShowEndDate] = useState(false);
     const [showFrequencyPicker, setShowFrequencyPicker] = useState(false);
 
-    // TODO prompt when one,two,three times a day is selected the correct amount of reminder times is selected also
-    const frequencyOptions = ['Daily', 'Twice Daily', 'Three Times Daily', 'Every Other Day', 'Every Three Days', 'Weekly', 'Monthly', 'As Needed', 'Other'];
+    const frequencyOptions = ['Daily', 'Every Other Day', 'Every Three Days', 'Weekly', 'Monthly', 'As Needed', 'Other'];
     const timeOfDayOptions = ['morning', 'afternoon', 'evening'];
     const unitsOptions = ['mg', 'ml', 'tablet', 'capsule', 'drop', 'tsp', 'tbsp', 'patch', 'puff', 'injection'];
 

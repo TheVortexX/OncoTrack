@@ -3,8 +3,6 @@ import moment from 'moment';
 
 const repetitionDayMap = {
     'Daily': 1,
-    'Twice Daily': 1,
-    'Three Times Daily': 1,
     'Every Other Day': 2,
     'Every Three Days': 3,
     'Weekly': 7,
