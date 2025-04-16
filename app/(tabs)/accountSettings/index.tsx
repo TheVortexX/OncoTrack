@@ -11,7 +11,7 @@ const AccountScreen = () => {
     const router = useRouter();
     const { user, getProfile, signOut } = useAuth();
     const [isFaceIDEnabled, setIsFaceIDEnabled] = useState(true);
-    const [isFaceIDSupported, setIsFaceIDSupported] = useState(true);
+    const [isFaceIDSupported, setIsFaceIDSupported] = useState(true); // TODO add faceid check
     const [displayName, setDisplayName] = useState('Not set');
     const [email, setEmail] = useState(user?.email || 'Not set');
 
@@ -132,6 +132,26 @@ const AccountScreen = () => {
                                 />
                             </View>
                         )}
+                    </View>
+
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Settings</Text>
+
+                        <TouchableOpacity onPress={() => router.push('/accountSettings/medication')} style={styles.menuItem}>
+                            <View style={styles.menuItemContent}>
+                                <Ionicons name="medical-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                <Text style={styles.menuItemText}>Medication</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => router.push('/accountSettings/notifications')} style={styles.menuItem}>
+                            <View style={styles.menuItemContent}>
+                                <Ionicons name="notifications-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                <Text style={styles.menuItemText}>Notification</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.section}>
