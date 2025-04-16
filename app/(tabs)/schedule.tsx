@@ -386,7 +386,7 @@ const ScheduleScreen = () => {
         );
         const dayMedications = medications.filter(medication => {
             const startDate = timestampToMoment(medication.startDate).startOf('day');
-            const endDate = medication.endDate ? timestampToMoment(medication.endDate.startOf('day')) : date.clone().add(1, 'day');
+            const endDate = medication.endDate ? timestampToMoment(medication.endDate).startOf('day') : date.clone().add(1, 'day');
             const frequency = medication.frequency;
             return medicationDueOnDate(startDate, endDate, frequency, date);
         });
