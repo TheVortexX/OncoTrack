@@ -3,6 +3,18 @@ import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, col
 
 const db = firestore;
 
+export const updateSetting = async (uid: string, settingCategory: string, key: string, value:any) => {
+    try {
+        await updateDoc(doc(db, 'users', uid, 'settings', settingCategory), {
+            [key]: value,
+        }, )
+        return true
+    } catch (error) {
+        console.error(`Error updating settingCategory: ${settingCategory} with key: ${key} and value ${value}`)
+        return false;
+    }
+} 
+
 export const createUserMedicationSettings = async (uid?: string) => {
     if (!uid) return false;
     try {
@@ -13,8 +25,8 @@ export const createUserMedicationSettings = async (uid?: string) => {
             updatedAt: serverTimestamp(),
         })
         return true
-    } catch {
-        console.error('Error creating user medication settings')
+    } catch (error) {
+        console.error('Error creating user medication settings: ', error)
         return false
     }
 }
@@ -27,8 +39,8 @@ export const createUserNotificationSettings = async (uid?: string) => {
             reminderTime: 60,
         })
         return true
-    } catch {
-        console.error('Error creating user notification settings')
+    } catch (error){
+        console.error('Error creating user notification settings: ', error)
         return false
     }
 }
