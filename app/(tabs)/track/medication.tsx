@@ -518,6 +518,7 @@ const MedicationScreen = () => {
                     {/* Daily Schedule Section */}
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionHeaderText}>Today's Schedule</Text>
+                        <Text style={styles.sectionSubHeaderText}> - Tap a medication to log</Text>
                     </View>
 
                     {getTodaysMedications().length > 0 ? (
@@ -685,10 +686,18 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.blue99,
         borderBottomWidth: 1,
         borderBottomColor: theme.colours.divider,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     sectionHeaderText: {
         fontFamily: theme.fonts.ubuntu.bold,
         fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.colours.textPrimary,
+    },
+    sectionSubHeaderText: {
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 16,
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
