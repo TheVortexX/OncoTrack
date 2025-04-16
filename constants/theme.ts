@@ -43,6 +43,7 @@ export const theme = {
         // Surface and text colors
         background: "#E0FBFC",   // blue99 as the main background
         surface: "#FFFFFF",      // White surface for cards, etc.
+        header: "#3D5A80",       // blue20 for headers
         textOnPrimary: "#FFFFFF", // Text on primary color
         textOnBlue: "#FFFFFF",   // Text on blue colors
         textPrimary: "#293241",  // Primary text
