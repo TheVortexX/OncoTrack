@@ -45,7 +45,6 @@ export const createUserNotificationSettings = async (uid?: string) => {
     }
 }
 
-//TODO add settings collection
 export const createUserProfile = async (uid?: string, initialData = {}) => {
     if (!uid) return false; // Ensure uid is provided
     try {

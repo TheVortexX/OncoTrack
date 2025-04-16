@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Platform, Image, StatusBar } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
@@ -138,7 +138,7 @@ const AppointmentScanScreen = () => {
                     provider: appointmentData.provider,
                     startTime: startTime,
                     endTime: endTime,
-                    appointmentType: "Appointment", // Default type TODO CHANGE SCHEMA
+                    appointmentType: appointmentData.appointmentType || "Appointment",
                     staff: appointmentData.staff || "",
                     travelTime: moment.duration({ minutes: 0 }),
                     notes: appointmentData.notes || ""
@@ -265,6 +265,10 @@ const AppointmentScanScreen = () => {
 
     return (
         <View style={[styles.container, { marginBottom: bottomMargin }]}>
+            <StatusBar 
+                translucent
+                backgroundColor={"transparent"}
+            />
             {capturedImage ? renderImagePreview() : renderCamera()}
 
             {/* Appointment Form Modal */}
