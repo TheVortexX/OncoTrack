@@ -1,7 +1,38 @@
 import { firestore } from '@/services/firebaseConfig';
 import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy, addDoc, where} from 'firebase/firestore';
+import { create } from 'react-test-renderer';
 
 const db = firestore;
+
+export const createUserMedicationSettings = async (uid?: string) => {
+    if (!uid) return false;
+    try {
+        await setDoc(doc(db, 'users', uid, 'settings', 'medications'), {
+            morningTime: '08:00',
+            afternoonTime: '12:00',
+            eveningTime: '18:00',
+            updatedAt: serverTimestamp(),
+        })
+        return true
+    } catch {
+        console.error('Error creating user medication settings')
+        return false
+    }
+}
+
+export const createUserNotificationSettings = async (uid?: string) => {
+    if (!uid) return false;
+    try {
+        await setDoc(doc(db, 'users', uid, 'settings', 'notirications'), {
+            enabled: true,
+            reminderTime: 60,
+        })
+        return true
+    } catch {
+        console.error('Error creating user notification settings')
+        return false
+    }
+}
 
 //TODO add settings collection
 export const createUserProfile = async (uid?: string, initialData = {}) => {
@@ -14,6 +45,8 @@ export const createUserProfile = async (uid?: string, initialData = {}) => {
         };
         
         await setDoc(doc(db, 'users', uid), userData);
+        await createUserMedicationSettings(uid);
+        await createUserNotificationSettings(uid);
         return true;
     } catch (error) {
         console.error('Error creating user profile:', error);
