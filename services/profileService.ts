@@ -1,6 +1,5 @@
 import { firestore } from '@/services/firebaseConfig';
 import {doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection, query, orderBy, addDoc, where} from 'firebase/firestore';
-import { create } from 'react-test-renderer';
 
 const db = firestore;
 
