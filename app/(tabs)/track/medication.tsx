@@ -58,6 +58,11 @@ const MedicationScreen = () => {
     const [medicationLogsMap, setMedicationLogsMap] = useState<MedicationLogMap>({});
     const [timeOfDay, setTimeOfDay] = useState('morning');
 
+    // Add state for medication times
+    const [morningTime, setMorningTime] = useState('08:00');
+    const [afternoonTime, setAfternoonTime] = useState('12:00');
+    const [eveningTime, setEveningTime] = useState('18:00');
+
     const { user } = useAuth();
 
     // load medications from Firebase
@@ -94,6 +99,12 @@ const MedicationScreen = () => {
             getUserMedicationTimes(user.uid).then((times) => {
                 if (!times) return;
                 setUserMedicationTimes(times);
+                // Parse the times array to set individual time states
+                if (times.length >= 3) {
+                    setMorningTime(times[0] || '08:00');
+                    setAfternoonTime(times[1] || '12:00');
+                    setEveningTime(times[2] || '18:00');
+                }
             })
 
             getTodaysAppointments(user.uid).then((appointments) => {
@@ -116,7 +127,7 @@ const MedicationScreen = () => {
                 });
                 setMedicationLogsMap(newMedicationLogsMap);
             })
-                        
+
         }, [user])
     );
 
@@ -171,10 +182,10 @@ const MedicationScreen = () => {
         setTimeOfDay(timeOfDay);
         setShowLogMedicationModal(true);
     }
-    
+
     const handleLogMedication = (log: any) => {
         if (!user) return;
-        
+
         const medicationToLog = {
             medicationId: log.medicationId,
             provider: log.name,
@@ -335,8 +346,8 @@ const MedicationScreen = () => {
     const medicationTaken = (medicationId: string, timeOfDay: string): boolean => {
         const today = moment().startOf('day');
         if (medicationLogsMap) {
-            if (medicationLogsMap.hasOwnProperty(medicationId+"-"+timeOfDay)) {
-                const log = medicationLogsMap[medicationId+"-"+timeOfDay];
+            if (medicationLogsMap.hasOwnProperty(medicationId + "-" + timeOfDay)) {
+                const log = medicationLogsMap[medicationId + "-" + timeOfDay];
                 const logDate = log.startTime.startOf('day');
                 if (logDate.isSame(today)) {
                     return log.timeOfDay === timeOfDay;
@@ -375,7 +386,7 @@ const MedicationScreen = () => {
         return null;
     };
 
-    const renderStatusBox = (status: "taken" | "late" | "missed"| null) => {
+    const renderStatusBox = (status: "taken" | "late" | "missed" | null) => {
         if (!status) return null;
         switch (status) {
             case "taken":
@@ -516,6 +527,7 @@ const MedicationScreen = () => {
                                 <View style={styles.timeHeader}>
                                     <MaterialCommunityIcons name="weather-sunny" size={24} color={theme.colours.textSecondary} />
                                     <Text style={styles.timeHeaderText}>Morning</Text>
+                                    <Text style={styles.timeSubHeaderText}>- {morningTime}</Text>
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('morning'))
@@ -549,6 +561,7 @@ const MedicationScreen = () => {
                                 <View style={styles.timeHeader}>
                                     <MaterialCommunityIcons name="weather-partly-cloudy" size={24} color={theme.colours.textSecondary} />
                                     <Text style={styles.timeHeaderText}>Afternoon</Text>
+                                    <Text style={styles.timeSubHeaderText}>- {afternoonTime}</Text>
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('afternoon'))
@@ -582,6 +595,7 @@ const MedicationScreen = () => {
                                 <View style={styles.timeHeader}>
                                     <MaterialCommunityIcons name="weather-night" size={24} color={theme.colours.textSecondary} />
                                     <Text style={styles.timeHeaderText}>Evening</Text>
+                                    <Text style={styles.timeSubHeaderText}>- {eveningTime}</Text>
                                 </View>
                                 {getTodaysMedications()
                                     .filter(med => med.timeOfDay.includes('evening'))
@@ -617,7 +631,7 @@ const MedicationScreen = () => {
                             <Text style={styles.emptyStateText}>No medications scheduled for today</Text>
                         </View>
                     )}
-                    <View style={{ height: 100 }}/>
+                    <View style={{ height: 100 }} />
                 </ScrollView>
             </View>
         </>
@@ -770,6 +784,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: theme.colours.textPrimary,
         marginLeft: 10,
+        marginRight: 8,
+    },
+    timeSubHeaderText: {
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 14,
+        color: theme.colours.textSecondary,
     },
     scheduleItem: {
         flexDirection: 'row',
