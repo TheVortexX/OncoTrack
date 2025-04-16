@@ -10,10 +10,14 @@ const { width, height } = Dimensions.get('window');
 const ForgotPassScreen = () => {
     const [email, setEmail] = useState('');
     const router = useRouter();
-    const { loading } = useAuth(); // TODO FORGOT PASSWORD
+    const { loading, forgotPassword } = useAuth();
 
     const doForgot = async () => {
-        Alert.alert('Password reset email sent', 'Please check your email for a link to reset your password.');
+        if (!validate.email(email)) {
+            Alert.alert('Error', 'Please enter your email address');
+            return;
+        }
+        await forgotPassword(email);
         router.push('/(auth)');
     };
 

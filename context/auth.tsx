@@ -3,7 +3,7 @@ import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { auth } from '@/services/firebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User} from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User, sendPasswordResetEmail} from 'firebase/auth';
 import { getErrorMessage } from '@/utils/errorMap';
 import { DocumentData } from 'firebase/firestore';
 import { setStoredValue, getStoredValue } from '@/hooks/useStorage';
@@ -18,6 +18,7 @@ type AuthContextType = {
     getProfile: () => Promise<DocumentData | null | undefined>;
     updateProfile: (updates: any) => Promise<boolean>;
     signOut: () => Promise<void>;
+    forgotPassword: (email: string) => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -185,8 +186,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const forgotPassword = async (email: string) => {
+        setLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, email)
+            Alert.alert('Password reset email sent', 'Please check your email for a link to reset your password.');
+            return true;
+        } catch (error) {
+            console.error('Error sending password reset email:', error);
+            Alert.alert('Error', 'Failed to send password reset email. Please try again later.');
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, signInUser, getProfile, updateProfile, signOut, createUser }}>
+        <AuthContext.Provider value={{ user, loading, signInUser, getProfile, updateProfile, signOut, createUser, forgotPassword }}>
             {children}
         </AuthContext.Provider>
     );
