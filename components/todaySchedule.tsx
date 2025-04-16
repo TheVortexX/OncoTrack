@@ -10,6 +10,7 @@ import AppointmentForm from '@/components/appointmentFormModal';
 import { useFocusEffect } from 'expo-router';
 import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 
+// TODO add medications to the schedule
 
 interface Appointment {
     id: string;

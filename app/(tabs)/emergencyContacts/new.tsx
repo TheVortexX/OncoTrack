@@ -7,11 +7,11 @@ import { useAuth } from '@/context/auth';
 import InputField from '@/components/InputField';
 import validate from '@/utils/fieldValidation';
 import { useEmergencyContacts } from '@/context/emergencyContacts';
+import Header from '@/components/header';
 
 const { width, height } = Dimensions.get('window');
 
 const AddContactScreen = () => {
-    const { user } = useAuth();
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [description, setDescription] = useState('');
@@ -63,13 +63,12 @@ const AddContactScreen = () => {
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.container}>
-                    <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Add Emergency Contact</Text>
-                        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                            <Ionicons name="arrow-back" size={24} color={theme.colours.buttonBlue} />
-                            <Text style={styles.backText}>Back</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <Header 
+                        title='Add Emergency Contact'
+                        subtitle='Add a new emergency contact'
+                        colour={theme.colours.primary}
+                        leftButtonType='back'
+                    />
 
                     <View style={styles.content}>
                         <InputField
@@ -143,30 +142,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colours.blue99,
         marginBottom: 70,
-    },
-    header: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        paddingHorizontal: 16,
-        paddingTop: 60,
-        paddingBottom: 20,
-        backgroundColor: theme.colours.blue99,
-    },
-    backButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    backText: {
-        fontFamily: theme.fonts.openSans.regular,
-        fontSize: 18,
-        color: theme.colours.buttonBlue,
-        marginLeft: 4,
-    },
-    headerTitle: {
-        fontFamily: theme.fonts.roboto.medium,
-        fontSize: 24,
-        marginBottom: 16,
-        alignSelf: 'center',
     },
     content: {
         flex: 1,

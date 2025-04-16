@@ -15,6 +15,7 @@ import {
 } from '@/services/notificationService';
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 import { getUserMedications, getUserMedicationTimes } from '@/services/medicationService';
+import Header from '@/components/header';
 
 interface Appointment {
     id: string;
@@ -545,15 +546,6 @@ const ScheduleScreen = () => {
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
             <AppointmentForm
                 visible={showAppointmentModal}
                 onClose={() => setShowAppointmentModal(false)}
@@ -572,23 +564,14 @@ const ScheduleScreen = () => {
                 readonly={readonly}
             />
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Schedule</Text>
-                    <Text style={styles.subHeaderText}>Your weeks schedule</Text>
-                    <TouchableOpacity
-                        style={{
-                            position: 'absolute',
-                            right: 20,
-                            top: Platform.OS === 'android' ? 50 : 10,
-                            padding: 8,
-                            alignItems: 'center',
-                        }}
-                        onPress={showNewAppointmentModal}
-                    >
-                        <FontAwesome6 name="calendar-plus" size={30} color="white" />
-                        <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', marginTop: 2 }}>New</Text>
-                    </TouchableOpacity>
-                </View>
+                <Header 
+                    title='Schedule'
+                    subtitle='Your weeks schedule'
+                    rightButtonIcon={<FontAwesome6 name="calendar-plus" size={30} color="white" />}
+                    rightButtonText='New'
+                    onRightButtonPress={showNewAppointmentModal}
+                />
+
                 <CalendarStrip
                     style={styles.calendarStrip}
                     calendarColor={theme.colours.background}
@@ -655,26 +638,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     calendarStrip: {
         height: 100,

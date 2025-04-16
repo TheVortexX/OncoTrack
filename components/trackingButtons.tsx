@@ -11,6 +11,8 @@ interface TrackingCardProps {
     style?: any;
 }
 
+// TODO add screen to enable/disable tracking items
+
 const TrackingCard = ({ icon, title, onPress, style}: TrackingCardProps) => (
     <TouchableOpacity style={[styles.card, style?.card]} onPress={onPress}>
         <View style={[styles.iconContainer, style?.iconContainer]}>

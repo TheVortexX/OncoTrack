@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/auth';
 import moment from 'moment';
 import { getUserSymptomLogs, saveUserSymptomLog, updateUserSymptomLog } from '@/services/profileService';
+import Header from '@/components/header';
 
 const MIN_TEMP = 33;
 const MAX_TEMP = 45;
@@ -235,28 +236,12 @@ const ThermometerScreen = () => {
 
     return (
         <>
-            {/* Status Bar Area */}
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={[styles.container, { marginBottom: bottomMargin }]}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Temperature</Text>
-                    <Text style={styles.subHeaderText}>Monitor your body temperature</Text>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={handleDismiss}
-                    >
-                        <FontAwesome5 name="times" size={24} color="white" />
-                    </TouchableOpacity>
-                </View>
+                <Header 
+                    title='Temperature'
+                    subtitle='Monitor your body temperature'
+                    leftButtonType='close'
+                />
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={styles.scrollViewContent}
@@ -326,33 +311,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        position: 'relative',
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.openSans.semiBold || theme.fonts.ubuntu?.bold,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.openSans.regular || theme.fonts.ubuntu?.regular,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-        marginTop: 4,
-    },
-    backButton: {
-        position: 'absolute',
-        left: 16,
-        top: Platform.OS === 'android' ? 50 : 16,
-        padding: 5,
     },
     avoidContainer: {
         width: '100%',

@@ -7,6 +7,7 @@ import { useAuth } from '@/context/auth';
 import moment from 'moment';
 import { getUserSymptomLogs, saveUserSymptomLog, updateUserSymptomLog } from '@/services/profileService'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Header from '@/components/header';
 // Types
 interface HeaderProps {
     title: string;
@@ -117,20 +118,6 @@ const MoodTrackingScreen: React.FC = () => {
         setSelectedMood(mood === selectedMood ? '' : mood);
     };
 
-    // TODO reusable component for the header make common across all files
-    const Header: React.FC<HeaderProps> = ({ title, subtitle }) => (
-        <View style={styles.header}>
-            <Text style={styles.headerText}>{title}</Text>
-            <Text style={styles.subHeaderText}>{subtitle}</Text>
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={handleDismiss}
-            >
-                <FontAwesome5 name="times" size={24} color="white" />
-            </TouchableOpacity>
-        </View>
-    );
-
     const saveMood = async () => {
         if (!user || !selectedMood) {
             Alert.alert("Error", "Please select a mood before saving.");
@@ -177,18 +164,11 @@ const MoodTrackingScreen: React.FC = () => {
 
     return (
         <>
-            {/* Status Bar */}
-            <View style={styles.statusBarContainer}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={[styles.container, { marginBottom: bottomMargin }]}>
                 <Header
                     title="Track Your Mood"
                     subtitle="How are you feeling today?"
+                    leftButtonType='back'
                 />
 
                 <ScrollView
@@ -239,33 +219,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        position: 'relative',
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.openSans.semiBold || theme.fonts.ubuntu?.bold,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.openSans.regular || theme.fonts.ubuntu?.regular,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-        marginTop: 4,
-    },
-    backButton: {
-        position: 'absolute',
-        left: 16,
-        top: Platform.OS === 'android' ? 50 : 16,
-        padding: 5,
     },
     scrollView: {
         flex: 1,

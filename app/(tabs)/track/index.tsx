@@ -3,29 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, Image } 
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import Header from '@/components/header';
 
 const TrackScreen = () => {
     const router = useRouter();
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={styles.container}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Track</Text>
-                    <Text style={styles.subHeaderText}>Add a symptom, appointment or medication</Text>
-                </View>
-
+                <Header
+                    title='Track'
+                    subtitle='Add a symptom, appointment or medication'
+                />
                 {/* Main Content */}
                 <View style={styles.content}>
                     {/* Symptoms Card */}
@@ -67,28 +56,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.blue99,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        alignItems: 'center',
-        paddingBottom: 25,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     content: {
         flex: 1,

@@ -8,6 +8,9 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { deleteUserSymptomLog, saveUserSymptomLog, updateUserSymptomLog, getUserSymptomLogs } from '@/services/profileService';
 import { useAuth } from '@/context/auth';
+import Header from '@/components/header';
+
+// TODO, selected date highlighting is not clear
 
 // Reusable component for symptom category title
 const CategoryTitle = ({ title, learnMore = false }: { title: string, learnMore?: boolean }) => (
@@ -308,31 +311,12 @@ const SymptomTrackingScreen = () => {
 
     return (
         <>
-            {/* Status Bar Area */}
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={[styles.container, { marginBottom: bottomMargin, paddingBottom: 20 }]}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Record Symptoms</Text>
-                    <Text style={styles.subHeaderText}>Track your daily symptoms</Text>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => {
-                            handleDismiss();
-                        }}
-                    >
-                        <FontAwesome5 name="times" size={24} color="white" />
-                    </TouchableOpacity>
-                </View>
-
+                <Header 
+                    title='Record Symptoms'
+                    subtitle='Track your daily symptoms'
+                    leftButtonType='back'
+                />
                 {/* Calendar Strip */}
                 <CalendarStrip
                     scrollable
@@ -766,33 +750,6 @@ const styles = StyleSheet.create({
     avoidContainer: {
         width: '100%',
         height: 0,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        position: 'relative',
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.openSans.semiBold || theme.fonts.ubuntu?.bold,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.openSans.regular || theme.fonts.ubuntu?.regular,
-        color: theme.colours.textOnBlue,
-        textAlign: 'center',
-        marginTop: 4,
-    },
-    backButton: {
-        position: 'absolute',
-        left: 16,
-        top: Platform.OS === 'android' ? 50 : 16,
-        padding: 5,
     },
     calendarStrip: {
         height: 100,

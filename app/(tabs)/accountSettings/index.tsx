@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { theme } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/context/auth';
+import Header from '@/components/header';
 
 const AccountScreen = () => {
     const router = useRouter();
@@ -29,7 +30,7 @@ const AccountScreen = () => {
     );
 
     const handleEditDisplayName = () => {
-        router.push('/');
+        router.push('/'); // TODO
     };
 
     const debug_signOutPrompt = () => {
@@ -59,22 +60,11 @@ const AccountScreen = () => {
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Account Settings</Text>
-                    <Text style={styles.subHeaderText}>Manage your profile and preferences</Text>
-                </View>
-
+                <Header 
+                    title="Account Settings"
+                    subtitle='Manage your profile and preferences'
+                />
                 <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Profile Information</Text>
@@ -193,26 +183,6 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.blue99,
         marginBottom: 70,
         paddingBottom: 20,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     scrollContent: {
         flex: 1,

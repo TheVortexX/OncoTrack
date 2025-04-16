@@ -10,6 +10,7 @@ import MedicationForm from '@/components/medicationForm';
 import MedicationLogForm from '@/components/medicationLogForm';
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 import { getTodaysAppointments } from '@/services/profileService';
+import Header from '@/components/header';
 
 // TODO: add notifications
 
@@ -449,16 +450,6 @@ const MedicationScreen = () => {
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             {/* Medication Form Modal */}
             <MedicationForm
                 visible={showMedicationModal}
@@ -488,18 +479,14 @@ const MedicationScreen = () => {
             />
 
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Medications</Text>
-                    <Text style={styles.subHeaderText}>Track your medication schedule</Text>
+                <Header
+                    title="Medications"
+                    subtitle="Track your medication schedule"
+                    onRightButtonPress={showNewMedicationModal}
+                    rightButtonIcon={<FontAwesome6 name="pills" size={30} color="white" />}
+                    rightButtonText='Add'
+                />
 
-                    <TouchableOpacity
-                        style={styles.addButton}
-                        onPress={showNewMedicationModal}
-                    >
-                        <FontAwesome6 name="pills" size={30} color="white" />
-                        <Text style={styles.addButtonText}>Add</Text>
-                    </TouchableOpacity>
-                </View>
 
                 <ScrollView style={styles.medicationsContainer}>
                     <View style={styles.sectionHeader}>
@@ -643,39 +630,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
-    },
-    addButton: {
-        position: 'absolute',
-        right: 20,
-        top: Platform.OS === 'android' ? 50 : 10,
-        padding: 8,
-        alignItems: 'center',
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 14,
-        textAlign: 'center',
-        marginTop: 2,
     },
     medicationsContainer: {
         flex: 1,

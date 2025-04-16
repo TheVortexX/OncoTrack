@@ -9,6 +9,7 @@ import { useAuth } from '@/context/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 import moment from 'moment';
+import Header from '@/components/header';
 
 const MedicationSettingsScreen = () => {
     const { user } = useAuth();
@@ -108,30 +109,12 @@ const MedicationSettingsScreen = () => {
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={styles.container}>
-                {/* Header section */}
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
-                        </TouchableOpacity>
-                        <View style={styles.headerTextContainer}>
-                            <Text style={styles.headerText}>Medication Times</Text>
-                            <Text style={styles.subHeaderText}>Set your preferred medication reminder times</Text>
-                        </View>
-                        <View style={styles.backButtonPlaceholder} />
-                    </View>
-                </View>
+                <Header 
+                    title="Medication Times"
+                    subtitle='Set your preferred medication reminder times'
+                    leftButtonType='back'
+                />
 
                 <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
                     {isLoading ? (
@@ -296,41 +279,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colours.blue99,
         marginBottom: 70,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 16 : 0,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    backButton: {
-        padding: 8,
-    },
-    backButtonPlaceholder: {
-        width: 40,
-    },
-    headerTextContainer: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     scrollContent: {
         flex: 1,

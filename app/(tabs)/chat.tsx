@@ -14,6 +14,7 @@ import AppointmentForm from '@/components/appointmentFormModal';
 import { saveUserAppointment } from '@/services/profileService';
 import { useFocusEffect } from 'expo-router';
 import { momentToTimestamp } from '@/utils/dateUtils';
+import Header from '@/components/header';
 
 // TypeScript interfaces
 interface Message {
@@ -326,7 +327,7 @@ const ChatScreen = () => {
                 provider: appointmentData.provider,
                 startTime: startTime,
                 endTime: endTime,
-                appointmentType: "Appointment", // Default type TODO CHANGE SCHEMA
+                appointmentType: appointmentData.appointmentType,
                 staff: appointmentData.staff || "",
                 travelTime: moment.duration({ minutes: 0 }),
                 notes: appointmentData.notes || ""
@@ -443,33 +444,14 @@ const ChatScreen = () => {
 
     return (
         <>
-            <View style={{
-                backgroundColor: theme.colours.blue20,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.blue20}
-                    barStyle="light-content"
-                />
-            </View>
-
             <View style={[styles.container, { marginBottom: bottomMargin }]}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Treatment Assistant</Text>
-                    <Text style={styles.subHeaderText}>Chat with your AI assistant</Text>
-                    <TouchableOpacity
-                        style={{
-                            position: 'absolute',
-                            right: 16,
-                            top: Platform.OS === 'android' ? 50 : 16,
-                            padding: 8,
-                        }}
-                        onPress={createNewChat}
-                    >
-                        <Entypo name="new-message" size={30} color="white" />
-                    </TouchableOpacity>
-                </View>
-
+                <Header 
+                    title='Treatment Assistant'
+                    subtitle='Chat with your AI assistant'
+                    rightButtonIcon = {<Entypo name="new-message" size={30} color="white" />}
+                    onRightButtonPress={createNewChat}
+                    rightButtonText='New'
+                />
                 <FlatList
                     ref={flatListRef}
                     data={messages}
@@ -584,26 +566,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colours.blue99,
         marginBottom: 70,
-    },
-    header: {
-        backgroundColor: theme.colours.blue20,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     messageList: {
         padding: 16,

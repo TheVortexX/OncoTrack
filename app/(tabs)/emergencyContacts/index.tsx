@@ -5,6 +5,7 @@ import { useAuth } from '@/context/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEmergencyContacts } from '@/context/emergencyContacts';
+import Header from '@/components/header';
 
 type EmergencyContact = {
     id: string;
@@ -86,44 +87,34 @@ export default function EmergencyContactsScreen() {
     );
 
     return (
-        <>
-            <View style={{
-                backgroundColor: theme.colours.primary,
-                height: Platform.OS === 'ios' ? 50 : 0
-            }}>
-                <StatusBar
-                    backgroundColor={theme.colours.primary}
-                    barStyle="light-content"
-                />
-            </View>
+        <View style={styles.container}>
+            <Header 
+                title='Emergency Contacts'
+                subtitle='Tap a contact to call'
+                leftButtonType='close'
+                colour={theme.colours.primary}
+            />
 
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Emergency Contacts</Text>
-                    <Text style={styles.subHeaderText}>Tap a contact to call</Text>
-                </View>
+            <FlatList
+                data={contacts}
+                renderItem={renderContactItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
+            />
 
-                <FlatList
-                    data={contacts}
-                    renderItem={renderContactItem}
-                    keyExtractor={item => item.id}
-                    contentContainerStyle={styles.listContainer}
-                />
-
-                {user && (
-                    <TouchableOpacity
-                        style={[
-                            styles.addButton,
-                            Platform.OS === 'ios' ? { marginBottom: 30 } : { marginBottom: 20 }
-                        ]}
-                        onPress={() => { router.push('/emergencyContacts/new') }}
-                    >
-                        <Ionicons name="add-circle" size={24} color="white" />
-                        <Text style={styles.addButtonText}>Add Contact</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-        </>
+            {user && (
+                <TouchableOpacity
+                    style={[
+                        styles.addButton,
+                        Platform.OS === 'ios' ? { marginBottom: 30 } : { marginBottom: 20 }
+                    ]}
+                    onPress={() => { router.push('/emergencyContacts/new') }}
+                >
+                    <Ionicons name="add-circle" size={24} color="white" />
+                    <Text style={styles.addButtonText}>Add Contact</Text>
+                </TouchableOpacity>
+            )}
+        </View>
     );
 }
 
@@ -133,26 +124,6 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.blue99,
         marginBottom: 70,
         paddingBottom: 20,
-    },
-    header: {
-        backgroundColor: theme.colours.primary,
-        padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: 'white',
-        textAlign: 'center',
-    },
-    subHeaderText: {
-        fontSize: 14,
-        fontFamily: theme.fonts.ubuntu.regular,
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 4,
     },
     listContainer: {
         padding: 16,
