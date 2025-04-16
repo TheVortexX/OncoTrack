@@ -100,7 +100,7 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        router.navigate('/account');
+                        router.navigate('/accountSettings')
                     }}
                 >
                     <Ionicons
