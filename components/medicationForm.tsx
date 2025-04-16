@@ -68,6 +68,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
     const [showEndDate, setShowEndDate] = useState(false);
     const [showFrequencyPicker, setShowFrequencyPicker] = useState(false);
 
+    // TODO prompt when one,two,three times a day is selected the correct amount of reminder times is selected also
     const frequencyOptions = ['Daily', 'Twice Daily', 'Three Times Daily', 'Every Other Day', 'Every Three Days', 'Weekly', 'Monthly', 'As Needed', 'Other'];
     const timeOfDayOptions = ['morning', 'afternoon', 'evening'];
     const unitsOptions = ['mg', 'ml', 'tablet', 'capsule', 'drop', 'tsp', 'tbsp', 'patch', 'puff', 'injection'];
@@ -435,15 +436,14 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                         <Text style={[styles.sectionTitle, readonly && styles.readonlyText]}>
                             Time of Day
                         </Text>
-                        {/* TODO When readonly have the selected colours be easier to read, check if once twice or three times a day has been selected, to check how many times have been picked */}
                         <View style={styles.timeOfDayContainer}>
                             {timeOfDayOptions.map((time) => (
                                 <TouchableOpacity
                                     key={time}
                                     style={[
                                         styles.timeOfDayItem,
-                                        timeOfDay.includes(time) && styles.timeOfDayItemSelected,
-                                        readonly && styles.readonlyField
+                                        timeOfDay.includes(time) && (readonly ? styles.timeOfDayItemReadonlySelected : styles.timeOfDayItemSelected),
+                                        readonly && !timeOfDay.includes(time) && styles.readonlyField
                                     ]}
                                     onPress={() => handleTimeOfDayToggle(time)}
                                     disabled={readonly}
@@ -467,7 +467,9 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                                         style={[
                                             styles.timeOfDayText,
                                             timeOfDay.includes(time) && styles.timeOfDayTextSelected,
-                                            readonly && styles.readonlyText
+                                            readonly && [styles.readonlyText],
+                                            timeOfDay.includes(time) && readonly && { color: theme.colours.white },
+
                                         ]}
                                     >
                                         {time.charAt(0).toUpperCase() + time.slice(1)}
@@ -794,6 +796,9 @@ const styles = StyleSheet.create({
     },
     timeOfDayItemSelected: {
         backgroundColor: theme.colours.primary,
+    },
+    timeOfDayItemReadonlySelected: {
+        backgroundColor: theme.colours.darkBlueGray,
     },
     timeOfDayText: {
         marginTop: 5,

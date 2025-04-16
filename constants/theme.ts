@@ -10,6 +10,7 @@ export const theme = {
         paleBlue: "a0c4ff",
         primary: "#EE6C4D",
         blueGray: "#c7e7e8",
+        darkBlueGray: "#5b697a",
         primaryLight75: "#F1876C",
         primaryLight50: "#F5A18D",
         primaryLight25: "#FACCC1",
