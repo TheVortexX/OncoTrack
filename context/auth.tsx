@@ -95,6 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             setStoredValue('auth_hasLoggedInBefore', true);
             SecureStore.setItemAsync('auth_email', email);
+            if (await SecureStore.getItemAsync('auth_useBiometrics')) {
+                SecureStore.setItemAsync('auth_password', password);
+            }
 
             setUserState(user);
             return true;
