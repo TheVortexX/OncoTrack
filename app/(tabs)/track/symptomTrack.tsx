@@ -10,8 +10,6 @@ import { deleteUserSymptomLog, saveUserSymptomLog, updateUserSymptomLog, getUser
 import { useAuth } from '@/context/auth';
 import Header from '@/components/header';
 
-// TODO, selected date highlighting is not clear
-
 // Reusable component for symptom category title
 const CategoryTitle = ({ title, learnMore = false }: { title: string, learnMore?: boolean }) => (
     <View style={styles.categoryTitleContainer}>
@@ -341,8 +339,8 @@ const SymptomTrackingScreen = () => {
                     showMonth={true}
 
                     datesBlacklist={date => { return date.isAfter(now.current, 'day') }}
+                    highlightDateContainerStyle={{ borderColor: theme.colours.border, borderWidth: 2}}
                     customDatesStyles={customDatesStylesFunc}
-
                 />
 
                 <ScrollView style={styles.scrollView}>

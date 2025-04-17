@@ -377,7 +377,6 @@ const ScheduleScreen = () => {
         );
     }, [appointmentsMap]);
 
-    // TODO allow appointments that span over multiple days
     const dayAppointments = useCallback((date: moment.Moment) => {
         const allAppointments = getAllAppointments();
         if (allAppointments.length === 0) return [];

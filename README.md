@@ -92,7 +92,7 @@ This project uses [Expo Router](https://expo.github.io/router/docs) for file-bas
 
 ### Theming
 
-The app uses a centralized theme defined in theme.ts. You can customize colors, fonts, and other styles globally.
+The app uses a centralized theme defined in theme.ts. You can customise colors, fonts, and other styles globally.
 
 ### Emergency Features
 
