@@ -20,7 +20,7 @@ const validate = {
     },
     phone: (value: string) => {
         if (!value.trim()) return 'Phone number is required';
-        // PHONE VALIDATION TODO
+        // todo, validation isn't perfect and could be improved
         if (!/^(?:\+\d{1,3})?\s*\d{4,5}\s*\d{3,6}\s*\d{0,4}$/.test(value))
             return 'Please enter a valid phone number';
         return '';

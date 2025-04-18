@@ -8,9 +8,8 @@ import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppointmentForm from '@/components/appointmentFormModal';
 import { useFocusEffect } from 'expo-router';
-import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
-
-// TODO add medications to the schedule
+import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+import { getUserMedications, getUserMedicationTimes, getDayMedications } from '@/services/medicationService';
 
 interface Appointment {
     id: string;
@@ -32,30 +31,39 @@ interface AppointmentsMap {
 
 const TodaySchedule = () => {
     const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
-    const [visibleAppointmentIds, setVisibleAppointmentIds] = useState<string[]>([]);
-
-    const appointmentsMapRef = useRef<AppointmentsMap>({});
+    const [idsToDisplay, setIdsToDisplay] = useState<string[]>([]);
+    const [fetchedAppointments, setFetchedAppointments] = useState<Appointment[]>([]);
+    const [medications, setMedications] = useState<Appointment[]>([]);
     const { user } = useAuth();
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const firstSyncRef = useRef<NodeJS.Timeout | null>(null);
 
-    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+    const fetchedAppointmentsRef = useRef<Appointment[]>([]);
+    const medicationsRef = useRef<Appointment[]>([]);
 
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
     const [modalTitle, setModalTitle] = useState('New');
     const [readonly, setReadonly] = useState(false);
     const [rightButtonText, setRightButtonText] = useState('Add');
     const [rightButtonAction, setRightButtonAction] = useState(() => (appointment: any) => { });
     const [existingAppointment, setExistingAppointment] = useState<Appointment | null>(null);
 
+    useEffect(() => {
+        fetchedAppointmentsRef.current = fetchedAppointments;
+    }, [fetchedAppointments]);
+
+    useEffect(() => {
+        medicationsRef.current = medications;
+    }, [medications]);
+
     useFocusEffect(
         useCallback(() => {
+            // Fetch appointments
             getUserAppointments(user?.uid).then((appointmentDocs) => {
-                const newAppointmentsMap: AppointmentsMap = {};
-
-                appointmentDocs.forEach((doc) => {
+                const newAppointments: Appointment[] = appointmentDocs.map((doc) => {
                     const data = doc.data();
                     const appointment = {
-                        ...data, // Include any additional fields
+                        ...data,
                         id: doc.id,
                         description: data.description || '',
                         startTime: timestampToMoment(data.startTime),
@@ -66,12 +74,17 @@ const TodaySchedule = () => {
                         provider: data.provider || '',
                         staff: data.staff || '',
                     };
-                    if (appointment.appointmentType === 'Medication Log') return;
-                    newAppointmentsMap[doc.id] = appointment;
+                    return appointment;
+                }).filter((appointment) => {
+                    return appointment.appointmentType !== 'Medication Log';
                 });
+                if (newAppointments.length !== 0) {
+                    setFetchedAppointments(newAppointments);
+                }
+            });
 
-                setAppointmentsMap(newAppointmentsMap);
-                appointmentsMapRef.current = newAppointmentsMap;
+            // After appointments are loaded, fetch medications and then filter everything
+            fetchTodayMedications().then(() => {
                 filterFutureOnly();
                 setMinuteSync();
             });
@@ -84,8 +97,8 @@ const TodaySchedule = () => {
     );
 
     useEffect(() => {
-        appointmentsMapRef.current = appointmentsMap;
-    }, [appointmentsMap]);
+        filterFutureOnly();
+    }, [fetchedAppointments, medications]);
 
     const setMinuteSync = () => {
         const now = moment()
@@ -104,33 +117,98 @@ const TodaySchedule = () => {
         }, timeout);
     }
 
+    const fetchTodayMedications = async () => {
+        if (!user) return;
+
+        try {
+            // Get medication times
+            const medicationTimes = await getUserMedicationTimes(user.uid);
+            if (!medicationTimes) return;
+
+            const [morningTime, afternoonTime, eveningTime] = medicationTimes;
+
+            // Get medications due for today
+            const todayMeds = await getDayMedications(user.uid);
+            const newMedications: Appointment[] = [];
+            todayMeds.forEach((med: any) => {
+                if (med.timeOfDay && Array.isArray(med.timeOfDay)) {
+                    med.timeOfDay.forEach((time: string) => {
+                        let startTime = time === 'morning' ? morningTime :
+                            time === 'afternoon' ? afternoonTime : eveningTime;
+
+                        newMedications.push({
+                            ...med,
+                            id: med.id + "-" + time,
+                            description: `Need to take ${med.dosage} ${med.units}`,
+                            provider: med.name,
+                            startTime: moment().set({
+                                hour: parseInt(startTime.split(':')[0]),
+                                minute: parseInt(startTime.split(':')[1]),
+                            }),
+                            endTime: moment().set({
+                                hour: parseInt(startTime.split(':')[0]),
+                                minute: parseInt(startTime.split(':')[1]),
+                            }),
+                            appointmentType: 'Medication',
+                            staff: 'Medication due',
+                            travelTime: moment.duration(0),
+                            colour: getAppointmentColour('Medication'),
+                        });
+                    });
+                }
+            });
+            if (newMedications.length !== 0) {
+                setMedications(newMedications);
+            }
+        } catch (error) {
+            console.error('Error fetching today\'s medications:', error);
+        }
+    };
+
     const filterFutureOnly = () => {
         const now = moment().startOf('minute');
-        const currentMap = appointmentsMapRef.current;
         const updatedMap: AppointmentsMap = {};
-        const visibleIds: string[] = [];
+        const newIdsToDisplay: string[] = [];
 
-        // Filter appointments that are in the future and on the same day
-        Object.keys(currentMap).forEach(id => {
-            const appointment = currentMap[id];
+        const currentAppointments = fetchedAppointmentsRef.current;
+        const currentMedications = medicationsRef.current;
+
+        console.log('Fetched Appointments:', currentAppointments);
+        console.log('Fetched Medications:', currentMedications);
+
+        // Filter appointments that are upcoming and on the same day
+        currentAppointments.forEach(appointment => {
             if (appointment.startTime.isAfter(now) && appointment.startTime.isSame(now, 'day')) {
                 const timeUntil = calculateTimeUntil(appointment.startTime, now);
-                updatedMap[id] = {
+                updatedMap[appointment.id] = {
                     ...appointment,
                     timeUntil,
                 };
-                visibleIds.push(id);
+                newIdsToDisplay.push(appointment.id);
             }
         });
 
-        visibleIds.sort((a, b) => {
-            return updatedMap[a].startTime.diff(updatedMap[b].startTime);
+        // Add medications that are due today
+        currentMedications.forEach(medication => {
+            if (medication.startTime.isAfter(now) && medication.startTime.isSame(now, 'day')) {
+                const timeUntil = calculateTimeUntil(medication.startTime, now);
+                updatedMap[medication.id] = {
+                    ...medication,
+                    timeUntil,
+                };
+                newIdsToDisplay.push(medication.id);
+            }
+        });
+
+        newIdsToDisplay.sort((a, b) => {
+            const appointmentA = updatedMap[a].startTime;
+            const appointmentB = updatedMap[b].startTime;
+            return appointmentA.isBefore(appointmentB) ? -1 : 1;
         });
 
         setAppointmentsMap(updatedMap);
-        setVisibleAppointmentIds(visibleIds);
+        setIdsToDisplay(newIdsToDisplay);
     }
-
     const calculateTimeUntil = (startTime: moment.Moment, now: moment.Moment) => {
         if (startTime.isSame(now, 'minute')) {
             return '(Now)';
@@ -238,9 +316,11 @@ const TodaySchedule = () => {
                     return newMap;
                 });
 
-                setVisibleAppointmentIds(prevIds =>
-                    prevIds.filter(id => id !== appointmentId)
-                );
+                setAppointmentsMap(prevMap => {
+                    const newMap = { ...prevMap };
+                    delete newMap[appointmentId];
+                    return newMap;
+                })
 
                 setShowAppointmentModal(false);
             }
@@ -250,6 +330,40 @@ const TodaySchedule = () => {
     const renderAppointment = (appointmentId: string) => {
         const appointment = appointmentsMap[appointmentId];
         if (!appointment) return null;
+
+        if (appointment.appointmentType === 'Medication') {
+            const initials = appointment.provider
+                .split(' ')
+                .map(name => name && name[0])
+                .join('')
+                .slice(0, 4);
+            const size = initials.length > 3 ? 14 : 18;
+
+            return (
+                <TouchableOpacity
+                    key={appointment.id}
+                    onPress={() => showViewAppointmentModal(appointment.id)}
+                >
+                    <View style={styles.appointmentCard}>
+                        <View style={styles.appointmentIconTime}>
+                            <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 30, height: 30, borderRadius: 15 }]}>
+                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                            </View>
+                            <View style={styles.appointmentTime}>
+                                <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
+                                <Text style={styles.timeText}>{appointment.timeUntil}</Text>
+                            </View>
+                        </View>
+                        <View style={styles.appointmentDetails}>
+                            <Text style={styles.appointmentType}>
+                                {appointment.appointmentType}
+                            </Text>
+                            <Text style={styles.staffInfo}>{appointment.provider}: {appointment.description}</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
 
         return (
             <TouchableOpacity
@@ -275,10 +389,10 @@ const TodaySchedule = () => {
         );
     };
 
-    if (visibleAppointmentIds.length === 0) {
+    if (idsToDisplay.length === 0) {
         return (
             <View style={styles.container}>
-                <Text style={styles.title}>Todays schedule</Text>
+                <Text style={styles.title}>Today's schedule</Text>
                 <View style={styles.noAppointments}>
                     <MaterialCommunityIcons name="clock-check-outline" size={60} color={theme.colours.textSecondary} />
                     <Text style={styles.noAppointmentsText}>That's all for today.</Text>
@@ -306,9 +420,9 @@ const TodaySchedule = () => {
                     readonly={readonly}
                 />
                 <View style={styles.container}>
-                    <Text style={styles.title}>Todays schedule</Text>
+                    <Text style={styles.title}>Today's schedule</Text>
 
-                    {visibleAppointmentIds.slice(0, 4).map(id => (
+                    {idsToDisplay.slice(0, 4).map(id => (
                         renderAppointment(id)
                     ))}
                 </View>
@@ -318,7 +432,6 @@ const TodaySchedule = () => {
 };
 
 const styles = StyleSheet.create({
-    // Styles remain unchanged
     container: {
         marginTop: 20,
         paddingHorizontal: 16,
