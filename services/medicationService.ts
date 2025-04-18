@@ -21,10 +21,10 @@ export const getDayMedications = async (userId: string, day?: moment.Moment) => 
         day = moment().startOf('day');
     }
     const medications = await getUserMedications(userId);
-
+    
     const dayMedications = medications.filter((medication) => {
         const startDate = timestampToMoment(medication.data().startDate)
-        const endDate = timestampToMoment(medication.data().endDate)
+        const endDate = medication.data().endDate ? timestampToMoment(medication.data().endDate) : moment().add(1, 'year')
         const frequency = medication.data().frequency
         
         return medicationDueOnDate(startDate, endDate, frequency)
