@@ -25,7 +25,10 @@ export const medicationDueOnDate = (startDate: moment.Moment, endDate: moment.Mo
         return false
     }
     if (frequency === "Monthly") {
-        if (date.date() === startDate.date()) {
+        // If the medication date is on a date more than the days in this month, it happens on the last day of the month
+        if (date.daysInMonth() < startDate.date() && date.date() === date.daysInMonth()) { 
+            return true
+        } else if (date.date() === startDate.date()) {
             return true
         } 
     } else if (repetitionDayMap.hasOwnProperty(frequency)) {
