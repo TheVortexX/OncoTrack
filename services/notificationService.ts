@@ -4,9 +4,207 @@ import { firestore } from '@/services/firebaseConfig';
 import { Platform } from 'react-native';
 import moment from 'moment';
 import { theme } from '@/constants/theme';
+import { medicationDueOnDate } from '@/utils/dateUtils';
 
 const db = firestore;
 
+// MEDICATIONS NOTIFICATIONS
+interface Medication {
+    id: string;
+    name: string;
+    dosage: string;
+    units: string;
+    frequency: string;
+    startDate: moment.Moment;
+    endDate?: moment.Moment;
+    timeOfDay: string[];
+    instructions: string;
+    sideEffects?: string[];
+    colour?: string;
+    notificationIds?: Record<string, string>; // Map of timeOfDay to notification ID
+    [key: string]: any;
+}
+
+interface MedicationsMap {
+    [id: string]: Medication;
+}
+
+// Schedule notification for a single medication
+export async function scheduleMedicationNotification(
+    medication: Medication,
+    timeOfDay: string,
+    userId?: string,
+    medicationTimes?: string[]
+): Promise<[string, number] | null> {
+    if (!medicationTimes || medicationTimes.length < 3) {
+        medicationTimes = ['08:00', '12:00', '18:00'];
+    }
+
+    const timeMap: Record<string, string> = {
+        'morning': medicationTimes[0],
+        'afternoon': medicationTimes[1],
+        'evening': medicationTimes[2]
+    };
+
+    const selectedTime = timeMap[timeOfDay];
+    if (!selectedTime) return null;
+
+    const [hour, minute] = selectedTime.split(':').map(Number);
+
+    let notificationTime = moment().set({ hour, minute, second: 0, millisecond: 0 });
+
+    // If time today has already passed, schedule for tomorrow
+    if (notificationTime.isBefore(moment())) {
+        notificationTime.add(1, 'day');
+    }
+
+    const startDate = medication.startDate;
+    let endDate = medication.endDate || moment().add(1, 'year');
+    const frequency = medication.frequency;
+
+    // Increment the notification time until it falls within the medication schedule
+    while (!medicationDueOnDate(startDate, endDate, frequency, notificationTime) && notificationTime.isBefore(endDate)) {
+        notificationTime.add(1, 'day');
+    }
+
+    // Cancel existing notification if there is one
+    if (medication.notificationIds && medication.notificationIds[timeOfDay]) {
+        await Notifications.cancelScheduledNotificationAsync(
+            medication.notificationIds[timeOfDay]
+        );
+    }
+
+    // Get notification settings from user preferences
+    let notificationsEnabled = true;
+
+    if (userId) {
+        try {
+            const userSettingsRef = doc(db, 'users', userId, 'settings', 'notifications');
+            const docSnap = await getDoc(userSettingsRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                notificationsEnabled = data.enabled !== undefined ? data.enabled : true;
+            }
+        } catch (error) {
+            console.error('Error getting notification settings:', error);
+        }
+    }
+
+    if (!notificationsEnabled) {
+        console.log('Notifications are disabled for this user');
+        return null;
+    }
+
+    // Schedule the notification
+    try {
+        const notificationId = await Notifications.scheduleNotificationAsync({
+            content: {
+                title: `Medication: ${medication.name}`,
+                body: `Time to take ${medication.dosage} ${medication.units}`,
+                data: {
+                    medicationId: medication.id,
+                    timeOfDay: timeOfDay
+                },
+                sound: 'notification.wav',
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: notificationTime.toDate(),
+            },
+        });
+        return [notificationId, 0];
+    } catch (error) {
+        console.error('Error scheduling medication notification:', error);
+        return null;
+    }
+}
+
+// Schedule notifications for all medications
+export async function scheduleAllMedicationNotifications(
+    medications: MedicationsMap,
+    userId?: string,
+    medicationTimes?: string[]
+): Promise<MedicationsMap> {
+    const updatedMedications: MedicationsMap = {};
+
+    for (const id in medications) {
+        const medication = medications[id];
+        updatedMedications[id] = { ...medication };
+
+        if (!updatedMedications[id].notificationIds) {
+            updatedMedications[id].notificationIds = {};
+        }
+
+        // For each time of day the medication should be taken
+        for (const timeOfDay of medication.timeOfDay) {
+            const result = await scheduleMedicationNotification(
+                medication,
+                timeOfDay,
+                userId,
+                medicationTimes
+            );
+
+            if (result) {
+                const [notificationId, _] = result;
+                updatedMedications[id].notificationIds[timeOfDay] = notificationId;
+            }
+        }
+    }
+
+    return updatedMedications;
+}
+
+// Cancel all notifications for a medication
+export async function cancelMedicationNotifications(medication: Medication): Promise<boolean> {
+    if (!medication.notificationIds) {
+        return true;
+    }
+
+    let success = true;
+    for (const timeOfDay in medication.notificationIds) {
+        try {
+            await Notifications.cancelScheduledNotificationAsync(
+                medication.notificationIds[timeOfDay]
+            );
+        } catch (error) {
+            console.error('Error canceling notification:', error);
+            success = false;
+        }
+    }
+
+    return success;
+}
+
+export async function scheduleMedicationNotifications(
+    medication: Medication,
+    userId?: string,
+    medicationTimes?: string[]
+): Promise<Medication> {
+    const updatedMedication = { ...medication };
+    if (!updatedMedication.notificationIds) {
+        updatedMedication.notificationIds = {};
+    }
+
+    // For each time of day the medication should be taken
+    for (const timeOfDay of medication.timeOfDay) {
+        const result = await scheduleMedicationNotification(
+            medication,
+            timeOfDay,
+            userId,
+            medicationTimes
+        );
+
+        if (result) {
+            const [notificationId, _] = result;
+            updatedMedication.notificationIds[timeOfDay] = notificationId;
+        }
+    }
+
+    return updatedMedication;
+}
+
+//  APPOINTMENTS NOTIFICATIONS
 interface Appointment {
     id: string;
     description: string;

@@ -11,8 +11,11 @@ import MedicationLogForm from '@/components/medicationLogForm';
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 import { getTodaysAppointments } from '@/services/profileService';
 import Header from '@/components/header';
-
-// TODO: add notifications
+import {
+    scheduleAllMedicationNotifications,
+    scheduleMedicationNotifications,
+    cancelMedicationNotifications
+} from '@/services/notificationService';
 
 interface Medication {
     id: string;
@@ -26,6 +29,7 @@ interface Medication {
     instructions: string;
     sideEffects?: string[];
     colour?: string;
+    notificationIds?: Record<string, string>;
     [key: string]: any;
 }
 
@@ -95,6 +99,40 @@ const MedicationScreen = () => {
                 });
 
                 setMedications(newMedicationsMap);
+
+                // Schedule notifications for all medications
+                scheduleAllMedicationNotifications(
+                    newMedicationsMap,
+                    user.uid,
+                    [morningTime, afternoonTime, eveningTime]
+                ).then(updatedMedications => {
+                    setMedications(updatedMedications);
+
+                    for (const id in updatedMedications) {
+                        const medication = updatedMedications[id];
+                        if (medication.notificationIds &&
+                            Object.keys(medication.notificationIds).length > 0) {
+
+                            // Check if notification IDs have changed
+                            let hasChanged = false;
+                            if (!newMedicationsMap[id].notificationIds) {
+                                hasChanged = true;
+                            } else {
+                                for (const timeOfDay in medication.notificationIds) {
+                                    if (!newMedicationsMap[id].notificationIds[timeOfDay] || newMedicationsMap[id].notificationIds[timeOfDay] !== medication.notificationIds[timeOfDay]) {
+                                        hasChanged = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (hasChanged) {
+                                updateMedication(user.uid, id, {
+                                    notificationIds: medication.notificationIds
+                                });
+                            }
+                        }
+                    }
+                });
             });
 
             getUserMedicationTimes(user.uid).then((times) => {
@@ -226,25 +264,53 @@ const MedicationScreen = () => {
             ...medication,
             startDate: momentToTimestamp(medication.startDate),
             endDate: medication.endDate ? momentToTimestamp(medication.endDate) : null,
-            colour: getMedicationColour(medication.name)
+            colour: getMedicationColour(medication.name),
+            notificationIds: {} // Initialize empty notificationIds
         };
 
         saveMedication(user.uid, medicationToSave).then((id) => {
             if (id) {
                 medication.id = id;
-                setMedications(prevMap => ({
-                    ...prevMap,
-                    [id]: {
-                        ...medication,
-                        colour: getMedicationColour(medication.name)
+
+                // Schedule notifications for the new medication
+                scheduleMedicationNotifications(
+                    medication,
+                    user.uid,
+                    [morningTime, afternoonTime, eveningTime]
+                ).then(updatedMedication => {
+                    if (updatedMedication.notificationIds &&
+                        Object.keys(updatedMedication.notificationIds).length > 0) {
+
+                        updateMedication(user.uid, id, {
+                            notificationIds: updatedMedication.notificationIds
+                        });
                     }
-                }));
+
+                    setMedications(prevMap => ({
+                        ...prevMap,
+                        [id]: {
+                            ...updatedMedication,
+                            colour: getMedicationColour(updatedMedication.name)
+                        }
+                    }));
+
+                    Alert.alert(
+                        "Medication Added",
+                        "Notifications have been scheduled for this medication.",
+                        [{ text: "OK" }]
+                    );
+                });
             }
         });
     };
 
     const editMedication = (medication: Medication) => {
         if (!user || !medication.id) return;
+
+        // Cancel existing notifications
+        if (medication.notificationIds) {
+            cancelMedicationNotifications(medication);
+        }
 
         const medicationToSave = {
             ...medication,
@@ -255,13 +321,34 @@ const MedicationScreen = () => {
 
         updateMedication(user.uid, medication.id, medicationToSave).then((res) => {
             if (res) {
-                setMedications(prevMap => ({
-                    ...prevMap,
-                    [medication.id]: {
-                        ...medication,
-                        colour: getMedicationColour(medication.name)
+                // Schedule new notifications
+                scheduleMedicationNotifications(
+                    medication,
+                    user.uid,
+                    [morningTime, afternoonTime, eveningTime]
+                ).then(updatedMedication => {
+                    if (updatedMedication.notificationIds &&
+                        Object.keys(updatedMedication.notificationIds).length > 0) {
+
+                        updateMedication(user.uid, medication.id, {
+                            notificationIds: updatedMedication.notificationIds
+                        });
                     }
-                }));
+
+                    setMedications(prevMap => ({
+                        ...prevMap,
+                        [medication.id]: {
+                            ...updatedMedication,
+                            colour: getMedicationColour(updatedMedication.name)
+                        }
+                    }));
+
+                    Alert.alert(
+                        "Medication Updated",
+                        "Notifications have been updated for this medication.",
+                        [{ text: "OK" }]
+                    );
+                });
             }
         });
     };
@@ -278,6 +365,12 @@ const MedicationScreen = () => {
                     text: "Delete",
                     style: "destructive",
                     onPress: () => {
+                        // Cancel notifications for this medication
+                        const medication = medications[medicationId];
+                        if (medication && medication.notificationIds) {
+                            cancelMedicationNotifications(medication);
+                        }
+
                         deleteMedication(user.uid, medicationId).then((res) => {
                             if (res) {
                                 setMedications(prevMap => {
@@ -292,7 +385,6 @@ const MedicationScreen = () => {
             ]
         );
     };
-
     const getMedicationColour = (name: string) => {
         // Generate a consistent color based on the medication name
         const colors = [
@@ -419,6 +511,8 @@ const MedicationScreen = () => {
     const renderMedicationCard = (medication: Medication) => {
         const firstLetter = medication.name.charAt(0).toUpperCase();
         const dosageString = `${medication.dosage} ${medication.units}${parseInt(medication.dosage) > 1 ? 's' : ''}`;
+        const hasNotifications = medication.notificationIds &&
+            Object.keys(medication.notificationIds).length > 0;
 
         return (
             <TouchableOpacity
@@ -436,6 +530,13 @@ const MedicationScreen = () => {
                     <Text style={styles.medicationName}>{medication.name}</Text>
                     <Text style={styles.medicationDosage}>{dosageString}</Text>
                     <Text style={styles.medicationFrequency}>{medication.frequency}</Text>
+
+                    {hasNotifications && (
+                        <View style={styles.notificationIndicator}>
+                            <Ionicons name="notifications" size={16} color={theme.colours.primary} />
+                            <Text style={styles.notificationText}>Reminders set</Text>
+                        </View>
+                    )}
                 </View>
 
                 <TouchableOpacity
@@ -809,6 +910,17 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    notificationIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    notificationText: {
+        fontFamily: theme.fonts.ubuntu.regular,
+        fontSize: 12,
+        color: theme.colours.primary,
+        marginLeft: 4,
     },
 });
 
