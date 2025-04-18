@@ -173,9 +173,6 @@ const TodaySchedule = () => {
         const currentAppointments = fetchedAppointmentsRef.current;
         const currentMedications = medicationsRef.current;
 
-        console.log('Fetched Appointments:', currentAppointments);
-        console.log('Fetched Medications:', currentMedications);
-
         // Filter appointments that are upcoming and on the same day
         currentAppointments.forEach(appointment => {
             if (appointment.startTime.isAfter(now) && appointment.startTime.isSame(now, 'day')) {
