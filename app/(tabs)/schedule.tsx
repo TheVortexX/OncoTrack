@@ -53,18 +53,6 @@ const ScheduleScreen = () => {
     const { user } = useAuth();
 
     useEffect(() => {
-        if (params.appointmentId) {
-            const appointmentId = params.appointmentId as string;
-            while (!appointmentsFetched) {
-                // Wait for appointments to be fetched
-                setTimeout(() => { }, 100);
-            }
-            
-            const appointment = appointmentsMap[appointmentId];
-            if (appointment) {
-                showViewAppointmentModal(appointment);
-            }
-        }
         if (params.openNewAppointment === 'true') {
             setTimeout(() => {
                 showNewAppointmentModal();

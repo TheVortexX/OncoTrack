@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome6, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -49,6 +49,7 @@ interface MedicationsMap {
 }
 
 const MedicationScreen = () => {
+    const params = useLocalSearchParams();    
     const [medications, setMedications] = useState<MedicationsMap>({});
     const [showMedicationModal, setShowMedicationModal] = useState(false);
     const [showLoggingMedicationModal, setShowLogMedicationModal] = useState(false);
@@ -61,6 +62,7 @@ const MedicationScreen = () => {
     const [existingMedication, setExistingMedication] = useState<Medication | null>(null);
     const [userMedicationTimes, setUserMedicationTimes] = useState<string[]>([]);
     const [medicationLogsMap, setMedicationLogsMap] = useState<MedicationLogMap>({});
+    const [medicationsFetched, setMedicationsFetched] = useState(false);
     const [timeOfDay, setTimeOfDay] = useState('morning');
 
     // Add state for medication times
@@ -69,6 +71,18 @@ const MedicationScreen = () => {
     const [eveningTime, setEveningTime] = useState('18:00');
 
     const { user } = useAuth();
+
+    useEffect(() => {
+        if (params.medicationId && medicationsFetched) {
+            const medId = params.medicationId as string;
+            const med = medications[medId];
+            if (med) {
+                setTimeout(() => {
+                    showViewMedicationModal(med);
+                }, 500);
+            }
+        }
+    }, [params.medicationId, medicationsFetched, medications]);
 
     // load medications from Firebase
     useFocusEffect(
@@ -99,6 +113,7 @@ const MedicationScreen = () => {
                 });
 
                 setMedications(newMedicationsMap);
+                setMedicationsFetched(true);
 
                 // Schedule notifications for all medications
                 scheduleAllMedicationNotifications(
