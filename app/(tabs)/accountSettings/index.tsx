@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform, StatusBar, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { theme } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -201,6 +201,14 @@ const AccountScreen = () => {
                                 <View style={styles.menuItemContent}>
                                     <Ionicons name="notifications-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
                                     <Text style={styles.menuItemText}>Notification</Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => router.push('/accountSettings/quickTrack')} style={styles.menuItem}>
+                                <View style={styles.menuItemContent}>
+                                    <MaterialIcons name="bolt" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
+                                    <Text style={styles.menuItemText}>Quick Track</Text>
                                 </View>
                                 <Ionicons name="chevron-forward" size={20} color={theme.colours.blue20} />
                             </TouchableOpacity>

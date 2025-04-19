@@ -4,7 +4,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import { updateSetting } from '@/services/profileService';
+import { createUserNotificationSettings, updateSetting } from '@/services/profileService';
 import { useAuth } from '@/context/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
@@ -15,7 +15,7 @@ interface NotificationSettings {
     enabled: boolean;
 }
 
-const NotificationSettingsScreen: React.FC = () => {
+const NotificationSettingsScreen = () => {
     const { user } = useAuth();
     const router = useRouter();
 
@@ -45,24 +45,6 @@ const NotificationSettingsScreen: React.FC = () => {
             Alert.alert('Error', 'Failed to load notification settings');
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    // Create default notification settings
-    const createUserNotificationSettings = async (userId: string): Promise<void> => {
-        try {
-            const defaultSettings: NotificationSettings = {
-                reminderTime: 30,
-                enabled: true,
-            };
-
-            await updateSetting(userId, 'notifications', 'reminderTime', defaultSettings.reminderTime);
-            await updateSetting(userId, 'notifications', 'enabled', defaultSettings.enabled);
-
-            setReminderTime(defaultSettings.reminderTime);
-            setNotificationsEnabled(defaultSettings.enabled);
-        } catch (error) {
-            console.error('Error creating notification settings:', error);
         }
     };
 
