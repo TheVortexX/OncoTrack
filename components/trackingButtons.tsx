@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestore } from '@/services/firebaseConfig';
+import { useAuth } from '@/context/auth';
 
 interface TrackingCardProps {
     icon: React.ReactNode;
@@ -11,9 +14,19 @@ interface TrackingCardProps {
     style?: any;
 }
 
-// TODO add screen to enable/disable tracking items
+interface QuickTrackSettings {
+    symptoms: {
+        mood: boolean;
+        pain: boolean;
+        energy: boolean;
+        digestive: boolean;
+        skin: boolean;
+        mind: boolean;
+        temperature: boolean;
+    };
+}
 
-const TrackingCard = ({ icon, title, onPress, style}: TrackingCardProps) => (
+const TrackingCard = ({ icon, title, onPress, style }: TrackingCardProps) => (
     <TouchableOpacity style={[styles.card, style?.card]} onPress={onPress}>
         <View style={[styles.iconContainer, style?.iconContainer]}>
             {icon}
@@ -24,6 +37,98 @@ const TrackingCard = ({ icon, title, onPress, style}: TrackingCardProps) => (
 
 const TrackingOptionsScroll = () => {
     const router = useRouter();
+    const { user } = useAuth();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [settings, setSettings] = useState<QuickTrackSettings | null>(null);
+
+    const symptomCards = [
+        {
+            id: 'mood',
+            title: 'Record your mood',
+            icon: <FontAwesome5 name="smile" size={60} color="#000" />,
+            route: '/track/quick/mood'
+        },
+        {
+            id: 'pain',
+            title: 'Record your pain',
+            icon: <Ionicons name="bandage-outline" size={60} color="#000" />,
+            route: '/track/quick/pain'
+        },
+        {
+            id: 'energy',
+            title: 'Record your energy',
+            icon: <MaterialIcons name="bolt" size={60} color="#000" />,
+            route: '/track/quick/energy'
+        },
+        {
+            id: 'digestive',
+            title: 'Record digestive issues',
+            icon: <MaterialCommunityIcons name="stomach" size={60} color="#000" />,
+            route: '/track/quick/digestive'
+        },
+        {
+            id: 'skin',
+            title: 'Record skin issues',
+            icon: <Ionicons name="body-outline" size={60} color="#000" />,
+            route: '/track/quick/skin'
+        },
+        {
+            id: 'mind',
+            title: 'Record mental state',
+            icon: <MaterialCommunityIcons name="head-heart-outline" size={60} color="#000" />,
+            route: '/track/quick/mind'
+        },
+        {
+            id: 'temperature',
+            title: 'Record your temperature',
+            icon: <FontAwesome5 name="thermometer-half" size={60} color="#000" />,
+            route: '/track/quick/temperature'
+        }
+    ];
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchSettings = async () => {
+                if (!user?.uid) return;
+
+                setIsLoading(true);
+                try {
+                    const settingsDoc = await getDoc(doc(firestore, 'users', user.uid, 'settings', 'quickTrack'));
+
+                    if (settingsDoc.exists()) {
+                        setSettings(settingsDoc.data() as QuickTrackSettings);
+                    } else {
+                        setSettings({
+                            symptoms: {
+                                mood: true,
+                                pain: false,
+                                energy: false,
+                                digestive: false,
+                                skin: false,
+                                mind: false,
+                                temperature: true
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching quick track settings:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            fetchSettings();
+        }, [user])
+    );
+
+    const getEnabledSymptomCards = () => {
+        if (!settings) return [];
+
+        return symptomCards.filter(card =>
+            settings.symptoms[card.id as keyof typeof settings.symptoms]
+        );
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.sectionTitle}>Track your well-being</Text>
@@ -35,22 +140,24 @@ const TrackingOptionsScroll = () => {
                 <TrackingCard
                     icon={<Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />}
                     title="Record your symptoms"
-                    onPress={() => router.push('/(tabs)/track/symptomTrack?today=true')}
+                    onPress={() => router.push('/track/symptomTrack?today=true')}
                 />
-                <TrackingCard
-                    icon={<FontAwesome5 name="smile" size={60} color="#000" />}
-                    title="Record your mood"
-                    onPress={() => router.push('/(tabs)/track/quick/mood')}
-                />
-                <TrackingCard
-                    icon={<FontAwesome5 name="thermometer-half" size={60} color="#000" />}
-                    title="Record your temperature"
-                    onPress={() => router.push('/(tabs)/track/quick/temperature')}
-                />
+
+                {/* Display enabled symptom cards */}
+                {!isLoading && getEnabledSymptomCards().map((card, index) => (
+                    <TrackingCard
+                        key={`symptom-${card.id}-${index}`}
+                        icon={card.icon}
+                        title={card.title}
+                        onPress={() => router.push(card.route as any)}
+                    />
+                ))}
+
+                {/* Always show the settings card */}
                 <TrackingCard
                     icon={<FontAwesome5 name="edit" size={60} color="#000" />}
                     title="Select what you want to record"
-                    onPress={() => console.log('Edit records pressed')}
+                    onPress={() => router.push('/accountSettings/quickTrack')}
                     style={{ card: { backgroundColor: theme.colours.gray90 }, iconContainer: { marginLeft: 10 } }}
                 />
             </ScrollView>

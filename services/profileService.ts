@@ -45,6 +45,27 @@ export const createUserNotificationSettings = async (uid?: string) => {
     }
 }
 
+export const createUserQuickTrackSettings = async (uid?: string) => {
+    if (!uid) return false;
+    try {
+        await setDoc(doc(firestore, 'users', uid, 'settings', 'quickTrack'), {
+            symptoms: {
+                mood: true,
+                pain: false,
+                energy: false,
+                digestive: false,
+                skin: false,
+                mind: false,
+                temperature: true
+            }
+        });
+        return true;
+    } catch (error) {
+        console.error('Error creating user quick track settings: ', error);
+        return false;
+    }
+};
+
 export const createUserProfile = async (uid?: string, initialData = {}) => {
     if (!uid) return false; // Ensure uid is provided
     try {
