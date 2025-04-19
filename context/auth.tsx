@@ -3,7 +3,7 @@ import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { auth } from '@/services/firebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User, sendPasswordResetEmail} from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, User, sendPasswordResetEmail, signOut as authSignOut} from 'firebase/auth';
 import { getErrorMessage } from '@/utils/errorMap';
 import { DocumentData } from 'firebase/firestore';
 import { setStoredValue, getStoredValue } from '@/hooks/useStorage';
@@ -84,6 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const signOut = async () => {
         await SecureStore.deleteItemAsync('auth_userToken');
         await SecureStore.deleteItemAsync('auth_password');
+        authSignOut(auth).then(() => {
+            console.log('User signed out successfully');
+        })
         setUserState(null);
     };
 
