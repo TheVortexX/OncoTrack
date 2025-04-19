@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar} from 're
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours.header, leftButtonType='none', rightButtonIcon = null, onRightButtonPress = () => {}, rightButtonText = "" }) => {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const handleLeftButtonPress = () => {
         if (leftButtonType === 'close' && router.canDismiss()) {
@@ -33,18 +35,18 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours
     return (
     <>
         {/* Status Bar */}
-        < View style={[styles.statusBarContainer, {backgroundColor: colour}]} >
+        < View style={{backgroundColor: colour, height: Platform.OS === 'ios' ? insets.top : 0}} >
             <StatusBar
                 backgroundColor={colour}
                 barStyle="light-content"
             />
         </View >
-        <View style={[styles.header, {backgroundColor: colour}]}>
+        <View style={[styles.header, {backgroundColor: colour, paddingTop: Platform.OS === 'android' ? insets.top : 0 }]}>
             <Text style={styles.headerText}>{title}</Text>
             <Text style={styles.subHeaderText}>{subtitle}</Text>
             {leftButtonType !== 'none' && (
                 <TouchableOpacity
-                    style={styles.backButton}
+                        style={[styles.backButton, { top: Platform.OS === 'android' ? insets.top + 5 : 5 }]}
                     onPress={handleLeftButtonPress}
                 >
                     {leftButtonType === 'close' ? (
@@ -57,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours
             )}
             {rightButtonIcon && (
                 <TouchableOpacity
-                    style={styles.rightButton}
+                    style={[styles.rightButton, {top: Platform.OS === 'android' ? insets.top + 5 : 5}]}
                     onPress={onRightButtonPress}
                 >
                     {rightButtonIcon}
@@ -69,16 +71,12 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours
 )};
 
 const styles = StyleSheet.create({
-    statusBarContainer: {
-        height: Platform.OS === 'ios' ? 50 : 0
-    },
     container: {
         flex: 1,
         backgroundColor: theme.colours.background,
     },
     header: {
         padding: 16,
-        paddingTop: Platform.OS === 'android' ? 50 : 16,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         position: 'relative',
@@ -99,13 +97,11 @@ const styles = StyleSheet.create({
     backButton: {
         position: 'absolute',
         left: 16,
-        top: Platform.OS === 'android' ? 50 : 16,
         padding: 5,
     },
     rightButton: {
         position: 'absolute',
         right: 20,
-        top: Platform.OS === 'android' ? 50 : 10,
         padding: 8,
         alignItems: 'center',
     },
