@@ -74,7 +74,7 @@ const ChatScreen = () => {
     const [extractedAppointment, setExtractedAppointment] = useState<Appointment | null>(null);
     
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const bottomMargin = Platform.OS === 'ios' ?  50 + insets.bottom : 70
+    const bottomMargin = Platform.OS === 'ios' ?  insets.bottom : 70
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
@@ -521,7 +521,7 @@ const ChatScreen = () => {
                 </View>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding': undefined}
-                    style={[styles.avoidContainer, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
+                    style={[styles.avoidContainer, {marginBottom: Platform.OS === 'android' ? insets.bottom : insets.bottom + 15}, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
                     keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin-15 : 0}
                 />
 
