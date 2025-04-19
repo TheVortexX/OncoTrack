@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, StatusBar, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import CalendarStrip from 'react-native-calendar-strip';
 import { theme } from '@/constants/theme';
@@ -314,6 +314,9 @@ const SymptomTrackingScreen = () => {
                     title='Record Symptoms'
                     subtitle='Track your daily symptoms'
                     leftButtonType='back'
+                    rightButtonIcon={<Ionicons name="document-text-outline" size={24} color={theme.colours.white} />}
+                    rightButtonText='Report'
+                    onRightButtonPress={() => router.push('/reports')}
                 />
                 {/* Calendar Strip */}
                 <CalendarStrip

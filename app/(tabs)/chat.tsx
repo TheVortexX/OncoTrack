@@ -16,6 +16,8 @@ import { useFocusEffect } from 'expo-router';
 import { momentToTimestamp } from '@/utils/dateUtils';
 import Header from '@/components/header';
 
+// TODO get data from the app about various things
+
 // TypeScript interfaces
 interface Message {
     id?: string;
