@@ -7,9 +7,9 @@ import moment from 'moment';
 import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppointmentForm from '@/components/appointmentFormModal';
-import { useFocusEffect } from 'expo-router';
-import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
-import { getUserMedications, getUserMedicationTimes, getDayMedications } from '@/services/medicationService';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
+import { getUserMedicationTimes, getDayMedications } from '@/services/medicationService';
 
 interface Appointment {
     id: string;
@@ -35,6 +35,7 @@ const TodaySchedule = () => {
     const [fetchedAppointments, setFetchedAppointments] = useState<Appointment[]>([]);
     const [medications, setMedications] = useState<Appointment[]>([]);
     const { user } = useAuth();
+    const router = useRouter();
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const firstSyncRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -138,6 +139,7 @@ const TodaySchedule = () => {
 
                         newMedications.push({
                             ...med,
+                            medicationId: med.id,
                             id: med.id + "-" + time,
                             description: `Need to take ${med.dosage} ${med.units}`,
                             provider: med.name,
@@ -291,12 +293,21 @@ const TodaySchedule = () => {
         if (!appointment) return;
 
         setExistingAppointment(appointment);
-        setRightButtonAction(() => {
-            return (app: any) => {
-                showEditAppointmentModal(appointment.id);
-            };
-        });
-
+        if (appointment.appointmentType === 'Medication') {
+            setRightButtonAction(() => {
+                return (app: any) => {
+                    setShowAppointmentModal(false);
+                    router.push(`/track/medication?medicationId=${appointment.medicationId}`);
+                }
+            });
+        } else {
+            setRightButtonAction(() => {
+                return (app: any) => {
+                    showEditAppointmentModal(appointment.id);
+                };
+            });
+        }   
+            
         setModalTitle(' ');
         setReadonly(true);
         setRightButtonText('Edit');
