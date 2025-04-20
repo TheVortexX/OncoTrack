@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
         paddingBottom: 0,
     },
     instructionText: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.textPrimary,
         marginBottom: 20,
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     },
     optionLabel: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
         textAlign: 'center',
         fontFamily: theme.fonts.openSans.bold,
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
     },
     saveButtonText: {
         color: theme.colours.white,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.semiBold,
     },
 });

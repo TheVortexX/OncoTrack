@@ -1,4 +1,5 @@
 import React from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar} from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
@@ -42,8 +43,8 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours
             />
         </View >
         <View style={[styles.header, {backgroundColor: colour, paddingTop: Platform.OS === 'android' ? insets.top : 0 }]}>
-            <Text style={styles.headerText}>{title}</Text>
-            <Text style={styles.subHeaderText}>{subtitle}</Text>
+            <Text style={styles.headerText} allowFontScaling={false}>{title}</Text>
+            <Text style={styles.subHeaderText} allowFontScaling={false}>{subtitle}</Text>
             {leftButtonType !== 'none' && (
                 <TouchableOpacity
                         style={[styles.backButton, { top: Platform.OS === 'android' ? insets.top + 5 : 5 }]}
@@ -63,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, colour = theme.colours
                     onPress={onRightButtonPress}
                 >
                     {rightButtonIcon}
-                    <Text style={styles.rightButtonText}>{rightButtonText}</Text>
+                        <Text style={styles.rightButtonText} allowFontScaling={false}>{rightButtonText}</Text>
                 </TouchableOpacity>
             )}
         </View>
@@ -82,13 +83,13 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     headerText: {
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.openSans.semiBold || theme.fonts.ubuntu?.bold,
         color: theme.colours.textOnBlue,
         textAlign: 'center',
     },
     subHeaderText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.regular || theme.fonts.ubuntu?.regular,
         color: theme.colours.textOnBlue,
         textAlign: 'center',
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     },
     rightButtonText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         textAlign: 'center',
         marginTop: 2,
     },

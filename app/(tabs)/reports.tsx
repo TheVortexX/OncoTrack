@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, Platform, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
@@ -10,6 +11,8 @@ import { firestore } from '@/services/firebaseConfig';
 import moment from 'moment';
 import Header from '@/components/header';
 import { BarChart, LineChart, PieChart } from 'react-native-gifted-charts';
+
+// TODO fix/match colouring
 
 interface SymptomLog {
     id: string;
@@ -579,7 +582,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.textPrimary,
         marginHorizontal: 16,
@@ -606,12 +609,12 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     settingLabel: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.textPrimary,
     },
     settingValue: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.regular,
         color: theme.colours.textSecondary,
         marginTop: 4,
@@ -630,7 +633,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.primary,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.white,
     },
@@ -649,7 +652,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     generateButtonText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.white,
     },
@@ -662,7 +665,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     noDataText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.regular,
         color: theme.colours.textSecondary,
         textAlign: 'center',
@@ -676,12 +679,12 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     reportSummaryText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.white,
     },
     reportDataCount: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.regular,
         color: theme.colours.white,
         marginTop: 4,
@@ -698,7 +701,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     chartTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.textPrimary,
         marginBottom: 16,
@@ -708,7 +711,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     centerLabel: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.textPrimary,
     },
@@ -728,12 +731,12 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     legendText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.regular,
         color: theme.colours.textSecondary,
     },
     chartAxisText: {
-        fontSize: 10,
+        fontSize: normaliseSize(10),
         fontFamily: theme.fonts.openSans.regular,
         color: theme.colours.textSecondary,
     },
@@ -751,7 +754,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     shareButtonText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.white,
     },

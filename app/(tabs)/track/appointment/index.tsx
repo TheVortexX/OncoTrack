@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
@@ -101,13 +102,13 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.blue0,
     },
     boldText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     }
 });
 

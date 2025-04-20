@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert, Keyboard, KeyboardEvent } from 'react-native';
 import InputField from '@/components/InputField';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -362,7 +363,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 <>
                     {/* Start date/time section */}
                     <View style={[styles.timeRow, getReadonlyStyle()]}>
-                        <Text style={styles.timeLabel}>Starts</Text>
+                        <Text style={styles.timeLabel} allowFontScaling={false}>Starts</Text>
                         <View style={styles.dateTimeContainer}>
                             {/* Start date button */}
                             <View style={[styles.datePickerWrapper, getReadonlyStyle()]}>
@@ -699,7 +700,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
                 {/* Appointment Type */}
                 <View style={[styles.pickerContainer, getReadonlyStyle()]}>
-                    <Text style={[styles.pickerLabel, readonly && styles.readonlyText]}>Appointment Type</Text>
+                    <Text style={[styles.pickerLabel, readonly && styles.readonlyText]} allowFontScaling={false}>Appointment Type</Text>
                     {renderPicker()}
                 </View>
 
@@ -799,7 +800,7 @@ const styles = StyleSheet.create({
         height: 50,
         paddingHorizontal: 10,
         backgroundColor: theme.colours.surface,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -810,7 +811,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         backgroundColor: theme.colours.surface,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         textAlignVertical: 'top',
@@ -823,7 +824,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         backgroundColor: theme.colours.surface,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         textAlignVertical: 'top',
@@ -842,7 +843,7 @@ const styles = StyleSheet.create({
     },
     timeLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
     },
     dateTimeContainer: {
@@ -910,12 +911,12 @@ const styles = StyleSheet.create({
     },
     datePickerButtonText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
     },
     timePickerButtonText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
     },
     travelTimeButton: {
@@ -924,7 +925,7 @@ const styles = StyleSheet.create({
     },
     durationText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textSecondary,
     },
     pickerContainer: {
@@ -952,7 +953,7 @@ const styles = StyleSheet.create({
     },
     pickerLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         padding: 12,
         ...Platform.select({
@@ -984,7 +985,7 @@ const styles = StyleSheet.create({
         }),
     },
     iosPickerText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
     },
@@ -1019,7 +1020,7 @@ const styles = StyleSheet.create({
     deleteButtonText: {
         color: 'white',
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
 });
 

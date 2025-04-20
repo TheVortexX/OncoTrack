@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert, Switch } from 'react-native';
 import InputField from '@/components/InputField';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -470,6 +471,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                                             timeOfDay.includes(time) && readonly && { color: theme.colours.white },
 
                                         ]}
+                                        allowFontScaling={false}
                                     >
                                         {time.charAt(0).toUpperCase() + time.slice(1)}
                                     </Text>
@@ -483,7 +485,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                 <View style={[styles.mergedContainer, getReadonlyStyle()]}>
                     <View style={styles.mergedContainerContent}>
                         <View style={styles.dateRow}>
-                            <Text style={[styles.dateLabel, readonly && styles.readonlyText]}>Start Date</Text>
+                            <Text style={[styles.dateLabel, readonly && styles.readonlyText]} allowFontScaling={false}>Start Date</Text>
 
                             {Platform.OS === 'ios' ? (
                                 <View style={[styles.datePickerWrapper, getReadonlyStyle()]}>
@@ -527,7 +529,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                         {/* End date toggle and picker */}
                         <View style={styles.dateRow}>
                             <View style={styles.endDateToggleRow}>
-                                <Text style={[styles.dateLabel, readonly && styles.readonlyText]}>End Date</Text>
+                                <Text style={[styles.dateLabel, readonly && styles.readonlyText]} allowFontScaling={false}>End Date</Text>
                                 <Switch
                                     value={hasEndDate}
                                     onValueChange={(value) => {
@@ -677,7 +679,7 @@ const styles = StyleSheet.create({
         height: 50,
         paddingHorizontal: 10,
         backgroundColor: theme.colours.surface,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -688,7 +690,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         backgroundColor: theme.colours.surface,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -698,7 +700,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         marginVertical: 10,
     },
@@ -727,7 +729,7 @@ const styles = StyleSheet.create({
     },
     pickerLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         padding: 12,
         ...Platform.select({
@@ -759,7 +761,7 @@ const styles = StyleSheet.create({
         }),
     },
     iosPickerText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
     },
@@ -802,7 +804,7 @@ const styles = StyleSheet.create({
     timeOfDayText: {
         marginTop: 5,
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.textSecondary,
     },
     timeOfDayTextSelected: {
@@ -820,7 +822,7 @@ const styles = StyleSheet.create({
     },
     dateLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         marginRight: 10,
     },
@@ -852,7 +854,7 @@ const styles = StyleSheet.create({
     },
     dateButtonText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
     },
     sideEffectsList: {
@@ -870,7 +872,7 @@ const styles = StyleSheet.create({
     },
     sideEffectText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
         flex: 1,
     },
@@ -879,7 +881,7 @@ const styles = StyleSheet.create({
     },
     noSideEffectsText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
         fontStyle: 'italic',
         textAlign: 'center',
@@ -914,7 +916,7 @@ const styles = StyleSheet.create({
         height: 46,
         paddingHorizontal: 10,
         paddingVertical: 0,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
     sideEffectInputWrapper: {
         flex: 1,
@@ -967,7 +969,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.gray90,
     },
     dosageButtonText: {
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
     },
@@ -979,7 +981,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.surface,
     },
     dosageValue: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         textAlign: 'center',
@@ -995,7 +997,7 @@ const styles = StyleSheet.create({
         borderLeftColor: theme.colours.lightGray,
     },
     unitText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },

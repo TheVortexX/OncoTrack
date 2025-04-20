@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, Image } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
@@ -22,7 +23,7 @@ const TrackScreen = () => {
                         <View style={styles.iconContainer}>
                             <Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />
                         </View>
-                        <Text style={styles.cardTitle}>
+                        <Text style={styles.cardTitle} allowFontScaling={false}>
                             <Text style={styles.boldText}>Record</Text> your symptoms
                         </Text>
                     </TouchableOpacity>
@@ -32,7 +33,7 @@ const TrackScreen = () => {
                         <View style={styles.iconContainer}>
                             <Ionicons name="medkit-outline" size={60} color="black" />
                         </View>
-                        <Text style={styles.cardTitle}>
+                        <Text style={styles.cardTitle} allowFontScaling={false}>
                             <Text style={styles.boldText}>Track</Text> your medications
                         </Text>
                     </TouchableOpacity>
@@ -42,7 +43,7 @@ const TrackScreen = () => {
                         <View style={styles.iconContainer}>
                             <Ionicons name="calendar-number-outline" size={60} color="black" />
                         </View>
-                        <Text style={styles.cardTitle}>
+                        <Text style={styles.cardTitle} allowFontScaling={false}>
                             <Text style={styles.boldText}>Enter</Text> or <Text style={styles.boldText}>Scan</Text> an appointment
                         </Text>
                     </TouchableOpacity>
@@ -87,13 +88,13 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.blue0,
     },
     boldText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     }
 });
 

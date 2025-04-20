@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
 import { deleteUserAppointment, getUserAppointments, updateUserAppointment } from '@/services/profileService';
@@ -445,7 +446,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     title: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         marginBottom: 10,
     },
@@ -479,17 +480,17 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     timeSep: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     futureDateText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.textSecondary,
     },
     appointmentDetails: {
@@ -497,20 +498,20 @@ const styles = StyleSheet.create({
     },
     providerName: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
         marginBottom: 4,
     },
     appointmentType: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
         marginBottom: 2,
     },
     staffInfo: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.gray,
     },
     initialsCircle: {
@@ -532,7 +533,7 @@ const styles = StyleSheet.create({
     },
     noAppointmentsText: {
         marginTop: 10,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },

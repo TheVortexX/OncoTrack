@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
@@ -57,7 +58,7 @@ const NavBar = () => {
                         name="home-outline"
                         size={30}
                     />
-                    <Text style={styles.navText}>Home</Text>
+                    <Text style={styles.navText} allowFontScaling={false}>Home</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -70,7 +71,7 @@ const NavBar = () => {
                         name="calendar-outline"
                         size={30}
                     />
-                    <Text style={styles.navText}>Schedule</Text>
+                    <Text style={styles.navText} allowFontScaling={false}>Schedule</Text>
                 </TouchableOpacity>
                 <View style={styles.trackCircle}>
                     <TouchableOpacity
@@ -94,7 +95,7 @@ const NavBar = () => {
                         name="chatbox-ellipses-outline"
                         size={30}
                     />
-                    <Text style={styles.navText}>Chat</Text>
+                    <Text style={styles.navText} allowFontScaling={false}>Chat</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -107,7 +108,7 @@ const NavBar = () => {
                         name="person-outline"
                         size={30}
                     />
-                    <Text style={styles.navText}>Account</Text>
+                    <Text style={styles.navText} allowFontScaling={false}>Account</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     navText: {
-        fontSize: 15,
+        fontSize: normaliseSize(15),
         color: '#000',
     },
     trackCircle: {

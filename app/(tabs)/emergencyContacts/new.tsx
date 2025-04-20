@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         paddingHorizontal: 10,
         backgroundColor: '#ffffff',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
     },
     multilineInput: {
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     inputLabel: {
         fontFamily: theme.fonts.openSans.regular,
         alignSelf: 'flex-start',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         marginBottom: 10,
     },
     inputContainer: {
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: theme.colours.primary,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     button: {
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
 });

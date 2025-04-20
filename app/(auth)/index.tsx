@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { Image, StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
@@ -51,7 +52,7 @@ const authIndex = () => {
       ) : (
       <>
         <View style={styles.content}>
-          <Text style={styles.welcomeText}>
+          <Text style={styles.welcomeText} allowFontScaling={false}>
             {hasLoggedIn ? 'Welcome back' : 'Welcome'}
           </Text>
         </View>
@@ -78,7 +79,7 @@ const authIndex = () => {
 const styles = StyleSheet.create({
     welcomeText: {
       fontFamily: "Roboto_500Medium",
-      fontSize: 80,
+      fontSize: normaliseSize(80),
       color: "#000000",
       textAlign: 'center',
     },
@@ -117,12 +118,12 @@ const styles = StyleSheet.create({
     },
     buttonText: {
       color: theme.colours.white,
-      fontSize: 30,
+      fontSize: normaliseSize(30),
       fontFamily: theme.fonts.openSans.semiBold,
     },
     linkText: {
       color: theme.colours.black,
-      fontSize: 20,
+      fontSize: normaliseSize(20),
       fontFamily: theme.fonts.openSans.regular,
     }
 });

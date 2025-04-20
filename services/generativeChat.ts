@@ -184,7 +184,6 @@ export async function getResponseWithImage(prompt: string, path: string) {
                 content: "Unable to complete your request, the response was empty",        
             });
         }
-        console.log(response.text);
         return response.text;
     } catch (error) {
         console.error('Error uploading image:', error);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -85,7 +86,7 @@ const ForgotPassScreen = () => {
 const styles = StyleSheet.create({
     titleText: {
         fontFamily: theme.fonts.roboto.medium,
-        fontSize: 80,
+        fontSize: normaliseSize(80),
         color: theme.colours.black,
         textAlign: 'center',
         marginBottom: height * 0.05,
@@ -125,12 +126,12 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     linkText: {
         color: theme.colours.black,
-        fontSize: 25,
+        fontSize: normaliseSize(25),
         fontFamily: theme.fonts.openSans.regular,
     },
     input: {
@@ -141,13 +142,13 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         paddingHorizontal: 10,
         backgroundColor: '#ffffff',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
     },
     inputLabel: {
         fontFamily: theme.fonts.openSans.regular,
         alignSelf: 'flex-start',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         marginBottom: 10,
     },
     inputContainer: {
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: theme.colours.primary,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
 });

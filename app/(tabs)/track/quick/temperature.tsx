@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView, Alert } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView, Alert } from 'react-native';
 import { theme } from '@/constants/theme';
 import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     scaleText: {
         position: 'absolute',
         right: 25,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
         fontFamily: theme.fonts.openSans.regular,
     },
     currentTempContainer: {
@@ -410,12 +410,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     currentTempText: {
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.openSans.bold,
         color: theme.colours.textPrimary,
     },
     feverIndicator: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.bold,
         color: theme.colours.danger,
         marginTop: 5,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     inputLabel: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.regular,
         marginRight: 10,
     },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.colours.border,
         borderRadius: 8,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         textAlign: 'center',
         fontFamily: theme.fonts.openSans.semiBold,
     },
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.gray99,
     },
     guideTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.semiBold,
         marginBottom: 10,
     },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     guideText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.openSans.regular,
     },
     saveButtonContainer: {
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     },
     saveButtonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
 });

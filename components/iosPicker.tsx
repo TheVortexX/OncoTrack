@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Platform, Pressable, Animated, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { theme } from '@/constants/theme';
@@ -178,17 +179,17 @@ const styles = StyleSheet.create({
         borderBottomColor: theme.colours.gray80,
     },
     modalTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
     cancelButton: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
         fontFamily: theme.fonts.ubuntu.regular,
     },
     confirmButton: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.blue20,
         fontFamily: theme.fonts.ubuntu.regular,
     },
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     },
     pickerItem: {
         color: 'black',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
 });
 

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, Alert, ScrollView, Switch, TouchableOpacity, Platform, StatusBar, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.blue20,
         marginHorizontal: 16,
@@ -295,12 +296,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     settingLabel: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
     settingValue: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
         marginTop: 4,
@@ -332,7 +333,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     changeSettingValue: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.primary,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
     },
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     menuItemText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
         borderTopColor: theme.colours.divider,
     },
     debugTitle: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.gray,
         marginHorizontal: 16,
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     versionText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.gray,
     },

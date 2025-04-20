@@ -1,4 +1,5 @@
 import { theme } from '@/constants/theme';
+import { normaliseSize } from '@/utils/normaliseSize';
 import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions, Animated, Pressable, ScrollView } from 'react-native';
 
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     },
     leftButton: {
         color: '#007AFF',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         textAlign: 'left',
     },
     titleContainer: {
@@ -186,14 +187,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     titleText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
         textAlign: 'center',
     },
     rightButton: {
         color: '#007AFF',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontWeight: 'bold',
         textAlign: 'right',
     },

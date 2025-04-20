@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
 
@@ -108,6 +109,7 @@ const InputField = ({
                     autoComplete={autoComplete}
                     editable={editable}
                     returnKeyType={returnKeyType}
+                    allowFontScaling={false}
                 />
 
                 {touched && error ? (
@@ -136,13 +138,13 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     label: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.medium,
         color: theme.colours.textPrimary,
     },
     requiredAsterisk: {
         color: theme.colours.primary,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         marginLeft: 2,
     },
     inputContainer: {
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 12,
         paddingVertical: 10,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -179,12 +181,12 @@ const styles = StyleSheet.create({
     errorIcon: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: normaliseSize(14),
     },
     errorText: {
         marginTop: 5,
         color: theme.colours.primary,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
     }
 });

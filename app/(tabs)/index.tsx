@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, ImageBackground, StatusBar } from 'react-native';
 import TrackingOptionsScroll from '@/components/trackingButtons';
 import { theme } from '@/constants/theme';
@@ -51,7 +52,7 @@ export default function HomeScreen() {
           resizeMode="cover"
         >
           <View style={styles.headerOverlay}>
-            <Text style={styles.greeting}>
+            <Text style={styles.greeting} allowFontScaling={false}>
               {greeting}
             </Text>
           </View>
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   },
   greeting: {
     alignSelf: 'center',
-    fontSize: 30,
+    fontSize: normaliseSize(30),
     color: 'white',
     fontFamily: theme.fonts.ubuntu.bold,
   },

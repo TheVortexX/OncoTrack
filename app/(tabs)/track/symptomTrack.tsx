@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
 import { FontAwesome5, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import CalendarStrip from 'react-native-calendar-strip';
@@ -40,7 +41,7 @@ const SymptomOption = ({ iconFamily, iconName, label, selected, onPress, color }
     } else if (iconFamily === 'Ionicons') {
         icon = <Ionicons name={iconName as any} size={40} color={selected ? theme.colours.textOnBlue : color} />;
     } else if (iconFamily === 'Text') {
-        icon = <Text style={{ fontSize: 40, color: selected ? theme.colours.textOnBlue : color }}>{iconName}</Text>;
+        icon = <Text style={{ fontSize: normaliseSize(40), color: selected ? theme.colours.textOnBlue : color }} allowFontScaling={false}>{iconName}</Text>;
     }
 
     return (
@@ -321,6 +322,7 @@ const SymptomTrackingScreen = () => {
                 {/* Calendar Strip */}
                 <CalendarStrip
                     scrollable
+                    shouldAllowFontScaling={false}
                     style={styles.calendarStrip}
                     startingDate={now.current.clone().subtract(3, 'days')}
                     calendarColor={theme.colours.background}
@@ -760,7 +762,7 @@ const styles = StyleSheet.create({
     },
     calendarHeader: {
         color: theme.colours.textPrimary,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     dateNumber: {
@@ -783,7 +785,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     categoryTitle: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         color: theme.colours.textPrimary,
         fontFamily: theme.fonts.openSans.semiBold,
     },
@@ -832,7 +834,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     optionLabel: {
-        fontSize: 12,
+        fontSize: normaliseSize(12),
         color: theme.colours.textPrimary,
         textAlign: 'center',
         fontFamily: theme.fonts.openSans.bold,
@@ -859,19 +861,19 @@ const styles = StyleSheet.create({
     valueInput: {
         flex: 1,
         color: theme.colours.textPrimary,
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     valueUnit: {
         color: theme.colours.textSecondary,
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.openSans.regular,
     },
     notesContainer: {
         marginTop: 20,
     },
     notesLabel: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         marginBottom: 10,
         fontFamily: theme.fonts.openSans.semiBold,
@@ -905,7 +907,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     tagsLabel: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textPrimary,
         fontFamily: theme.fonts.openSans.semiBold,
     },
@@ -945,7 +947,7 @@ const styles = StyleSheet.create({
     },
     saveButtonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     bottomPadding: {
@@ -954,12 +956,12 @@ const styles = StyleSheet.create({
     disabledDateName: {
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.gray20,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
     },
     disabledDateNumber: {
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.gray20,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
     },
     warningMessageContainer: {
         backgroundColor: theme.colours.primaryLight25,
@@ -974,7 +976,7 @@ const styles = StyleSheet.create({
     },
     warningMessageText: {
         fontFamily: theme.fonts.openSans.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.blue0,
         flex: 1,
     },
@@ -987,7 +989,7 @@ const styles = StyleSheet.create({
     },
     deleteLogText: {
         fontFamily: theme.fonts.openSans.semiBold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.danger,
         padding: 10,
         textAlign: 'center',
@@ -1002,8 +1004,8 @@ const customDatesStyles = {
         },
         dateNameStyle: [styles.dateName, { color: 'white' }],
         dateNumberStyle: [styles.dateNumber, { color: 'white' }],
-        highlightDateNameStyle: { color: theme.colours.textOnPrimary, fontFamily: theme.fonts.openSans.semiBold, fontSize: 12 },
-        highlightDateNumberStyle: { color: theme.colours.textOnPrimary, fontFamily: theme.fonts.openSans.bold, fontSize: 16 },
+        highlightDateNameStyle: { color: theme.colours.textOnPrimary, fontFamily: theme.fonts.openSans.semiBold, fontSize: normaliseSize(12) },
+        highlightDateNumberStyle: { color: theme.colours.textOnPrimary, fontFamily: theme.fonts.openSans.bold, fontSize: normaliseSize(16) },
     },
     today: {
         dateContainerStyle: {

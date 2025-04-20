@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { FontAwesome5, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
@@ -6,6 +7,8 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 import { useAuth } from '@/context/auth';
+
+// TODO finish these pages
 
 interface TrackingCardProps {
     icon: React.ReactNode;
@@ -31,7 +34,7 @@ const TrackingCard = ({ icon, title, onPress, style }: TrackingCardProps) => (
         <View style={[styles.iconContainer, style?.iconContainer]}>
             {icon}
         </View>
-        <Text style={[styles.cardText, style?.cardText]}>{title}</Text>
+        <Text style={[styles.cardText, style?.cardText]} allowFontScaling={false}>{title}</Text>
     </TouchableOpacity>
 );
 
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.openSans.bold,
         marginBottom: 10,
         paddingHorizontal: 15,
@@ -201,7 +204,7 @@ const styles = StyleSheet.create({
     cardText: {
         textAlign: 'center',
         fontFamily: theme.fonts.openSans.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     }
 });
 

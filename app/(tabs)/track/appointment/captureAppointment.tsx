@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Platform, Image, StatusBar } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, Pressable, Alert, StatusBar, ActivityIndicator, Platform, Image } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontFamily: theme.fonts.ubuntu.regular,
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
     // Document frame styling
     documentFrame: {
@@ -412,7 +413,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     permissionText: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         textAlign: 'center',
         margin: 20,
         fontFamily: theme.fonts.ubuntu.regular,
@@ -427,12 +428,12 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
     },
     cancelButtonText: {
         color: theme.colours.textPrimary,
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
     },
     previewContainer: {
         flex: 1,
@@ -456,7 +457,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontFamily: theme.fonts.ubuntu.bold,
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
     previewControls: {
         position: 'absolute',

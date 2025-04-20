@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert } from 'react-native';
 import InputField from '@/components/InputField';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
     },
     fieldLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
         marginBottom: 8,
     },
@@ -390,7 +391,7 @@ const styles = StyleSheet.create({
         height: 50,
         paddingHorizontal: 10,
         backgroundColor: theme.colours.surface,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         borderWidth: 1,
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     readonlyText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingTop: 10,
         backgroundColor: theme.colours.surface,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         borderWidth: 1,
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
     },
     dateTimeButtonText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
         marginRight: 8,
     },
@@ -468,7 +469,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 10,
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.textSecondary,
     },
     readonlyField: {
@@ -493,7 +494,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.gray90,
     },
     dosageButtonText: {
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
     },
@@ -505,7 +506,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.surface,
     },
     dosageValue: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
         textAlign: 'center',
@@ -521,7 +522,7 @@ const styles = StyleSheet.create({
         borderLeftColor: theme.colours.lightGray,
     },
     unitText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textPrimary,
     },

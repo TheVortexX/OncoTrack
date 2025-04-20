@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
@@ -141,7 +142,7 @@ const RegistrationScreen = () => {
                         style={styles.logo}
                         resizeMode='contain'
                     />
-                    <Text style={styles.titleText}>Register</Text>
+                    <Text style={styles.titleText} allowFontScaling={false}>Register</Text>
                     <View style={styles.content}>
                         <InputField
                             label='First Name'
@@ -212,7 +213,7 @@ const RegistrationScreen = () => {
                                 errorInput: styles.errorInput,
                             }}
                         />
-                        <View style={{ marginBottom: 30, marginLeft: -20 }}>
+                        <View style={{ marginBottom: 30, marginLeft: 0 }}>
                             <Text style={styles.passwordHint}>
                                 Your password must:
                             </Text>
@@ -290,7 +291,8 @@ const RegistrationScreen = () => {
                                 style={styles.checkbox}
                                 color={tosChecked ? theme.colours.primary : undefined}
                             />
-                            <Text style={styles.checkboxText}>I agree to the </Text><TouchableOpacity onPress={toTOS}><Text style={[styles.checkboxText, { textDecorationLine: "underline" }]}>Terms of Service</Text></TouchableOpacity>
+                            <Text style={styles.checkboxText} allowFontScaling={false}>I agree to the </Text>
+                                <Text style={[styles.checkboxText, { textDecorationLine: "underline" }]} allowFontScaling={false} onPress={toTOS}>Terms of Service</Text>
                         </View>
                         <View style={styles.checkboxContainer}>
                             <CheckBox
@@ -300,7 +302,7 @@ const RegistrationScreen = () => {
                                 color={privacyChecked ? theme.colours.primary : undefined}
                             />
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.checkboxText}>
+                                <Text style={styles.checkboxText} allowFontScaling={false}>
                                     I confirm that I agree to OncoTrack's{' '}
                                     <Text
                                         onPress={toPrivacy}
@@ -331,7 +333,7 @@ const RegistrationScreen = () => {
 const styles = StyleSheet.create({
     titleText: {
         fontFamily: theme.fonts.roboto.medium,
-        fontSize: 80,
+        fontSize: normaliseSize(80),
         color: "#000000",
         textAlign: 'center',
         marginBottom: height * 0.05,
@@ -372,7 +374,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     linkButton: {
@@ -382,7 +384,7 @@ const styles = StyleSheet.create({
     },
     linkText: {
         color: theme.colours.black,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     input: {
@@ -393,13 +395,13 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         paddingHorizontal: 10,
         backgroundColor: '#ffffff',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
     },
     inputLabel: {
         fontFamily: theme.fonts.openSans.regular,
         alignSelf: 'flex-start',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         marginBottom: 10,
     },
     inputContainer: {
@@ -412,7 +414,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: theme.colours.primary,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     checkboxContainer: {
@@ -434,16 +436,16 @@ const styles = StyleSheet.create({
     },
 
     checkboxText: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     passwordHint: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
         marginBottom: 10,
     },
     passwordHintList: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
         marginLeft: 10,
     },

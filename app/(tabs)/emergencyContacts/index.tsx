@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Platform, StatusBar, Linking } from 'react-native';
+import React from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Platform, Linking } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { Ionicons } from '@expo/vector-icons';
@@ -148,18 +149,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     contactName: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.bold,
         marginBottom: 4,
     },
     contactNumber: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.blue20,
         marginBottom: 8,
     },
     contactDescription: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.blue0,
     },
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     addButtonText: {
         color: theme.colours.white,
         fontFamily: theme.fonts.openSans.semiBold,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         marginLeft: 8,
     },
 });

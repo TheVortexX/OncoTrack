@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, ScrollView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome6, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
@@ -620,8 +621,8 @@ const MedicationScreen = () => {
 
                     {/* Daily Schedule Section */}
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionHeaderText}>Today's Schedule</Text>
-                        <Text style={styles.sectionSubHeaderText}> - Tap a medication to log</Text>
+                        <Text style={styles.sectionHeaderText} allowFontScaling={false}>Today's Schedule</Text>
+                        <Text style={styles.sectionSubHeaderText} allowFontScaling={false}> - Tap a medication to log</Text>
                     </View>
 
                     {getTodaysMedications().length > 0 ? (
@@ -761,13 +762,13 @@ const styles = StyleSheet.create({
     },
     sectionHeaderText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
     sectionSubHeaderText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
@@ -798,7 +799,7 @@ const styles = StyleSheet.create({
     initialsText: {
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
-        fontSize: 24,
+        fontSize: normaliseSize(24),
         fontWeight: 'bold',
     },
     medicationDetails: {
@@ -807,19 +808,19 @@ const styles = StyleSheet.create({
     },
     medicationName: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
         marginBottom: 4,
     },
     medicationDosage: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     medicationFrequency: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.gray,
         marginTop: 2,
     },
@@ -834,7 +835,7 @@ const styles = StyleSheet.create({
     },
     emptyStateText: {
         marginTop: 10,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },
@@ -860,14 +861,14 @@ const styles = StyleSheet.create({
     },
     timeHeaderText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textPrimary,
         marginLeft: 10,
         marginRight: 8,
     },
     timeSubHeaderText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.textSecondary,
     },
     scheduleItem: {
@@ -886,12 +887,12 @@ const styles = StyleSheet.create({
     },
     scheduleItemText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     noMedicationText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
         fontStyle: 'italic',
         textAlign: 'center',
@@ -933,7 +934,7 @@ const styles = StyleSheet.create({
     },
     notificationText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
         color: theme.colours.primary,
         marginLeft: 4,
     },

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normaliseSize } from '@/utils/normaliseSize';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { useRouter } from 'expo-router';
@@ -120,7 +121,7 @@ const DetailsScreen = () => {
 const styles = StyleSheet.create({
     titleText: {
         fontFamily: theme.fonts.roboto.medium,
-        fontSize: 80,
+        fontSize: normaliseSize(80),
         color: "#000000",
         textAlign: 'center',
         marginBottom: height * 0.05,
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: theme.colours.white,
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.semiBold,
     },
     linkButton: {
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
     },
     linkText: {
         color: theme.colours.black,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     input: {
@@ -183,13 +184,13 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         paddingHorizontal: 10,
         backgroundColor: '#ffffff',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
     },
     inputLabel: {
         fontFamily: theme.fonts.openSans.regular,
         alignSelf: 'flex-start',
-        fontSize: 30,
+        fontSize: normaliseSize(30),
         marginBottom: 10,
     },
     inputContainer: {
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: theme.colours.primary,
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     checkboxContainer: {
@@ -222,16 +223,16 @@ const styles = StyleSheet.create({
     },
 
     checkboxText: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
     passwordHint: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
         marginBottom: 10,
     },
     passwordHintList: {
-        fontSize: 20,
+        fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
         marginLeft: 10,
     },

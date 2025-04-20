@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Platform, StatusBar, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, Platform, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     loadingText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.blue20,
         marginHorizontal: 16,
@@ -337,12 +338,12 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     settingLabel: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textPrimary,
     },
     settingValue: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
         marginTop: 4,
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colours.primary,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
     },
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     saveButtonText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.white,
     },
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     footerText: {
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.gray,
         textAlign: 'center',

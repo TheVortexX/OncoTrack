@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, Image, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar, Dimensions, Keyboard, Alert} from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, Image, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions, Keyboard, Alert} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
@@ -592,7 +593,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 4,
     },
     messageText: {
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
     },
     userMessageText: {

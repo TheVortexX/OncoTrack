@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
+import { normaliseSize } from '@/utils/normaliseSize';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from 'moment';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,8 @@ import {
 import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/utils/dateUtils';
 import { getUserMedications, getUserMedicationTimes } from '@/services/medicationService';
 import Header from '@/components/header';
+
+// TODO limit medication log and medication dots to 1 per day
 
 interface Appointment {
     id: string;
@@ -561,6 +564,7 @@ const ScheduleScreen = () => {
 
                 <CalendarStrip
                     style={styles.calendarStrip}
+                    shouldAllowFontScaling={false}
                     calendarColor={theme.colours.background}
                     calendarHeaderStyle={styles.calendarHeader}
                     dateNumberStyle={styles.dateNumber}
@@ -635,37 +639,37 @@ const styles = StyleSheet.create({
     calendarHeader: {
         color: theme.colours.textPrimary,
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
     },
     dateNumber: {
         color: theme.colours.textPrimary,
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
     },
     dateName: {
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
     },
     highlightedDateNumber: {
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.textOnPrimary,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
     },
     highlightedDateName: {
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textOnPrimary,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
     },
     disabledDateName: {
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.lightGray,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
     },
     disabledDateNumber: {
         fontFamily: theme.fonts.ubuntu.bold,
         color: theme.colours.lightGray,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
     },
     appointmentsContainer: {
         flex: 1,
@@ -679,7 +683,7 @@ const styles = StyleSheet.create({
     },
     dayNumber: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 26,
+        fontSize: normaliseSize(26),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
     },
@@ -691,14 +695,14 @@ const styles = StyleSheet.create({
     },
     upcomingText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
         marginTop: 60,
     },
     dayName: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         color: theme.colours.textSecondary,
     },
     appointmentCard: {
@@ -731,17 +735,17 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     timeSep: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
     },
     futureDateText: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.textSecondary,
     },
     appointmentDetails: {
@@ -749,20 +753,20 @@ const styles = StyleSheet.create({
     },
     providerName: {
         fontFamily: theme.fonts.ubuntu.bold,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontWeight: 'bold',
         color: theme.colours.textPrimary,
         marginBottom: 4,
     },
     appointmentType: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 16,
+        fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
         marginBottom: 2,
     },
     staffInfo: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 14,
+        fontSize: normaliseSize(14),
         color: theme.colours.gray,
     },
     initialsCircle: {
@@ -784,7 +788,7 @@ const styles = StyleSheet.create({
     },
     noAppointmentsText: {
         marginTop: 10,
-        fontSize: 18,
+        fontSize: normaliseSize(18),
         fontFamily: theme.fonts.ubuntu.regular,
         color: theme.colours.textSecondary,
     },
@@ -795,7 +799,7 @@ const styles = StyleSheet.create({
     },
     notificationText: {
         fontFamily: theme.fonts.ubuntu.regular,
-        fontSize: 12,
+        fontSize: normaliseSize(12),
         color: theme.colours.primary,
         marginLeft: 4,
     },
