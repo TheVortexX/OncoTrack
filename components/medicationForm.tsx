@@ -290,12 +290,25 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
     const renderUnitsPicker = () => {
         if (Platform.OS === 'ios') {
             return (
-                <View style={styles.unitContainer}>
+                <View style={[
+                    styles.unitContainer,
+                    readonly && styles.disabledButton
+                ]}>
                     <TouchableOpacity
                         onPress={() => !readonly && setShowUnitsPicker(true)}
                         disabled={readonly}
+                        style={styles.unitButton}
+                        activeOpacity={0.7}
                     >
-                        <Text style={styles.unitText}>{units}</Text>
+                        <Text style={[styles.unitText, readonly && styles.readonlyText]}>
+                            {units} 
+                        </Text>
+                        <MaterialCommunityIcons 
+                            name="chevron-down" 
+                            size={16} 
+                            color={readonly ? theme.colours.textSecondary : theme.colours.primary}
+                            style={{ marginLeft: 4 }}
+                        />
                     </TouchableOpacity>
 
                     <PickerModal
@@ -379,11 +392,20 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                         <Text style={[styles.sectionTitle, readonly && styles.readonlyText]}>Dosage</Text>
                         <View style={styles.dosageContainer}>
                             <TouchableOpacity
-                                style={[styles.dosageButton, readonly && styles.readonlyField]}
+                                style={[
+                                    styles.dosageButton, 
+                                    readonly && styles.disabledButton,
+                                    { borderLeftWidth: 0 }
+                                ]}
                                 onPress={decreaseDosage}
                                 disabled={readonly}
+                                activeOpacity={0.7}
                             >
-                                <Text style={styles.dosageButtonText}>-</Text>
+                                <MaterialCommunityIcons 
+                                    name="minus-circle" 
+                                    size={28} 
+                                    color={readonly ? theme.colours.textSecondary : theme.colours.primary} 
+                                />
                             </TouchableOpacity>
 
                             <InputField
@@ -400,11 +422,20 @@ const MedicationForm: React.FC<MedicationFormProps> = ({
                             />
 
                             <TouchableOpacity
-                                style={[styles.dosageButton, readonly && styles.readonlyField]}
+                                style={[
+                                    styles.dosageButton,
+                                    readonly && styles.disabledButton,
+                                    { borderLeftWidth: 0 }
+                                ]}
                                 onPress={increaseDosage}
                                 disabled={readonly}
+                                activeOpacity={0.7}
                             >
-                                <Text style={styles.dosageButtonText}>+</Text>
+                                <MaterialCommunityIcons 
+                                    name="plus-circle" 
+                                    size={28} 
+                                    color={readonly ? theme.colours.textSecondary : theme.colours.primary} 
+                                />
                             </TouchableOpacity>
                             {renderUnitsPicker()}
                         </View>
@@ -961,18 +992,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         marginBottom: 10,
     },
-    dosageButton: {
-        width: 50,
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: theme.colours.gray90,
-    },
-    dosageButtonText: {
-        fontSize: normaliseSize(24),
-        fontFamily: theme.fonts.ubuntu.bold,
-        color: theme.colours.textPrimary,
-    },
     dosageValueContainer: {
         flex: 1,
         height: '100%',
@@ -987,6 +1006,27 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingTop: 15
     },
+    unitButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 8,
+        borderRadius: 4,
+    },
+    dosageButton: {
+        width: 50,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colours.gray90, 
+        borderRightWidth: 1,
+        borderLeftWidth: 1,
+        borderColor: theme.colours.lightGray,
+    },
+    dosageButtonText: {
+        fontSize: normaliseSize(24),
+        fontFamily: theme.fonts.ubuntu.bold,
+        color: theme.colours.primary,
+    },
     unitContainer: {
         height: '100%',
         paddingHorizontal: 15,
@@ -999,7 +1039,12 @@ const styles = StyleSheet.create({
     unitText: {
         fontSize: normaliseSize(16),
         fontFamily: theme.fonts.ubuntu.regular,
-        color: theme.colours.textPrimary,
+        color: theme.colours.primary,
+        textDecorationLine: 'underline',
+    },
+    disabledButton: {
+        backgroundColor: theme.colours.gray80,
+        opacity: 0.7,
     },
 });
 
