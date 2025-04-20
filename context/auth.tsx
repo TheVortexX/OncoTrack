@@ -62,6 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     if (profile && profile.registrationStage === "name") {
                         router.replace('/(auth)/registerDetails');
+                    } else if (profile && profile.registrationStage === "details") {
+                        router.replace('/(auth)/medicationPreferences');                        
                     } else if (inAuthFlow) {
                         // Only redirect to tabs if user is fully registered
                         router.replace('/(tabs)');

@@ -82,7 +82,7 @@ const DetailsScreen = () => {
                     cancerType,
                     birthday,
                     sex,
-                    registrationStage: 'complete',
+                    registrationStage: 'details',
                 });
                 router.replace('/(tabs)');
             }
