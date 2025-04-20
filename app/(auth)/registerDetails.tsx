@@ -35,7 +35,6 @@ const DetailsScreen = () => {
     const { user, updateProfile } = useAuth();
     const router = useRouter();
 
-    // State for showing/hiding date picker for Android
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showSexPicker, setShowSexPicker] = useState(false);
 
@@ -45,7 +44,7 @@ const DetailsScreen = () => {
         { label: 'Prefer not to say', value: 'Prefer not to say' }
     ];
 
-    const handleDateChange = (event:any, selectedDate: Date | undefined) => {
+    const handleDateChange = (event: any, selectedDate: Date | undefined) => {
         if (Platform.OS === 'android') {
             setShowDatePicker(false);
         }
@@ -57,7 +56,7 @@ const DetailsScreen = () => {
 
         const formattedDate = moment(currentDate).format('DD MMM, YYYY');
         setFormattedBirthday(formattedDate);
-        setBirthday(moment(currentDate).format('YYYY-MM-DD')); // ISO format for storage
+        setBirthday(moment(currentDate).format('YYYY-MM-DD'));
     };
 
     const doContinue = async () => {
@@ -95,7 +94,6 @@ const DetailsScreen = () => {
         }
     }
 
-    // Platform-specific picker rendering for sex
     const renderSexPicker = () => {
         if (Platform.OS === 'ios') {
             return (
@@ -140,28 +138,57 @@ const DetailsScreen = () => {
         }
     };
 
-    // Render date picker based on platform
     const renderDatePicker = () => {
         if (Platform.OS === 'ios') {
-            // iOS - Render inline DateTimePicker
             return (
-                <View style={styles.datePickerWrapper}>
-                    <DateTimePicker
-                        value={birthdayDate}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                        maximumDate={new Date()}
-                        textColor={theme.colours.textPrimary}
-                        themeVariant="light"
-                        style={{ marginLeft: -10 }}
-                    />
+                <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Date of birth</Text>
+                    <TouchableOpacity
+                        style={styles.datePickerButton}
+                        onPress={() => setShowDatePicker(!showDatePicker)}
+                    >
+                        <Text style={styles.datePickerButtonText}>
+                            {formattedBirthday || 'Select date of birth'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <View style={styles.inlineDatePickerContainer}>
+                            <DateTimePicker
+                                value={birthdayDate}
+                                mode="date"
+                                display="spinner"
+                                onChange={handleDateChange}
+                                maximumDate={new Date()}
+                                textColor={theme.colours.textPrimary}
+                                themeVariant="light"
+                                style={styles.datePicker}
+                            />
+                            <View style={styles.pickerButtonContainer}>
+                                <TouchableOpacity
+                                    style={styles.pickerActionButton}
+                                    onPress={() => setShowDatePicker(false)}
+                                >
+                                    <Text style={styles.pickerActionButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.pickerActionButton, styles.confirmButton]}
+                                    onPress={() => {
+                                        handleDateChange(null, birthdayDate);
+                                        setShowDatePicker(false);
+                                    }}
+                                >
+                                    <Text style={[styles.pickerActionButtonText, styles.confirmButtonText]}>Confirm</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
                 </View>
             );
         } else {
-            // Android - Use a button to show the picker
             return (
                 <>
+                    <Text style={styles.inputLabel}>Date of birth</Text>
                     <TouchableOpacity
                         style={styles.datePickerButton}
                         onPress={() => setShowDatePicker(true)}
@@ -218,7 +245,6 @@ const DetailsScreen = () => {
 
                         {/* Date of Birth Picker */}
                         <View style={styles.inputContainer}>
-                            <Text style={styles.inputLabel}>Date of birth</Text>
                             {renderDatePicker()}
                         </View>
 
@@ -343,7 +369,6 @@ const styles = StyleSheet.create({
         fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
-    // Date picker styles
     datePickerWrapper: {
         width: '100%',
         height: 60,
@@ -370,7 +395,31 @@ const styles = StyleSheet.create({
         fontFamily: theme.fonts.openSans.regular,
         color: '#000000',
     },
-    // Sex picker styles
+    timeRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        borderRadius: 6,
+        backgroundColor: '#ffffff',
+        width: '100%',
+        height: 60,
+        ...shadowStyle,
+    },
+    timeLabel: {
+        fontFamily: theme.fonts.openSans.regular,
+        fontSize: normaliseSize(30),
+        color: theme.colours.textPrimary,
+    },
+    dateTimeContainer: {
+        flexDirection: 'row',
+        flex: 1,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     pickerButton: {
         width: '100%',
         height: 60,
@@ -400,6 +449,49 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 60,
         fontSize: normaliseSize(30),
+    },
+    inlineDatePickerContainer: {
+        marginTop: 8,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        padding: 15,
+        ...shadowStyle,
+    },
+    datePicker: {
+        height: 200,
+    },
+    pickerModalContent: {
+        backgroundColor: 'white',
+        padding: 15,
+        borderRadius: 10,
+    },
+    pickerButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 15,
+    },
+    pickerActionButton: {
+        padding: 10,
+        width: '48%',
+        alignItems: 'center',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+    },
+    pickerActionButtonText: {
+        fontSize: normaliseSize(28),
+        fontFamily: theme.fonts.openSans.regular,
+        color: theme.colours.textPrimary,
+    },
+    confirmButton: {
+        backgroundColor: theme.colours.buttonBlue,
+        borderColor: theme.colours.buttonBlue,
+    },
+    confirmButtonText: {
+        color: theme.colours.white,
+        fontFamily: theme.fonts.openSans.semiBold,
     },
 });
 
