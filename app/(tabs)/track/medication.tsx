@@ -613,10 +613,10 @@ const MedicationScreen = () => {
                     {getCurrentMedications().length > 0 ? (
                         getCurrentMedications().map(medication => renderMedicationCard(medication))
                     ) : (
-                        <View style={styles.emptyState}>
+                        <TouchableOpacity onPress={showNewMedicationModal} style={styles.emptyState}>
                             <MaterialCommunityIcons name="pill" size={48} color={theme.colours.textSecondary} />
                             <Text style={styles.emptyStateText}>No medications added yet</Text>
-                        </View>
+                        </TouchableOpacity>
                     )}
 
                     {/* Daily Schedule Section */}
