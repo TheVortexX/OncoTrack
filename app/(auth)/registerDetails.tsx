@@ -3,27 +3,82 @@ import { normaliseSize } from '@/utils/normaliseSize';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { useRouter } from 'expo-router';
-import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+    ScrollView,
+    View,
+    Dimensions,
+    Text,
+    StyleSheet,
+    Image,
+    ActivityIndicator,
+    TouchableOpacity,
+    Alert,
+    KeyboardAvoidingView,
+    Platform
+} from 'react-native';
 import InputField from '@/components/InputField';
 import validate from '@/utils/fieldValidation';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
+import PickerModal from '@/components/iosPicker';
+import moment from 'moment';
 
 const { width, height } = Dimensions.get('window');
 
-
-// Gender, cancer type, age
 const DetailsScreen = () => {
     const [cancerType, setCancerType] = useState('');
     const [birthday, setBirthday] = useState('');
+    const [formattedBirthday, setFormattedBirthday] = useState('');
+    const [birthdayDate, setBirthdayDate] = useState(new Date());
     const [sex, setSex] = useState('');
     const [loading, setLoading] = useState(false);
     const { user, updateProfile } = useAuth();
     const router = useRouter();
 
+    // State for showing/hiding date picker for Android
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showSexPicker, setShowSexPicker] = useState(false);
+
+    const sexOptions = [
+        { label: 'Male', value: 'Male' },
+        { label: 'Female', value: 'Female' },
+        { label: 'Prefer not to say', value: 'Prefer not to say' }
+    ];
+
+    const handleDateChange = (event:any, selectedDate: Date | undefined) => {
+        if (Platform.OS === 'android') {
+            setShowDatePicker(false);
+        }
+
+        if (!selectedDate) return;
+
+        const currentDate = selectedDate || birthdayDate;
+        setBirthdayDate(currentDate);
+
+        const formattedDate = moment(currentDate).format('DD MMM, YYYY');
+        setFormattedBirthday(formattedDate);
+        setBirthday(moment(currentDate).format('YYYY-MM-DD')); // ISO format for storage
+    };
+
     const doContinue = async () => {
+        if (!cancerType.trim()) {
+            Alert.alert('Missing Information', 'Please enter your cancer type.');
+            return;
+        }
+
+        if (!birthday.trim()) {
+            Alert.alert('Missing Information', 'Please select your date of birth.');
+            return;
+        }
+
+        if (!sex.trim()) {
+            Alert.alert('Missing Information', 'Please select your sex.');
+            return;
+        }
+
         setLoading(true);
         try {
-            if (user){
+            if (user) {
                 await updateProfile({
                     cancerType,
                     birthday,
@@ -37,8 +92,98 @@ const DetailsScreen = () => {
             Alert.alert('Error updating profile', 'An error occurred while updating your profile. Please try again later.');
         } finally {
             setLoading(false);
-        }        
+        }
     }
+
+    // Platform-specific picker rendering for sex
+    const renderSexPicker = () => {
+        if (Platform.OS === 'ios') {
+            return (
+                <TouchableOpacity
+                    style={styles.pickerButton}
+                    onPress={() => setShowSexPicker(true)}
+                >
+                    <Text style={styles.pickerButtonText}>
+                        {sex || 'Select sex'}
+                    </Text>
+
+                    <PickerModal
+                        isVisible={showSexPicker}
+                        onClose={() => setShowSexPicker(false)}
+                        onConfirm={(value) => setSex(value)}
+                        value={sex}
+                        items={sexOptions}
+                        title="Select Sex"
+                    />
+                </TouchableOpacity>
+            );
+        } else {
+            return (
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={sex}
+                        onValueChange={(itemValue) => setSex(itemValue)}
+                        style={styles.picker}
+                        mode="dropdown"
+                    >
+                        <Picker.Item label="Select sex" value="" />
+                        {sexOptions.map((option) => (
+                            <Picker.Item
+                                key={option.value}
+                                label={option.label}
+                                value={option.value}
+                            />
+                        ))}
+                    </Picker>
+                </View>
+            );
+        }
+    };
+
+    // Render date picker based on platform
+    const renderDatePicker = () => {
+        if (Platform.OS === 'ios') {
+            // iOS - Render inline DateTimePicker
+            return (
+                <View style={styles.datePickerWrapper}>
+                    <DateTimePicker
+                        value={birthdayDate}
+                        mode="date"
+                        display="default"
+                        onChange={handleDateChange}
+                        maximumDate={new Date()}
+                        textColor={theme.colours.textPrimary}
+                        themeVariant="light"
+                        style={{ marginLeft: -10 }}
+                    />
+                </View>
+            );
+        } else {
+            // Android - Use a button to show the picker
+            return (
+                <>
+                    <TouchableOpacity
+                        style={styles.datePickerButton}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <Text style={styles.datePickerButtonText}>
+                            {formattedBirthday || 'Select date of birth'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={birthdayDate}
+                            mode="date"
+                            display="default"
+                            onChange={handleDateChange}
+                            maximumDate={new Date()}
+                        />
+                    )}
+                </>
+            );
+        }
+    };
 
     return (
         <KeyboardAvoidingView
@@ -70,38 +215,18 @@ const DetailsScreen = () => {
                                 errorInput: styles.errorInput,
                             }}
                         />
-                        <InputField
-                            label='Select date of birth'
-                            value={birthday}
-                            placeholder='Select date of birth'
-                            onChangeText={setBirthday}
-                            autoComplete='birthdate-full'
-                            validateOnBlur
-                            validate={validate.notEmptyTextOnly}
-                            style={{
-                                input: styles.input,
-                                label: styles.inputLabel,
-                                errorText: styles.errorText,
-                                container: styles.inputContainer,
-                                errorInput: styles.errorInput,
-                            }}
-                        />
-                        <InputField
-                            label='Sex'
-                            value={sex}
-                            placeholder='Select sex'
-                            onChangeText={setSex}
-                            autoComplete='gender'
-                            validateOnBlur
-                            validate={validate.notEmptyTextOnly}
-                            style={{
-                                input: styles.input,
-                                label: styles.inputLabel,
-                                errorText: styles.errorText,
-                                container: styles.inputContainer,
-                                errorInput: styles.errorInput,
-                            }}
-                        />
+
+                        {/* Date of Birth Picker */}
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputLabel}>Date of birth</Text>
+                            {renderDatePicker()}
+                        </View>
+
+                        {/* Sex Picker */}
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputLabel}>Sex</Text>
+                            {renderSexPicker()}
+                        </View>
                     </View>
                     <View style={styles.bottomContent}>
                         <TouchableOpacity style={styles.button} onPress={doContinue}>
@@ -118,6 +243,18 @@ const DetailsScreen = () => {
     );
 };
 
+const shadowStyle = Platform.select({
+    ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
+    android: {
+        elevation: 2,
+    },
+});
+
 const styles = StyleSheet.create({
     titleText: {
         fontFamily: theme.fonts.roboto.medium,
@@ -129,7 +266,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.blue99,
-        justifyContent: 'center', // Center vertically
+        justifyContent: 'center',
     },
     content: {
         flex: 1,
@@ -206,40 +343,63 @@ const styles = StyleSheet.create({
         fontSize: normaliseSize(20),
         fontFamily: theme.fonts.openSans.regular,
     },
-    checkboxContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginBottom: 20,
+    // Date picker styles
+    datePickerWrapper: {
         width: '100%',
-        paddingHorizontal: 2,
-        paddingVertical: 20,
+        height: 60,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        borderRadius: 6,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        ...shadowStyle,
     },
-    checkbox: {
-        width: 50,
-        height: 50,
-        borderRadius: 5,
-        marginRight: 20,
+    datePickerButton: {
+        width: '100%',
+        height: 60,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        borderRadius: 6,
+        paddingHorizontal: 10,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        ...shadowStyle,
     },
-
-    checkboxText: {
-        fontSize: normaliseSize(20),
+    datePickerButtonText: {
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
+        color: '#000000',
     },
-    passwordHint: {
-        fontSize: normaliseSize(20),
+    // Sex picker styles
+    pickerButton: {
+        width: '100%',
+        height: 60,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        borderRadius: 6,
+        paddingHorizontal: 10,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+    },
+    pickerButtonText: {
+        fontSize: normaliseSize(30),
         fontFamily: theme.fonts.openSans.regular,
-        marginBottom: 10,
+        color: '#000000',
     },
-    passwordHintList: {
-        fontSize: normaliseSize(20),
-        fontFamily: theme.fonts.openSans.regular,
-        marginLeft: 10,
+    pickerContainer: {
+        width: '100%',
+        height: 60,
+        borderWidth: 1,
+        borderColor: theme.colours.gray20,
+        borderRadius: 6,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        overflow: 'hidden',
     },
-    passwordRequirementRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 5,
+    picker: {
+        width: '100%',
+        height: 60,
+        fontSize: normaliseSize(30),
     },
 });
 
