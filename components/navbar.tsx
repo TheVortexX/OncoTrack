@@ -73,7 +73,7 @@ const NavBar = () => {
                     />
                     <Text style={styles.navText} allowFontScaling={false}>Schedule</Text>
                 </TouchableOpacity>
-                <View style={styles.trackCircle}>
+                <View style={[styles.trackCircle, {marginBottom: 25}]}>
                     <TouchableOpacity
                         style={styles.trackButton}
                         onPress={() => {
@@ -144,7 +144,6 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         width: 60,
         height: 60,
-        bottom: 30,
     },
     trackButton: {
         alignItems: 'center',

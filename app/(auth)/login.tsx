@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
-import * as SecureStorage from 'expo-secure-store';
 import { useAuth } from '@/context/auth';
 import { ScrollView, View, Dimensions, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, KeyboardAvoidingView, Platform} from 'react-native';
 import  InputField from '@/components/InputField';
@@ -61,6 +60,7 @@ const LoginScreen = () => {
                             keyboardType='email-address'
                             autoComplete='email'
                             validateOnBlur
+                            validateOnChange
                             validate={validate.email}
                             style={{
                                 input: styles.input,

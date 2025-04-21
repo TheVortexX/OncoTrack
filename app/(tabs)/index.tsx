@@ -7,6 +7,7 @@ import { useAuth } from '@/context/auth';
 import EmergencyButton from '@/components/emergencyButton';
 import TodaySchedule from '@/components/todaySchedule';
 import { useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const headerImages = [
   require('@/assets/images/homeSplash/firewatch_tower.webp'),
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   const { getProfile } = useAuth();
   const [username, setUsername] = useState('');
   const [headerImage, setHeaderImage] = useState(headerImages[0]);
+  const insets = useSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
@@ -40,7 +42,7 @@ export default function HomeScreen() {
   const greeting = getGreeting(username);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {marginBottom: insets.bottom+50}]}>
       <StatusBar 
         translucent
         backgroundColor={"transparent"}
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colours.blue99,
-    marginBottom: 70,
   },
   scrollContent: {
     flexGrow: 1,

@@ -152,6 +152,7 @@ const RegistrationScreen = () => {
                             autoComplete='given-name'
                             autoCapitalize='words'
                             validateOnBlur
+                            returnKeyType='next'
                             validate={validate.notEmptyTextOnly}
                             style={{
                                 input: styles.input,
@@ -168,6 +169,7 @@ const RegistrationScreen = () => {
                             onChangeText={setLName}
                             autoComplete='family-name'
                             autoCapitalize='words'
+                            returnKeyType='next'
                             validateOnBlur
                             validate={validate.notEmptyTextOnly}
                             style={{
@@ -185,6 +187,7 @@ const RegistrationScreen = () => {
                             onChangeText={setEmail}
                             keyboardType='email-address'
                             autoComplete='email'
+                            returnKeyType='next'
                             validateOnBlur
                             validate={validate.email}
                             style={{

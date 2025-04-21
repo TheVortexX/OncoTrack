@@ -232,6 +232,9 @@ const DetailsScreen = () => {
                             placeholder='Select type(s) of cancer'
                             onChangeText={setCancerType}
                             autoCapitalize='words'
+                            autoComplete='off'
+                            returnKeyType='next'
+                            key={'cancerType'}
                             validateOnBlur
                             validate={validate.notEmptyTextOnly}
                             style={{

@@ -10,8 +10,8 @@ import { useAuth } from '@/context/auth';
 import Header from '@/components/header';
 import useBiometrics from '@/hooks/useBiometrics';
 import InputField from '@/components/InputField';
-import { updateProfile } from 'firebase/auth';
 import { updateUserProfile } from '@/services/profileService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const AccountScreen = () => {
     const router = useRouter();
@@ -21,6 +21,7 @@ const AccountScreen = () => {
     const [displayName, setDisplayName] = useState('Not set');
     const [editDisplay, setEditDisplay] = useState(false);
     const [email, setEmail] = useState(user?.email || 'Not set');
+    const insets = useSafeAreaInsets();
 
     useFocusEffect(
         useCallback(() => {
@@ -82,7 +83,7 @@ const AccountScreen = () => {
 
     return (
         <>
-            <View style={styles.container}>
+            <View style={[styles.container, {marginBottom: insets.bottom+50}]}>
                 <Header
                     title="Account Settings"
                     subtitle='Manage your profile and preferences'
@@ -253,8 +254,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colours.blue99,
-        marginBottom: 70,
-        paddingBottom: 20,
     },
     scrollContent: {
         flex: 1,

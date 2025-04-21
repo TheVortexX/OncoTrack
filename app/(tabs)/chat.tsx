@@ -75,7 +75,7 @@ const ChatScreen = () => {
     const [extractedAppointment, setExtractedAppointment] = useState<Appointment | null>(null);
     
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const bottomMargin = Platform.OS === 'ios' ?  insets.bottom : 70
+    const bottomMargin = insets.bottom + 50
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
@@ -502,6 +502,8 @@ const ChatScreen = () => {
                             onChangeText={setMessage}
                             placeholder="Ask about your treatment..."
                             placeholderTextColor={theme.colours.gray}
+                            returnKeyType='send'
+                            onSubmitEditing={sendMessage}
                             multiline
                         />
                         <TouchableOpacity
@@ -522,8 +524,8 @@ const ChatScreen = () => {
                 </View>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding': undefined}
-                    style={[styles.avoidContainer, {marginBottom: Platform.OS === 'android' ? insets.bottom : insets.bottom + 15}, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin-15 : 0}
+                    style={[styles.avoidContainer, {height: 35}, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
                 />
 
             </View>
@@ -613,7 +615,6 @@ const styles = StyleSheet.create({
     },
     avoidContainer: {
         width: '100%',
-        height: 35,
         backgroundColor: theme.colours.blueGray,
     },
     inputArea: {

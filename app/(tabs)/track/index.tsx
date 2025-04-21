@@ -5,13 +5,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import Header from '@/components/header';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TrackScreen = () => {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     return (
         <>
-            <View style={styles.container}>
+            <View style={[styles.container, {marginBottom: insets.bottom+50}]}>
                 <Header
                     title='Track'
                     subtitle='Add a symptom, appointment or medication'
@@ -21,7 +23,7 @@ const TrackScreen = () => {
                     {/* Symptoms Card */}
                     <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/track/symptomTrack')}>
                         <View style={styles.iconContainer}>
-                            <Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />
+                            <Image source={require('@/assets/images/personSymptoms.png')} style={{ width: normaliseSize(60), height: normaliseSize(60) }} />
                         </View>
                         <Text style={styles.cardTitle} allowFontScaling={false}>
                             <Text style={styles.boldText}>Record</Text> your symptoms
@@ -61,16 +63,15 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         padding: 20,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingBottom: 80,
     },
     card: {
         backgroundColor: 'white',
         borderRadius: 15,
         padding: 20,
-        marginBottom: 50,
-        width: 170,
+        marginBottom: normaliseSize(50),
+        width: normaliseSize(170),
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -80,8 +81,8 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         marginBottom: 10,
-        width: 70,
-        height: 70,
+        width: normaliseSize(70),
+        height: normaliseSize(70),
         borderRadius: 35,
         justifyContent: 'center',
         alignItems: 'center',
