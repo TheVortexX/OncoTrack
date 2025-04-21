@@ -186,12 +186,12 @@ const styles = StyleSheet.create({
     cancelButton: {
         fontSize: normaliseSize(16),
         color: theme.colours.textSecondary,
-        fontFamily: theme.fonts.ubuntu.regular,
+        fontFamily: theme.fonts.ubuntu.bold,
     },
     confirmButton: {
         fontSize: normaliseSize(16),
         color: theme.colours.blue20,
-        fontFamily: theme.fonts.ubuntu.regular,
+        fontFamily: theme.fonts.ubuntu.bold,
     },
     pickerWrapper: {
         backgroundColor: 'white',
