@@ -1,3 +1,9 @@
+// TODO select more than one symptom at a time
+// FUTURE TODO: suggest symptoms that they may have based on their treatment and cancer
+// TODO if a date other than the current date is selected don't navigate away once they've saved
+// TODO Visible scroll bar on the side so they know there's more symptoms and a gradient at the bottom to show that there's more symptoms
+// TODO arrow on the edge when there's more horizontally scrollable symptoms
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';

@@ -1,3 +1,5 @@
+// TODO button to easily dismiss the keyboard
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, Image, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions, Keyboard, Alert} from 'react-native';

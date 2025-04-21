@@ -1,3 +1,9 @@
+// TODO When there are no appointments for the day, show the current date between the calendar and the prompt
+// TODO Pre-fill the appointment form with the selected date
+// TODO medications should open the log modal when clicked
+// TODO medications don't show if there's no appointments
+// TODO limit medication log and medication dots to 1 per day
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
@@ -18,7 +24,6 @@ import { medicationDueOnDate, momentToTimestamp, timestampToMoment } from '@/uti
 import { getUserMedications, getUserMedicationTimes } from '@/services/medicationService';
 import Header from '@/components/header';
 
-// TODO limit medication log and medication dots to 1 per day
 
 interface Appointment {
     id: string;

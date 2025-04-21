@@ -1,3 +1,6 @@
+// TODO larger modal buttons, clearer edit button?
+// TODO start and end date label above the pickers
+
 import React, { useState, useEffect, useRef } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert, Keyboard, KeyboardEvent } from 'react-native';

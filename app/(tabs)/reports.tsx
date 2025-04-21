@@ -1,3 +1,6 @@
+// TODO make the symtpom frequency more meaningful, use a value based on how positive or negative the symptom is for the reports, show what was recorded rather than just that something was recorded
+// TODO have the AI make a comment on the report based on the data, e.g. "You have been feeling more tired than usual"
+
 import React, { useState } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, Platform, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';

@@ -1,9 +1,10 @@
+// TODO when clicking a medication it should open the log option
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '@/constants/theme';
 import { deleteUserAppointment, getUserAppointments, updateUserAppointment } from '@/services/profileService';
-import { Timestamp } from 'firebase/firestore'
 import moment from 'moment';
 import { useAuth } from '@/context/auth';
 import { MaterialCommunityIcons } from '@expo/vector-icons';

@@ -1,3 +1,5 @@
+// TODO make the modal buttons bigger
+
 import { theme } from '@/constants/theme';
 import { normaliseSize } from '@/utils/normaliseSize';
 import React, { ReactNode, useEffect, useState, useRef } from 'react';
