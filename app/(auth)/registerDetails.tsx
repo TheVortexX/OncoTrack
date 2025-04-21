@@ -171,7 +171,7 @@ const DetailsScreen = () => {
                                     style={styles.pickerActionButton}
                                     onPress={() => setShowDatePicker(false)}
                                 >
-                                    <Text style={styles.pickerActionButtonText}>Cancel</Text>
+                                    <Text style={styles.pickerActionButtonText} allowFontScaling={false}>Cancel</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.pickerActionButton, styles.confirmButton]}
@@ -180,7 +180,7 @@ const DetailsScreen = () => {
                                         setShowDatePicker(false);
                                     }}
                                 >
-                                    <Text style={[styles.pickerActionButtonText, styles.confirmButtonText]}>Confirm</Text>
+                                    <Text style={[styles.pickerActionButtonText, styles.confirmButtonText]} allowFontScaling={false}>Confirm</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

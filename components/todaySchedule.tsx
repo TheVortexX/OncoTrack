@@ -356,7 +356,7 @@ const TodaySchedule = () => {
                     <View style={styles.appointmentCard}>
                         <View style={styles.appointmentIconTime}>
                             <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 30, height: 30, borderRadius: 15 }]}>
-                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                                <Text style={[styles.initialsText, { fontSize: size }]} allowFontScaling={false}>{initials}</Text>
                             </View>
                             <View style={styles.appointmentTime}>
                                 <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>

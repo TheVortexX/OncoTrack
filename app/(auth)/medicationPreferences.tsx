@@ -176,7 +176,7 @@ const MedicationSettingsScreen = () => {
                                     style={styles.pickerActionButton}
                                     onPress={() => setShowPicker(false)}
                                 >
-                                    <Text style={styles.pickerActionButtonText}>Cancel</Text>
+                                    <Text style={styles.pickerActionButtonText} allowFontScaling={false}>Cancel</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.pickerActionButton, styles.confirmButton]}
@@ -185,7 +185,7 @@ const MedicationSettingsScreen = () => {
                                         setShowPicker(false);
                                     }}
                                 >
-                                    <Text style={[styles.pickerActionButtonText, styles.confirmButtonText]}>Confirm</Text>
+                                    <Text style={[styles.pickerActionButtonText, styles.confirmButtonText]} allowFontScaling={false}>Confirm</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -233,7 +233,7 @@ const MedicationSettingsScreen = () => {
                         style={styles.logo}
                         resizeMode='contain'
                     />
-                    <Text style={styles.titleText}>Medication Times</Text>
+                    <Text style={styles.titleText} allowFontScaling={false}>Medication Times</Text>
                     <Text style={styles.subtitleText}>Set your preferred medication reminder times</Text>
 
                     {isLoading ? (

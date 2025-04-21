@@ -415,7 +415,7 @@ const ScheduleScreen = () => {
                     <View style={styles.appointmentCard}>
                         <View style={styles.appointmentIconTime}>
                             <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 40, height: 40, borderRadius: 20 }]}>
-                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                                <Text style={[styles.initialsText, { fontSize: size }]} allowFontScaling={false}>{initials}</Text>
                             </View>
                             <View style={styles.appointmentTime}>
                                 <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
@@ -447,7 +447,7 @@ const ScheduleScreen = () => {
                     <View style={styles.appointmentCard}>
                         <View style={styles.appointmentIconTime}>
                             <View style={[styles.initialsCircle, { backgroundColor: appointment.colour, width: 40, height: 40, borderRadius: 20 }]}>
-                                <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                                <Text style={[styles.initialsText, { fontSize: size }]} allowFontScaling={false}>{initials}</Text>
                             </View>
                             <View style={styles.appointmentTime}>
                                 <Text style={styles.timeText}>{appointment.startTime.format("HH:mm")}</Text>
@@ -470,7 +470,7 @@ const ScheduleScreen = () => {
                 <View style={styles.appointmentCard}>
                     <View style={styles.appointmentIconTime}>
                         <View style={[styles.initialsCircle, { backgroundColor: appointment.colour }]}>
-                            <Text style={[styles.initialsText, { fontSize: size }]}>{initials}</Text>
+                            <Text style={[styles.initialsText, { fontSize: size }]} allowFontScaling={false}>{initials}</Text>
                         </View>
                         <View style={styles.appointmentTime}>
                             {future && <Text style={styles.futureDateText}>{appointment.startTime.format("DD MMM")}</Text>}

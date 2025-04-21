@@ -116,11 +116,11 @@ const PickerModal: React.FC<PickerModalProps> = ({
                 >
                     <View style={styles.modalHeader}>
                         <TouchableOpacity onPress={handleCancel}>
-                            <Text style={styles.cancelButton}>Cancel</Text>
+                            <Text style={styles.cancelButton} allowFontScaling={false}>Cancel</Text>
                         </TouchableOpacity>
-                        <Text style={styles.modalTitle}>{title}</Text>
+                        <Text style={styles.modalTitle} allowFontScaling={false}>{title}</Text>
                         <TouchableOpacity onPress={handleConfirm}>
-                            <Text style={styles.confirmButton}>Confirm</Text>
+                            <Text style={styles.confirmButton} allowFontScaling={false}>Confirm</Text>
                         </TouchableOpacity>
                     </View>
 
