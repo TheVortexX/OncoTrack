@@ -18,7 +18,7 @@ type AuthContextType = {
     getProfile: () => Promise<DocumentData | null | undefined>;
     updateProfile: (updates: any) => Promise<boolean>;
     signOut: () => Promise<void>;
-    forgotPassword: (email: string) => Promise<boolean>;
+    forgotPassword: (email?: string) => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -194,8 +194,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const forgotPassword = async (email: string) => {
+    const forgotPassword = async (em?: string) => {
         setLoading(true);
+        let email = em || '';
+        if (!email) {
+            if (user?.email) {
+                email = user.email;
+            }
+            else {
+                Alert.alert('Error', 'No email provided and user is not authenticated.');
+                setLoading(false);
+                return false;
+            }
+        }
         try {
             await sendPasswordResetEmail(auth, email)
             Alert.alert('Password reset email sent', 'Please check your email for a link to reset your password.');

@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const AccountScreen = () => {
     const router = useRouter();
-    const { user, getProfile, signOut } = useAuth();
+    const { user, getProfile, signOut, forgotPassword } = useAuth();
     const { isBiometricsAvailable } = useBiometrics();
     const [isFaceIDEnabled, setIsFaceIDEnabled] = useState(true);
     const [displayName, setDisplayName] = useState('Not set');
@@ -29,8 +29,8 @@ const AccountScreen = () => {
                 const profile = await getProfile();
                 if (profile) {
                     setDisplayName(profile.fName + ' ' + profile.lName);
-                    setEmail(profile.email);
                 }
+                if (user?.email) setEmail(user.email);
             };
             loadProfile();
             SecureStore.getItemAsync('auth_password').then((val) => {
@@ -148,7 +148,7 @@ const AccountScreen = () => {
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Security</Text>
 
-                            <TouchableOpacity onPress={() => { }} style={styles.menuItem}>
+                            <TouchableOpacity onPress={() => {forgotPassword()}} style={styles.menuItem}>
                                 <View style={styles.menuItemContent}>
                                     <Ionicons name="lock-closed-outline" size={24} color={theme.colours.primary} style={styles.menuItemIcon} />
                                     <Text style={styles.menuItemText}>Reset Password</Text>
