@@ -503,6 +503,7 @@ const ChatScreen = () => {
                             placeholder="Ask about your treatment..."
                             placeholderTextColor={theme.colours.gray}
                             returnKeyType='send'
+                            submitBehavior='blurAndSubmit'
                             onSubmitEditing={sendMessage}
                             multiline
                         />
