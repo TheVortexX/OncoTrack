@@ -68,6 +68,9 @@ const DetailsScreen = () => {
         if (!birthday.trim()) {
             Alert.alert('Missing Information', 'Please select your date of birth.');
             return;
+        } else if (moment(birthday).isAfter(moment())) {
+            Alert.alert('Invalid Date', 'Date of birth cannot be in the future.');
+            return;
         }
 
         if (!sex.trim()) {
@@ -159,7 +162,6 @@ const DetailsScreen = () => {
                                 mode="date"
                                 display="spinner"
                                 onChange={handleDateChange}
-                                maximumDate={new Date()}
                                 textColor={theme.colours.textPrimary}
                                 themeVariant="light"
                                 style={styles.datePicker}
