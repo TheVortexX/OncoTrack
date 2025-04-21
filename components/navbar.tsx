@@ -51,7 +51,7 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        if (!isActive('/')) router.push('/');
+                        if (!isActive('/')) router.replace('/');
                     }}
                 >
                     <Ionicons
@@ -64,7 +64,7 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        router.navigate('/schedule');
+                        router.replace('/schedule');
                     }}
                 >
                     <Ionicons
@@ -77,7 +77,7 @@ const NavBar = () => {
                     <TouchableOpacity
                         style={styles.trackButton}
                         onPress={() => {
-                            router.navigate('/(tabs)/track')
+                            router.replace('/(tabs)/track')
                          }}
                     >
                         <Ionicons name="add" size={40} color="#000" />
@@ -101,7 +101,7 @@ const NavBar = () => {
                 <TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
-                        router.navigate('/accountSettings')
+                        router.replace('/accountSettings')
                     }}
                 >
                     <Ionicons

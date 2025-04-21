@@ -1,7 +1,7 @@
 import NavBar from "@/components/navbar";
 import { Stack } from 'expo-router';
 
-export default function StackLayout() {
+export default function TabsLayout() {
   return (
     <>
       <Stack

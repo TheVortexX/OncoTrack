@@ -317,7 +317,7 @@ const SymptomTrackingScreen = () => {
                     leftButtonType='back'
                     rightButtonIcon={<Ionicons name="document-text-outline" size={24} color={theme.colours.white} />}
                     rightButtonText='Report'
-                    onRightButtonPress={() => router.push('/reports')}
+                    onRightButtonPress={() => router.navigate('/reports')}
                 />
                 {/* Calendar Strip */}
                 <CalendarStrip

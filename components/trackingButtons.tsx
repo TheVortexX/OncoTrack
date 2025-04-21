@@ -143,7 +143,7 @@ const TrackingOptionsScroll = () => {
                 <TrackingCard
                     icon={<Image source={require('@/assets/images/personSymptoms.png')} style={{ width: 60, height: 60 }} />}
                     title="Record your symptoms"
-                    onPress={() => router.push('/track/symptomTrack?today=true')}
+                    onPress={() => router.replace('/track/symptomTrack?today=true')}
                 />
 
                 {/* Display enabled symptom cards */}
@@ -152,7 +152,7 @@ const TrackingOptionsScroll = () => {
                         key={`symptom-${card.id}-${index}`}
                         icon={card.icon}
                         title={card.title}
-                        onPress={() => router.push(card.route as any)}
+                        onPress={() => router.navigate(card.route as any)}
                     />
                 ))}
 

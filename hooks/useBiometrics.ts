@@ -45,12 +45,12 @@ export default function useBiometrics() {
             } finally {
                 setIsLoading(false);
                 if (selected) {
-                    router.push('/(auth)/login');
+                    router.navigate('/(auth)/login');
                 }
             }
         } else if (selected) {
             console.log('Biometrics not available');
-            router.push('/(auth)/login');
+            router.navigate('/(auth)/login');
         } else {
             console.log('Biometrics not ready');
         }

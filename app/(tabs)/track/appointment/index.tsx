@@ -35,7 +35,7 @@ const TrackAppSelScreen = () => {
                     </TouchableOpacity>
 
                     {/* Manual Card */}
-                    <TouchableOpacity style={styles.card} onPress={() => router.push('/schedule?openNewAppointment=true')}>
+                    <TouchableOpacity style={styles.card} onPress={() => router.replace('/schedule?openNewAppointment=true')}>
                         <View style={styles.iconContainer}>
                             <Ionicons name="create-outline" size={60} color="black" />
                         </View>
