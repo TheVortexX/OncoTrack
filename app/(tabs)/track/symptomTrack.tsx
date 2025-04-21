@@ -737,8 +737,7 @@ const SymptomTrackingScreen = () => {
                 </View>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={[styles.avoidContainer, Platform.OS === 'android' && isKeyboardVisible && { marginBottom: -85 }]}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? bottomMargin - 35 : 0}
+                    style={[styles.avoidContainer, Platform.OS === 'android' && isKeyboardVisible && { marginBottom: -85 } ]}
                 />
             </View>
         </>
