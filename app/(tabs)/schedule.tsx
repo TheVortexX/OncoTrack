@@ -41,7 +41,6 @@ interface AppointmentsMap {
 const ScheduleScreen = () => {
     const params = useLocalSearchParams();
     const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
-    const [appointmentsFetched, setAppointmentsFetched] = useState(false);
     const [appointmentsMap, setAppointmentsMap] = useState<AppointmentsMap>({});
     const [medications, setMedications] = useState<Appointment[]>([]);
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
@@ -90,7 +89,6 @@ const ScheduleScreen = () => {
                 });
 
                 setAppointmentsMap(newAppointmentsMap);
-                setAppointmentsFetched(true);
 
                 // Schedule notifications for all appointments so that the device last used recieves the notification
                 scheduleAllAppointmentNotifications(newAppointmentsMap, user?.uid).then(updatedAppointments => {
