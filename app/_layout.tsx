@@ -1,5 +1,5 @@
 import { useCallback, useEffect} from 'react';
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/context/auth';
@@ -25,7 +25,23 @@ export default function RootLayout() {
     <SafeAreaProvider onLayout={onFinishDraw}>
       <AuthProvider>
         <StatusBar translucent />
-        <Slot />
+        <Stack
+        >
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="(tabs)"
+            options={{ 
+              headerShown: false,
+              animation: 'fade',
+              animationDuration: 500,
+            }} 
+          />
+        </Stack>
       </AuthProvider>
     </SafeAreaProvider>
   );
