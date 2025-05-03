@@ -21,9 +21,9 @@ const EmergencyButton = ({ onPress }: { onPress?: () => void }) => {
 
 const styles = StyleSheet.create({
     button: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
