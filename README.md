@@ -11,10 +11,6 @@ OncoTrack is a mobile application built with [Expo](https://expo.dev) to help ca
 - [Getting Started](#getting-started)
 - [Scripts](#scripts)
 - [Development](#development)
-- [Testing](#testing)
-- [Learn More](#learn-more)
-- [Community](#community)
-
 ---
 
 ## Features
