@@ -15,26 +15,28 @@ const headerImages = [
   require('@/assets/images/homeSplash/zen_garden.webp'),
 ];
 
+
 export default function HomeScreen() {
   const { getProfile } = useAuth();
   const [username, setUsername] = useState('');
-  const [headerImage, setHeaderImage] = useState(headerImages[0]);
+  const [headerImage, setHeaderImage] = useState();
   const insets = useSafeAreaInsets();
+
+  const selectRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * headerImages.length);
+    setHeaderImage(headerImages[randomIndex]);
+  };
 
   useFocusEffect(
     useCallback(() => {
+      selectRandomImage();
+
       const loadProfile = async () => {
         const profile = await getProfile();
         if (profile) {
           setUsername(profile.fName);
         }
       };
-
-      const selectRandomImage = () => {
-        const randomIndex = Math.floor(Math.random() * headerImages.length);
-        setHeaderImage(headerImages[randomIndex]);
-      };
-      selectRandomImage();
       loadProfile();
     }, [])
   );
