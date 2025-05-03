@@ -1,11 +1,7 @@
-// TODO make the symtpom frequency more meaningful, use a value based on how positive or negative the symptom is for the reports, show what was recorded rather than just that something was recorded
-// TODO have the AI make a comment on the report based on the data, e.g. "You have been feeling more tired than usual"
-
 import React, { useState } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, Platform, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
@@ -15,7 +11,50 @@ import moment from 'moment';
 import Header from '@/components/header';
 import { BarChart, LineChart, PieChart } from 'react-native-gifted-charts';
 
-// TODO fix/match colouring
+const MOOD_COLORS = {
+    excellent: '#4CAF50',
+    happy: '#8BC34A',
+    average: '#FFEB3B',
+    blank: '#9E9E9E',
+    'fed-up': '#FF9800',
+    sad: '#FF5722',
+    upset: '#F44336',
+    angry: '#D32F2F',
+};
+
+const ENERGY_COLORS = {
+    exhausted: '#F44336',
+    tired: '#FF9800',
+    ok: '#FFEB3B',
+    energetic: '#4CAF50',
+};
+
+const PAIN_COLORS = {
+    'pain-free': '#4CAF50',
+    headache: '#F44336',
+    stomach: '#FF9800',
+    joint: '#9C27B0',
+};
+
+// Mood value mapping for line chart
+const MOOD_VALUES = {
+    excellent: 3,
+    happy: 2,
+    average: 1,
+    blank: 0,
+    'fed-up': -1,
+    sad: -2,
+    upset: -3,
+    angry: -4,
+};
+
+// Energy value mapping for line chart
+const ENERGY_VALUES = {
+    exhausted: 0,
+    tired: 1,
+    ok: 2,
+    energetic: 3,
+};
 
 interface SymptomLog {
     id: string;
@@ -29,12 +68,11 @@ interface SymptomLog {
 interface ChartData {
     value: number;
     label: string;
-    frontColor?: string;
+    color?: string;
 }
 
 const SymptomReportScreen = () => {
     const { user } = useAuth();
-    const router = useRouter();
 
     const [startDate, setStartDate] = useState(moment().subtract(7, 'days').toDate());
     const [endDate, setEndDate] = useState(moment().toDate());
@@ -48,7 +86,9 @@ const SymptomReportScreen = () => {
     const [moodData, setMoodData] = useState<ChartData[]>([]);
     const [energyData, setEnergyData] = useState<ChartData[]>([]);
     const [painData, setPainData] = useState<ChartData[]>([]);
-    const [lineChartData, setLineChartData] = useState<any[]>([]);
+    const [temperatureData, setTemperatureData] = useState<any[]>([]);
+    const [moodLineData, setMoodLineData] = useState<any[]>([]);
+    const [energyLineData, setEnergyLineData] = useState<any[]>([]);
 
     const handleDateChange = (event: any, selectedDate: Date | undefined, dateType: 'start' | 'end') => {
         if (Platform.OS === 'android') {
@@ -124,62 +164,103 @@ const SymptomReportScreen = () => {
         const moodCounts: Record<string, number> = {};
         const energyCounts: Record<string, number> = {};
         const painCounts: Record<string, number> = {};
+        const moodTimelineData: any[] = [];
+        const energyTimelineData: any[] = [];
+        const tempData: any[] = [];
 
-        logs.forEach(log => {
+        // Sort logs by date to ensure chronological order
+        const sortedLogs = [...logs].sort((a, b) =>
+            moment(a.date).valueOf() - moment(b.date).valueOf()
+        );
+
+        sortedLogs.forEach(log => {
+            const formattedDate = moment(log.date).format('MMM DD');
+
+            // Process mood data
             if (log.symptoms.mood) {
+                // For pie chart - count occurrences
                 moodCounts[log.symptoms.mood] = (moodCounts[log.symptoms.mood] || 0) + 1;
+
+                // For line chart - map to numeric value
+                if (MOOD_VALUES[log.symptoms.mood as keyof typeof MOOD_VALUES] !== undefined) {
+                    moodTimelineData.push({
+                        date: log.date,
+                        value: MOOD_VALUES[log.symptoms.mood as keyof typeof MOOD_VALUES],
+                        label: formattedDate,
+                        dataPointText: formatLabel(log.symptoms.mood),
+                        color: MOOD_COLORS[log.symptoms.mood as keyof typeof MOOD_COLORS] || theme.colours.primary
+                    });
+                }
             }
 
+            // Process energy data
             if (log.symptoms.energy) {
+                // For pie chart
                 energyCounts[log.symptoms.energy] = (energyCounts[log.symptoms.energy] || 0) + 1;
+
+                // For line chart
+                if (ENERGY_VALUES[log.symptoms.energy as keyof typeof ENERGY_VALUES] !== undefined) {
+                    energyTimelineData.push({
+                        date: log.date,
+                        value: ENERGY_VALUES[log.symptoms.energy as keyof typeof ENERGY_VALUES],
+                        label: formattedDate,
+                        dataPointText: formatLabel(log.symptoms.energy),
+                        color: ENERGY_COLORS[log.symptoms.energy as keyof typeof ENERGY_COLORS] || theme.colours.primary
+                    });
+                }
             }
 
+            // Process pain data
             if (log.symptoms.pain) {
                 painCounts[log.symptoms.pain] = (painCounts[log.symptoms.pain] || 0) + 1;
             }
+
+            // Process temperature data
+            if (log.symptoms.temperature) {
+                tempData.push({
+                    date: log.date,
+                    value: parseFloat(log.symptoms.temperature),
+                    label: formattedDate,
+                    dataPointText: log.symptoms.temperature,
+                });
+            }
         });
 
+        // Create pie chart data
         const moodChartData: ChartData[] = Object.entries(moodCounts).map(([mood, count]) => {
-            const color = getMoodColor(mood);
             return {
                 value: count,
                 label: formatLabel(mood),
-                frontColor: color,
+                color: MOOD_COLORS[mood as keyof typeof MOOD_COLORS] || theme.colours.primary,
             };
         });
 
         const energyChartData: ChartData[] = Object.entries(energyCounts).map(([energy, count]) => {
-            const color = getEnergyColor(energy);
             return {
                 value: count,
                 label: formatLabel(energy),
-                frontColor: color,
+                color: ENERGY_COLORS[energy as keyof typeof ENERGY_COLORS] || theme.colours.primary,
             };
         });
 
         const painChartData: ChartData[] = Object.entries(painCounts).map(([pain, count]) => {
-            const color = getPainColor(pain);
             return {
                 value: count,
                 label: formatLabel(pain),
-                frontColor: color,
+                color: PAIN_COLORS[pain as keyof typeof PAIN_COLORS] || theme.colours.blue20,
             };
         });
 
-        const tempData = logs
-            .filter(log => log.symptoms.temperature)
-            .map(log => ({
-                date: log.date,
-                value: parseFloat(log.symptoms.temperature),
-                label: moment(log.date).format('MMM DD'),
-                dataPointText: log.symptoms.temperature,
-            }))
-            .sort((a, b) => moment(a.date).diff(moment(b.date)));
+        // Sort temperature and timeline data chronologically
+        const sortedTempData = tempData.sort((a, b) => moment(a.date).diff(moment(b.date)));
 
+        // Set state with processed data
         setMoodData(moodChartData);
         setEnergyData(energyChartData);
         setPainData(painChartData);
-        setLineChartData(tempData);
+        setTemperatureData(sortedTempData);
+        setMoodLineData(moodTimelineData);
+        setEnergyLineData(energyTimelineData);
     };
 
     const formatLabel = (label: string): string => {
@@ -187,40 +268,6 @@ const SymptomReportScreen = () => {
             .split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
-    };
-
-    const getMoodColor = (mood: string): string => {
-        const colors: Record<string, string> = {
-            excellent: '#4CAF50',
-            happy: '#8BC34A',
-            average: '#FFEB3B',
-            blank: '#9E9E9E',
-            'fed-up': '#FF9800',
-            sad: '#FF5722',
-            upset: '#F44336',
-            angry: '#D32F2F',
-        };
-        return colors[mood] || theme.colours.primary;
-    };
-
-    const getEnergyColor = (energy: string): string => {
-        const colors: Record<string, string> = {
-            exhausted: '#F44336',
-            tired: '#FF9800',
-            ok: '#FFEB3B',
-            energetic: '#4CAF50',
-        };
-        return colors[energy] || theme.colours.primary;
-    };
-
-    const getPainColor = (pain: string): string => {
-        const colors: Record<string, string> = {
-            'pain-free': '#4CAF50',
-            headache: '#F44336',
-            stomach: '#FF9800',
-            joint: '#9C27B0',
-        };
-        return colors[pain] || theme.colours.blue20;
     };
 
     return (
@@ -380,7 +427,7 @@ const SymptomReportScreen = () => {
                                     </Text>
                                 </View>
 
-                                {/* Mood chart section */}
+                                {/* Mood Distribution Pie Chart */}
                                 {moodData.length > 0 && (
                                     <View style={styles.chartSection}>
                                         <Text style={styles.chartTitle}>Mood Distribution</Text>
@@ -404,7 +451,7 @@ const SymptomReportScreen = () => {
                                                     <View
                                                         style={[
                                                             styles.legendColor,
-                                                            { backgroundColor: item.frontColor }
+                                                            { backgroundColor: item.color }
                                                         ]}
                                                     />
                                                     <Text style={styles.legendText}>
@@ -416,7 +463,39 @@ const SymptomReportScreen = () => {
                                     </View>
                                 )}
 
-                                {/* Energy chart section */}
+                                {/* Mood Line Chart */}
+                                {moodLineData.length > 0 && (
+                                    <View style={styles.chartSection}>
+                                        <Text style={styles.chartTitle}>Mood Over Time</Text>
+                                        <View style={[styles.chartContainer, { paddingHorizontal: 0 }]}>
+                                            <LineChart
+                                                data={moodLineData}
+                                                width={Platform.OS === 'ios' ? 370 : 330}
+                                                height={220}
+                                                spacing={45}
+                                                thickness={3}
+                                                hideRules
+                                                xAxisLabelTextStyle={styles.chartAxisText}
+                                                yAxisTextStyle={styles.chartAxisText}
+                                                hideDataPoints
+                                                yAxisLabelTexts={[' ', 'Angry', 'Upset', 'Sad', 'Fed up', 'Blank', 'Average', 'Happy', 'Excellent', " "]}
+                                                yAxisLabelWidth={50}
+                                                dataPointsHeight={20}
+                                                dataPointsWidth={20}
+                                                dataPointsRadius={4}
+                                                showDataPointLabelOnFocus
+                                                noOfSections={4}
+                                                maxValue={4}
+                                                initialSpacing={20}
+                                                endSpacing={30}
+                                                color={theme.colours.primary}
+                                                dataPointsColor={theme.colours.primary}
+                                            />
+                                        </View>
+                                    </View>
+                                )}
+
+                                {/* Energy Distribution Pie Chart */}
                                 {energyData.length > 0 && (
                                     <View style={styles.chartSection}>
                                         <Text style={styles.chartTitle}>Energy Levels</Text>
@@ -440,7 +519,7 @@ const SymptomReportScreen = () => {
                                                     <View
                                                         style={[
                                                             styles.legendColor,
-                                                            { backgroundColor: item.frontColor }
+                                                            { backgroundColor: item.color }
                                                         ]}
                                                     />
                                                     <Text style={styles.legendText}>
@@ -448,6 +527,56 @@ const SymptomReportScreen = () => {
                                                     </Text>
                                                 </View>
                                             ))}
+                                        </View>
+                                    </View>
+                                )}
+
+                                {/* Energy Line Chart */}
+                                {energyLineData.length > 0 && (
+                                    <View style={styles.chartSection}>
+                                        <Text style={styles.chartTitle}>Energy Over Time</Text>
+                                        <View style={[styles.chartContainer, { paddingHorizontal: 0 }]}>
+                                            <LineChart
+                                                data={energyLineData}
+                                                width={Platform.OS === 'ios' ? 370 : 330}
+                                                height={220}
+                                                spacing={45}
+                                                thickness={3}
+                                                hideRules
+                                                xAxisLabelTextStyle={styles.chartAxisText}
+                                                yAxisTextStyle={styles.chartAxisText}
+                                                showFractionalValues
+                                                dataPointsHeight={20}
+                                                dataPointsWidth={20}
+                                                dataPointLabelComponent={() => (null)}
+                                                dataPointsRadius={4}
+                                                showDataPointLabelOnFocus
+                                                noOfSections={3}
+                                                yAxisLabelTexts={['Exhausted', 'Tired', 'Ok', 'Energetic']}
+                                                yAxisLabelWidth={60}
+                                                maxValue={3}
+                                                initialSpacing={20}
+                                                endSpacing={30}
+                                                color={theme.colours.success}
+                                            />
+                                        </View>
+                                        <View style={styles.energyLegendContainer}>
+                                            <Text style={styles.legendTitle}>Energy Values:</Text>
+                                            <View style={styles.compactLegend}>
+                                                {Object.entries(ENERGY_VALUES).map(([energy, value], index) => (
+                                                    <View key={index} style={styles.energyLegendItem}>
+                                                        <View
+                                                            style={[
+                                                                styles.legendColor,
+                                                                { backgroundColor: ENERGY_COLORS[energy as keyof typeof ENERGY_COLORS] }
+                                                            ]}
+                                                        />
+                                                        <Text style={styles.legendText}>
+                                                            {formatLabel(energy)}: {value}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                            </View>
                                         </View>
                                     </View>
                                 )}
@@ -476,7 +605,7 @@ const SymptomReportScreen = () => {
                                                     <View
                                                         style={[
                                                             styles.legendColor,
-                                                            { backgroundColor: item.frontColor }
+                                                            { backgroundColor: item.color }
                                                         ]}
                                                     />
                                                     <Text style={styles.legendText}>
@@ -488,13 +617,13 @@ const SymptomReportScreen = () => {
                                     </View>
                                 )}
 
-                                {/* Temperature chart section */}
-                                {lineChartData.length > 0 && (
+                                {/* Temperature chart section - with fixed min/max values */}
+                                {temperatureData.length > 0 && (
                                     <View style={styles.chartSection}>
                                         <Text style={styles.chartTitle}>Temperature Over Time</Text>
                                         <View style={[styles.chartContainer, { paddingHorizontal: 0 }]}>
                                             <LineChart
-                                                data={lineChartData}
+                                                data={temperatureData}
                                                 width={Platform.OS === 'ios' ? 370 : 330}
                                                 height={220}
                                                 spacing={45}
@@ -509,7 +638,11 @@ const SymptomReportScreen = () => {
                                                 dataPointsWidth={20}
                                                 dataPointsColor={theme.colours.primary}
                                                 dataPointsRadius={4}
-                                                noOfSections={5}
+                                                noOfSections={6}
+                                                maxValue={45}
+                                                initialSpacing={20}
+                                                endSpacing={30}
+                                                textShiftX={10}
                                                 areaChart
                                                 startFillColor={theme.colours.blue20}
                                                 endFillColor={theme.colours.background}
@@ -534,10 +667,10 @@ const SymptomReportScreen = () => {
                                             barBorderRadius={4}
                                             frontColor={theme.colours.primary}
                                             data={[
-                                                { value: moodData.length, label: 'Mood', frontColor: theme.colours.primary },
-                                                { value: energyData.length, label: 'Energy', frontColor: theme.colours.success },
-                                                { value: painData.length, label: 'Pain', frontColor: theme.colours.blue20 },
-                                                { value: lineChartData.length, label: 'Temp', frontColor: theme.colours.danger }
+                                                { value: moodData.length, label: 'Mood', frontColor: MOOD_COLORS.average },
+                                                { value: energyData.length, label: 'Energy', frontColor: ENERGY_COLORS.ok },
+                                                { value: painData.length, label: 'Pain', frontColor: PAIN_COLORS.headache },
+                                                { value: temperatureData.length, label: 'Temp', frontColor: theme.colours.blue20 }
                                             ]}
                                             yAxisTextStyle={styles.chartAxisText}
                                             xAxisLabelTextStyle={styles.chartAxisText}
@@ -547,11 +680,11 @@ const SymptomReportScreen = () => {
                                     </View>
                                 </View>
 
-                                {/* Share/Export Button */}
+                                {/* Share/Export Button
                                 <TouchableOpacity style={styles.shareButton}>
                                     <FontAwesome5 name="share-alt" size={16} color={theme.colours.white} style={styles.shareIcon} />
                                     <Text style={styles.shareButtonText}>Share Report</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </>
                         )}
                     </>
@@ -712,6 +845,7 @@ const styles = StyleSheet.create({
     chartContainer: {
         alignItems: 'center',
         paddingVertical: 10,
+        overflow: 'hidden',
     },
     centerLabel: {
         fontSize: normaliseSize(16),
@@ -761,6 +895,75 @@ const styles = StyleSheet.create({
         fontFamily: theme.fonts.openSans.semiBold,
         color: theme.colours.white,
     },
+    moodLegendContainer: {
+        marginTop: 15,
+        paddingHorizontal: 10,
+    },
+    energyLegendContainer: {
+        marginTop: 15,
+        paddingHorizontal: 10,
+    },
+    legendTitle: {
+        fontSize: normaliseSize(14),
+        fontFamily: theme.fonts.openSans.semiBold,
+        color: theme.colours.textPrimary,
+        marginBottom: 8,
+    },
+    compactLegend: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    moodLegendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 6,
+        width: '48%',
+    },
+    energyLegendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 6,
+        width: '48%',
+    },
+    tempInfoContainer: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: theme.colours.background,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    tempInfoText: {
+        fontSize: normaliseSize(12),
+        fontFamily: theme.fonts.openSans.regular,
+        color: theme.colours.textSecondary,
+    },
+    insightsSection: {
+        backgroundColor: theme.colours.blue80,
+        borderRadius: 10,
+        marginBottom: 20,
+        padding: 16,
+        shadowColor: theme.colours.blue0,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    insightsContent: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+    insightIcon: {
+        marginRight: 10,
+        marginTop: 2,
+    },
+    insightText: {
+        flex: 1,
+        fontSize: normaliseSize(14),
+        fontFamily: theme.fonts.openSans.regular,
+        color: theme.colours.white,
+        lineHeight: 20,
+    }
 });
 
 export default SymptomReportScreen;
