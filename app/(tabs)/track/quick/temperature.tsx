@@ -1,3 +1,4 @@
+// TODO fix save button padding
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Animated, TextInput, Keyboard, KeyboardAvoidingView, ScrollView, Alert } from 'react-native';

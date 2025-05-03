@@ -46,7 +46,7 @@ const NavBar = () => {
                 styles.navContent,
                 Platform.OS === 'ios'
                     ? { paddingBottom: insets.bottom-10, height: 50 + insets.bottom }
-                    : null
+                    : { paddingBottom: 10, height: 70 + insets.bottom },
             ]}>
                 <TouchableOpacity
                     style={styles.navItem}
@@ -73,7 +73,7 @@ const NavBar = () => {
                     />
                     <Text style={styles.navText} allowFontScaling={false}>Schedule</Text>
                 </TouchableOpacity>
-                <View style={[styles.trackCircle, {marginBottom: 25}]}>
+                <View style={[styles.trackCircle, {marginBottom: 25+insets.bottom}]}>
                     <TouchableOpacity
                         style={styles.trackButton}
                         onPress={() => {
