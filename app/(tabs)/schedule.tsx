@@ -348,9 +348,21 @@ const ScheduleScreen = () => {
     const getAppointmentColour = (type: string) => {
         switch (type) {
             case "Medication":
-                return theme.colours.primary;
+                return theme.colours.accentOrange;
             case "Appointment":
                 return theme.colours.blue80;
+            case "Medication Log":
+                return "#9c27b0";
+            case "Check-up":
+                return "#2196f3";
+            case "Consultation":
+                return "#4caf50";
+            case "Surgery":
+                return "#00bcd4";
+            case "Test":
+                return "#3f51b5";
+            case "Treatment":
+                return "6739b7";
             default:
                 return theme.colours.buttonBlue;
         }
