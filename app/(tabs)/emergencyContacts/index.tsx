@@ -81,7 +81,7 @@ export default function EmergencyContactsScreen() {
                     <Text style={styles.contactDescription}>{item.description}</Text>
                 </View>
                 <View style={styles.callIconContainer}>
-                    <Ionicons name="call" size={24} color={theme.colours.primary} />
+                    <Ionicons name="call" size={24} color={theme.colours.accentOrange} />
                 </View>
             </TouchableOpacity>
         </View>
@@ -93,7 +93,7 @@ export default function EmergencyContactsScreen() {
                 title='Emergency Contacts'
                 subtitle='Tap a contact to call'
                 leftButtonType='close'
-                colour={theme.colours.primary}
+                colour={theme.colours.accentOrange}
             />
 
             <FlatList

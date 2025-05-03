@@ -1,19 +1,26 @@
 export const theme = {
     colours: {
-        // Existing colors
         buttonBlue: "#3D5A80",
         blue0: "#293241",
         blue20: "#3D5A80",
         blue50: "#255EAA",
         blue80: "#98C1D9",
         blue99: "#E0FBFC",
-        paleBlue: "a0c4ff",
-        primary: "#EE6C4D",
+        paleBlue: "#a0c4ff",
+
+        primary: "#6495ED",
+        primaryLight75: "#83AAEF",
+        primaryLight50: "#A2BFF2",
+        primaryLight25: "#C1D4F6",
+
+        // Keep orange as attention color
+        accentOrange: "#EE6C4D",
+        accentOrangeLight75: "#F1876C",
+        accentOrangeLight50: "#F5A18D",
+        accentOrangeLight25: "#FACCC1",
+
         blueGray: "#c7e7e8",
         darkBlueGray: "#5b697a",
-        primaryLight75: "#F1876C",
-        primaryLight50: "#F5A18D",
-        primaryLight25: "#FACCC1",
         white: "#FFFFFF",
         black: "#000000",
         lightGray: "#B2BEB5",
@@ -34,10 +41,10 @@ export const theme = {
         successLight: "#E8F5E9", // Light background for success
         warning: "#FF9800",      // Orange for warnings
         warningLight: "#FFF3E0", // Light background for warnings
-        danger: "#EE6C4D",        // Using primary for danger buttons
-        darkDanger: "#8B0000", // Dark red for critical errors
-        error: "#EE6C4D",        // Using primary for errors/alerts
-        errorLight: "#FACCC1",   // Using primaryLight25 for error backgrounds
+        danger: "#EE6C4D",       // Using accent orange for danger buttons
+        darkDanger: "#8B0000",   // Dark red for critical errors
+        error: "#EE6C4D",        // Using accent orange for errors/alerts
+        errorLight: "#FACCC1",   // Using accentOrangeLight25 for error backgrounds
         purple: "#5D3FD3",
 
         // Surface and text colors
@@ -55,16 +62,16 @@ export const theme = {
 
         // Calendar and chart colors
         calendar: {
-            today: "#EE6C4D",     // Primary for today's date
+            today: "#6495ED",     // Primary for today's date
             selected: "#3D5A80",  // Blue20 for selected date
             appointment: "#98C1D9", // Blue80 for appointment indicators
         },
 
         chart: {
-            line1: "#3D5A80",     // Blue20
-            line2: "#EE6C4D",     // Primary
+            line1: "#6495ED",     // Primary
+            line2: "#EE6C4D",     // Accent Orange
             line3: "#98C1D9",     // Blue80
-            line4: "#F5A18D",     // PrimaryLight50
+            line4: "#F5A18D",     // AccentOrangeLight50
             line5: "#255EAA",     // Blue50
         }
     },

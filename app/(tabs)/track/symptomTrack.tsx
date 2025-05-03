@@ -377,7 +377,7 @@ const SymptomTrackingScreen = () => {
                             label="Excellent"
                             selected={selectedSymptoms['mood'] === 'excellent'}
                             onPress={() => toggleSymptom('mood', 'excellent')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -385,7 +385,7 @@ const SymptomTrackingScreen = () => {
                             label="Happy"
                             selected={selectedSymptoms['mood'] === 'happy'}
                             onPress={() => toggleSymptom('mood', 'happy')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -393,7 +393,7 @@ const SymptomTrackingScreen = () => {
                             label="Average"
                             selected={selectedSymptoms['mood'] === 'average'}
                             onPress={() => toggleSymptom('mood', 'average')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -401,7 +401,7 @@ const SymptomTrackingScreen = () => {
                             label="No feelings"
                             selected={selectedSymptoms['mood'] === 'blank'}
                             onPress={() => toggleSymptom('mood', 'blank')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -409,7 +409,7 @@ const SymptomTrackingScreen = () => {
                             label="Fed up"
                             selected={selectedSymptoms['mood'] === 'fed-up'}
                             onPress={() => toggleSymptom('mood', 'fed-up')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -417,7 +417,7 @@ const SymptomTrackingScreen = () => {
                             label="Sad"
                             selected={selectedSymptoms['mood'] === 'sad'}
                             onPress={() => toggleSymptom('mood', 'sad')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -425,7 +425,7 @@ const SymptomTrackingScreen = () => {
                             label="Upset"
                             selected={selectedSymptoms['mood'] === 'upset'}
                             onPress={() => toggleSymptom('mood', 'upset')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="FontAwesome5"
@@ -433,7 +433,7 @@ const SymptomTrackingScreen = () => {
                             label="Angry"
                             selected={selectedSymptoms['mood'] === 'angry'}
                             onPress={() => toggleSymptom('mood', 'angry')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                     </ScrollView>
 
@@ -535,7 +535,7 @@ const SymptomTrackingScreen = () => {
                             label="Exhausted"
                             selected={selectedSymptoms['energy'] === 'exhausted'}
                             onPress={() => toggleSymptom('energy', 'exhausted')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -543,7 +543,7 @@ const SymptomTrackingScreen = () => {
                             label="Tired"
                             selected={selectedSymptoms['energy'] === 'tired'}
                             onPress={() => toggleSymptom('energy', 'tired')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -551,7 +551,7 @@ const SymptomTrackingScreen = () => {
                             label="Ok"
                             selected={selectedSymptoms['energy'] === 'ok'}
                             onPress={() => toggleSymptom('energy', 'ok')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -559,7 +559,7 @@ const SymptomTrackingScreen = () => {
                             label="Energetic"
                             selected={selectedSymptoms['energy'] === 'energetic'}
                             onPress={() => toggleSymptom('energy', 'energetic')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                     </ScrollView>
 
@@ -619,7 +619,7 @@ const SymptomTrackingScreen = () => {
                             label="Normal"
                             selected={selectedSymptoms['skin'] === 'normal'}
                             onPress={() => toggleSymptom('skin', 'normal')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -627,7 +627,7 @@ const SymptomTrackingScreen = () => {
                             label="Rash"
                             selected={selectedSymptoms['skin'] === 'rash'}
                             onPress={() => toggleSymptom('skin', 'rash')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -635,7 +635,7 @@ const SymptomTrackingScreen = () => {
                             label="Dry"
                             selected={selectedSymptoms['skin'] === 'dry'}
                             onPress={() => toggleSymptom('skin', 'dry')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                         <SymptomOption
                             iconFamily="MaterialCommunityIcons"
@@ -643,7 +643,7 @@ const SymptomTrackingScreen = () => {
                             label="Discoloration"
                             selected={selectedSymptoms['skin'] === 'discoloration'}
                             onPress={() => toggleSymptom('skin', 'discoloration')}
-                            color={theme.colours.primary}
+                            color={theme.colours.accentOrange}
                         />
                     </ScrollView>
 
@@ -969,7 +969,7 @@ const styles = StyleSheet.create({
         fontSize: normaliseSize(14),
     },
     warningMessageContainer: {
-        backgroundColor: theme.colours.primaryLight25,
+        backgroundColor: theme.colours.accentOrangeLight25,
         borderRadius: 8,
         padding: 15,
         marginHorizontal: 15,
@@ -977,7 +977,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: theme.colours.primaryLight50,
+        borderColor: theme.colours.accentOrangeLight50,
     },
     warningMessageText: {
         fontFamily: theme.fonts.openSans.regular,

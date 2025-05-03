@@ -1,5 +1,4 @@
 // TODO larger modal buttons, clearer edit button?
-// TODO start and end date label above the pickers
 
 import React, { useState, useEffect, useRef } from 'react';
 import { normaliseSize } from '@/utils/normaliseSize';
@@ -365,8 +364,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             return (
                 <>
                     {/* Start date/time section */}
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.timeSectionLabel} allowFontScaling={false}>Starts</Text>
+                    </View>
                     <View style={[styles.timeRow, getReadonlyStyle()]}>
-                        <Text style={styles.timeLabel} allowFontScaling={false}>Starts</Text>
                         <View style={styles.dateTimeContainer}>
                             {/* Start date button */}
                             <View style={[styles.datePickerWrapper, getReadonlyStyle()]}>
@@ -403,8 +404,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     <View style={styles.innerDivider} />
 
                     {/* End date/time section */}
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.timeSectionLabel}>Ends</Text>
+                    </View>
                     <View style={[styles.timeRow, getReadonlyStyle()]}>
-                        <Text style={styles.timeLabel}>Ends</Text>
                         <View style={styles.dateTimeContainer}>
                             {/* End date button */}
                             <View style={[styles.datePickerWrapper, getReadonlyStyle()]}>
@@ -466,8 +469,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             return (
                 <>
                     {/* Start date/time section */}
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.timeSectionLabel}>Starts</Text>
+                    </View>
                     <View style={[styles.timeRow, getReadonlyStyle()]}>
-                        <Text style={styles.timeLabel}>Starts</Text>
                         <View style={styles.dateTimeContainer}>
                             {/* Start date button/display */}
                             {!readonly ? (
@@ -510,8 +515,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     <View style={styles.innerDivider} />
 
                     {/* End date/time section */}
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.timeSectionLabel}>Ends</Text>
+                    </View>
                     <View style={[styles.timeRow, getReadonlyStyle()]}>
-                        <Text style={styles.timeLabel}>Ends</Text>
                         <View style={styles.dateTimeContainer}>
                             {/* End date button/display */}
                             {!readonly ? (
@@ -842,8 +849,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
-        paddingVertical: 12,
+        paddingBottom: 12,
+        paddingTop: 6,
     },
+    labelContainer: {
+        paddingHorizontal: 10,
+        paddingTop: 12,
+        paddingBottom: 0,
+    },
+    timeSectionLabel: {
+        fontFamily: theme.fonts.ubuntu.bold,
+        fontSize: normaliseSize(18),
+        color: theme.colours.textPrimary,
+    },
+
     timeLabel: {
         fontFamily: theme.fonts.ubuntu.bold,
         fontSize: normaliseSize(18),
@@ -1011,7 +1030,7 @@ const styles = StyleSheet.create({
         color: theme.colours.textSecondary,
     },
     deleteButton: {
-        backgroundColor: theme.colours.primary,
+        backgroundColor: theme.colours.danger,
         marginHorizontal: 10,
         marginBottom: 20,
         paddingVertical: 12,

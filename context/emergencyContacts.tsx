@@ -33,10 +33,10 @@ const defaultContacts: EmergencyContact[] = [
         description: 'Ambulance, Police, Fire',
         style: {
             contactCard: {
-                backgroundColor: theme.colours.primaryLight25,
+                backgroundColor: theme.colours.accentOrangeLight25,
             },
             name: {
-                color: theme.colours.primary,
+                color: theme.colours.accentOrange,
             },
         },
     },
