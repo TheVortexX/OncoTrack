@@ -527,7 +527,7 @@ const ChatScreen = () => {
                 </View>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding': undefined}
-                    style={[styles.avoidContainer, {height: 35}, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
+                    style={[styles.avoidContainer, {height: 55}, Platform.OS === 'android' &&  isKeyboardVisible && { marginBottom: -85} ]}
                     keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
                 />
 
